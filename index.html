@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#460E0D">
+<meta name="theme-color" content="#FFFFFF">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>YA! VOLVERÁS...</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23460E0D'/%3E%3Ccircle cx='32' cy='32' r='16' fill='%23F9B40F'/%3E%3Cpath d='M23 33l6 6 12-13' stroke='%23460E0D' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230A5BD3'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Arial Black,Arial' font-weight='900' font-size='30' fill='white'%3EYA!%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800;900&family=Anton&display=swap">
 <style>
@@ -106,7 +106,7 @@ body.lobby .skeleton{background:linear-gradient(90deg,#F5F5F7,#ECECEF,#F5F5F7);b
 body.lobby .nav{background:#fff;border-top:1px solid var(--lb-border)}body.lobby .nav button{color:var(--lb-ink3)}body.lobby .nav button.on{color:var(--lb-az)}
 @media (hover:hover) and (pointer:fine){body.lobby .btn:hover{background:#0848A8}body.lobby .btn.ghost:hover,body.lobby .btn.danger:hover{background:var(--lb-bg2)}}
 .yv{display:inline-flex;flex-direction:column;align-items:flex-start;font-family:'Anton',sans-serif;line-height:.88;letter-spacing:.01em;white-space:nowrap;color:#0A5BD3;text-shadow:1px 1px 0 #063A8A,2px 2px 0 #063A8A,3px 3px 0 #063A8A,4px 4px 0 #063A8A}
-.yv .ya{font-size:48px}.yv .vo{font-size:21px;letter-spacing:.09em}
+.yv .ya{font-size:62px}.yv .vo{font-size:27px;letter-spacing:.09em}
 .yv.sm{text-shadow:1px 1px 0 #063A8A,2px 2px 0 #063A8A}.yv.sm .ya{font-size:26px}.yv.sm .vo{font-size:11.5px;letter-spacing:.09em}
 .yv.w{color:#fff;text-shadow:1px 1px 0 #041F4D,2px 2px 0 #041F4D,3px 3px 0 #041F4D}
 .yv.row{flex-direction:row;align-items:baseline;gap:.3em}.yv.row .vo{font-size:inherit;letter-spacing:.03em}
@@ -134,7 +134,7 @@ const $ = (s, r=document) => r.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const soles = n => 'S/ ' + Number(n||0).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fecha = d => new Date(d).toLocaleDateString('es-PE',{day:'2-digit',month:'short'});
-const fechaHora = d => new Date(d).toLocaleString('es-PE',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+const fechaHora = d => new Date(d).toLocaleString('es-PE',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hour12:false}).replace(',','');
 const ini = n => (n||'?').trim().charAt(0).toUpperCase();
 const store = { get:k=>{try{return localStorage.getItem(k)}catch{return null}}, set:(k,v)=>{try{localStorage.setItem(k,v)}catch{}} };
 const rpc = async (fn, args={}) => { const {data,error} = await sb.rpc(fn, args); if (error) throw new Error(limpiaError(error.message)); return data; };
@@ -299,7 +299,7 @@ async function vistaMaestro(){
     try{ const d=await rpc('panel_maestro'); if(!d) throw new Error('No tienes permiso.');
       $('#k').innerHTML=[['Negocios activos',d.totales.activos],['Suspendidos',d.totales.suspendidos],['Clientes en total',d.totales.clientes],['Sellos este mes',d.totales.sellos_mes]].map(([l,v])=>`<div class="kpi"><div class="n">${v}</div><div class="l">${l}</div></div>`).join('');
       const libres=d.codigos.filter(c=>!c.usado&&c.activo), usados=d.codigos.filter(c=>c.usado);
-      $('#cods').innerHTML = (libres.map(c=>`<div class="item"><div class="grow"><div class="t" style="letter-spacing:.12em;font-family:Anton,sans-serif;font-weight:400;font-size:18px;color:var(--lb-az)">${c.codigo}</div><div class="s">creado ${fecha(c.creado_en)}${c.nota?' · '+esc(c.nota):''}</div></div><button class="btn sm ghost" data-copy="${c.codigo}" style="height:36px;padding:0 10px;font-size:13px">Copiar</button><a class="btn sm ghost" style="height:36px;padding:0 10px;text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(`Hola, este es tu código de acceso a YA! VOLVERÁS...: ${c.codigo}\nEntra a ${BASE_URL}, pulsa "Crear cuenta" y escribe el código.`)}"><span style="width:18px;height:18px">${icon.wa}</span></a><button class="btn sm danger" data-anular="${c.codigo}" style="height:36px;padding:0 10px;font-size:13px">Anular</button></div>`).join('')
+      $('#cods').innerHTML = (libres.map(c=>`<div class="item" style="flex-direction:column;align-items:stretch;gap:8px"><div><div class="t" style="letter-spacing:.14em;font-family:Anton,sans-serif;font-weight:400;font-size:22px;color:var(--lb-az);white-space:nowrap">${c.codigo}</div><div class="s">creado ${fecha(c.creado_en)}${c.nota?' · '+esc(c.nota):''}</div></div><div class="row" style="gap:6px"><button class="btn sm ghost" data-copy="${c.codigo}" style="height:36px;padding:0 12px;font-size:13px">Copiar</button><a class="btn sm ghost" style="height:36px;padding:0 12px;text-decoration:none;gap:6px" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(`Hola, este es tu código de acceso a YA! VOLVERÁS...: ${c.codigo}\nEntra a ${BASE_URL}, pulsa "Crear cuenta" y escribe el código.`)}"><span style="width:18px;height:18px">${icon.wa}</span>WhatsApp</a><button class="btn sm danger" data-anular="${c.codigo}" style="height:36px;padding:0 12px;font-size:13px;margin-left:auto">Anular</button></div></div>`).join('')
         + usados.slice(0,5).map(c=>`<div class="item" style="opacity:.55"><div class="grow"><div class="t" style="letter-spacing:.12em">${c.codigo}</div><div class="s">usado por ${esc(c.negocio||'—')}</div></div><span class="chip">usado</span></div>`).join('')) || '<p class="hint">Aún no hay códigos. Genera uno.</p>';
       $('#negs').innerHTML = d.negocios.length ? d.negocios.map(n=>`<div class="item" style="${n.activo?'':'opacity:.6'}">${n.logo_url?`<img src="${esc(n.logo_url)}" alt="" style="width:40px;height:40px;border-radius:10px;object-fit:cover">`:`<div class="avatar">${ini(n.nombre)}</div>`}<div class="grow"><div class="t">${esc(n.nombre)}</div><div class="s">${esc(n.correo||'')}${n.direccion?' · '+esc(n.direccion):''}</div><div class="s">${n.clientes} clientes · ${n.sellos_30d} sellos (30 d) · ${n.premios} premios · desde ${fecha(n.creado_en)}</div></div><div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><span class="chip ${n.activo?'y':''}"><span class="dot ${n.activo?'':'off'}" style="background:${n.activo?'#fff':'#C7C7CC'}"></span>${n.activo?'Activo':'Suspendido'}</span><button class="btn sm ${n.activo?'danger':''}" data-sus="${n.id}" data-act="${n.activo}" style="height:32px;padding:0 10px;font-size:12.5px">${n.activo?'Suspender':'Activar'}</button></div></div>`).join('') : '<p class="hint">Todavía no hay negocios registrados.</p>';
       document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{ try{ await navigator.clipboard.writeText(b.dataset.copy); b.textContent='Copiado'; setTimeout(()=>b.textContent='Copiar',1500);}catch{ msg('Copia el código manualmente: '+b.dataset.copy,true);} });
@@ -334,14 +334,19 @@ function render(){
   if(sinPersonal && tab==='panel'){ $('#vista').insertAdjacentHTML('afterbegin', `<div class="msg ok" style="margin-bottom:12px">Primero agrega a las personas que van a registrar (caja, mesero, encargado), cada una con su PIN.</div>`); }
 }
 
+let pinCache={id:null,pin:'',t:0}; const PIN_MIN=15;
+function pinVigente(id){ return pinCache.id===id && pinCache.pin && (Date.now()-pinCache.t) < PIN_MIN*60000 ? pinCache.pin : ''; }
 function selectorPersonal(){
   const ult = store.get('jf_personal');
   return `<div class="row">
     <div class="field grow"><label>¿Quién registra?</label><select id="quien">${panel.personal.filter(p=>p.activo).map(p=>`<option value="${p.id}" ${p.id===ult?'selected':''}>${esc(p.nombre)} · ${p.rol}</option>`).join('')}</select></div>
-    <div class="field" style="width:120px"><label for="pin">PIN</label><input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••"></div>
+    <div class="field" style="width:120px"><label for="pin">PIN</label><input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••" value="${esc(pinVigente(ult))}"></div>
   </div>`;
 }
+function enlazarPin(){ const q=$('#quien'), p=$('#pin'); if(!q||!p) return; q.onchange=()=>{ p.value=pinVigente(q.value); if(!p.value) p.focus(); }; }
 function leerPersonal(){ const q=$('#quien'); if(!q||!q.value) throw new Error('Agrega personal en el Panel antes de registrar.'); store.set('jf_personal', q.value); const pin=$('#pin').value; if(pin.length<4) throw new Error('Escribe tu PIN.'); return {p_personal_id:q.value, p_pin:pin}; }
+function recordarPin(per){ pinCache={id:per.p_personal_id, pin:per.p_pin, t:Date.now()}; }
+function olvidarPin(){ pinCache={id:null,pin:'',t:0}; }
 
 function bloqueCliente(c, est){
   return `<div class="item"><div class="avatar">${ini(c.nombre)}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">${esc(c.celular)}${est&&est.ultima_compra?` · última compra ${fecha(est.ultima_compra.fecha)} · ${soles(est.ultima_compra.monto)}`:''}</div></div>${est?`<span class="display" style="font-size:18px;color:var(--amarillo)">${est.sellos} de ${est.meta}</span>`:''}</div>`;
@@ -364,7 +369,7 @@ function vRegistrar(){
     <button class="btn" id="go">Registrar compra y sumar sello</button>
     <div id="out"></div>
   </div>`;
-  const cel=$('#cel'), res=$('#res'), nuevo=$('#nuevo'), cli=$('#cli'), m=$('#m'), out=$('#out');
+  enlazarPin(); const cel=$('#cel'), res=$('#res'), nuevo=$('#nuevo'), cli=$('#cli'), m=$('#m'), out=$('#out');
   const err = t => { m.textContent=t; m.classList.remove('hidden'); };
   let timer; clienteSel=null;
   const buscar = async () => { const q=cel.value.replace(/\D/g,''); res.innerHTML=''; nuevo.classList.add('hidden'); cli.innerHTML=''; clienteSel=null; if(q.length<3) return;
@@ -382,7 +387,7 @@ function vRegistrar(){
     try{ const per = leerPersonal();
       if(!clienteSel){ const q=cel.value.replace(/\D/g,''); if(q.length!==9) throw new Error('Escribe los 9 dígitos del celular y elige al cliente.'); const c = await rpc('buscar_o_crear_cliente',{p_nombre:$('#nom').value, p_celular:q}); clienteSel={id:c.id,nombre:c.nombre,celular:c.celular,token:c.token_tarjeta}; }
       const monto = parseFloat(String($('#monto').value).replace(',','.')); if(isNaN(monto)||monto<0) throw new Error('Escribe el monto de la compra.');
-      const r = await rpc('registrar_compra',{p_cliente_id:clienteSel.id, p_monto:monto, ...per});
+      const r = await rpc('registrar_compra',{p_cliente_id:clienteSel.id, p_monto:monto, ...per}); recordarPin(per);
       const link=`${BASE_URL}?t=${r.cliente.token}`; const wa=`https://wa.me/51${r.cliente.celular}?text=${encodeURIComponent(`Hola ${r.cliente.nombre.split(' ')[0]}, esta es tu tarjeta de sellos de ${panel.negocio.nombre}: ${link}`)}`;
       out.innerHTML = `<div class="card ${r.premio_nuevo?'yellow premio-in':'outline'}" style="margin-top:4px">
         <div class="row"><span style="width:26px;height:26px;flex-shrink:0">${icon.check}</span><div class="grow"><div class="display" style="font-size:16px">${r.sumo_sello?`Sello sumado · ${esc(r.cliente.nombre.split(' ')[0])} tiene ${r.sellos} de ${r.meta}`:`Compra registrada (no suma sello: menor a ${soles(panel.negocio.monto_minimo)})`}</div><div class="s" style="font-size:12.5px">${soles(monto)} · ${fechaHora(new Date())}</div></div></div>
@@ -390,8 +395,8 @@ function vRegistrar(){
         <div class="stamps">${stampsHTML(r.sellos,r.meta,r.sumo_sello?r.sellos:0)}</div>
         <a class="btn sm ${r.premio_nuevo?'':'ghost'}" style="text-decoration:none;${r.premio_nuevo?'background:var(--vino);color:var(--amarillo)':''}" href="${wa}" target="_blank" rel="noopener"><span style="width:20px;height:20px">${icon.wa}</span>Enviar tarjeta por WhatsApp</a>
       </div>`;
-      cel.value=''; $('#monto').value=''; $('#pin').value=''; clienteSel=null; cli.innerHTML=''; nuevo.classList.add('hidden');
-    }catch(e){ err(e.message); } b.disabled=false; };
+      cel.value=''; $('#monto').value=''; clienteSel=null; cli.innerHTML=''; nuevo.classList.add('hidden'); cel.focus();
+    }catch(e){ if(/PIN incorrecto/.test(e.message)){ olvidarPin(); $('#pin').value=''; } err(e.message); } b.disabled=false; };
 }
 
 // ----- Canjear premio -----
@@ -401,7 +406,7 @@ function vCanjear(){
     ${selectorPersonal()}
     <div class="field"><label for="q">Buscar cliente (celular o nombre)</label><div class="row"><input id="q" class="grow" placeholder="987 654 321"><button class="btn sm ghost" id="scan" aria-label="Escanear QR" style="width:50px;padding:0">${icon.scan}</button></div></div>
     <div id="res" class="list"></div><div id="det"></div><div id="m" class="msg err hidden"></div></div>`;
-  const q=$('#q'), res=$('#res'), det=$('#det'), m=$('#m'); const err=t=>{m.textContent=t;m.classList.remove('hidden')};
+  enlazarPin(); const q=$('#q'), res=$('#res'), det=$('#det'), m=$('#m'); const err=t=>{m.textContent=t;m.classList.remove('hidden')};
   let timer; q.oninput=()=>{clearTimeout(timer);timer=setTimeout(async()=>{ det.innerHTML=''; if(q.value.trim().length<2){res.innerHTML='';return;} try{ const l=await rpc('buscar_clientes',{p_q:q.value.trim()}); res.innerHTML=l.map(c=>`<button class="item" style="border:0;text-align:left;width:100%;cursor:pointer" data-id="${c.id}"><div class="avatar">${ini(c.nombre)}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">${c.celular}</div></div></button>`).join('')||'<p class="hint">Sin resultados.</p>'; res.querySelectorAll('button').forEach(b=>b.onclick=()=>detalle(b.dataset.id)); }catch(e){err(e.message)} },300)};
   $('#scan').onclick=()=>escanear(async t=>{ const tok=(t.match(/[?&]t=([a-f0-9]+)/)||[])[1]; if(!tok) return err('Ese código no es de una tarjeta.'); try{ const e=await rpc('tarjeta_por_token',{p_token:tok}); const l=await rpc('buscar_clientes',{p_q:e.cliente.nombre}); const c=l.find(x=>x.token===tok); if(!c) return err('Esa tarjeta no es de este negocio.'); detalle(c.id);}catch(e){err(e.message)} });
   async function detalle(id){ res.innerHTML=''; m.classList.add('hidden'); det.innerHTML='<div class="skeleton"></div>';
@@ -411,7 +416,7 @@ function vCanjear(){
         ${p?`<div class="card yellow" style="margin-top:8px"><span class="display" style="font-size:18px">Premio disponible</span><span style="font-weight:600">${esc(p.descripcion)}</span><span style="font-size:12.5px;font-weight:700">Otorgado el ${fecha(p.otorgado_en)} · vence el ${fecha(p.vence_en)}</span>
              <button class="btn hold" id="canje" style="background:var(--vino);color:var(--amarillo);margin-top:6px"><div class="bar"></div><span style="position:relative">Mantén presionado para canjear</span></button></div>`
           :`<div class="msg ok" style="margin-top:8px">Este cliente no tiene premio disponible todavía.</div>`}`;
-      if(p){ holdToConfirm($('#canje'), async()=>{ try{ const per=leerPersonal(); const r=await rpc('canjear_premio',{p_premio_id:p.id, ...per}); det.innerHTML=`<div class="card outline"><div class="row"><span style="width:26px;height:26px">${icon.check}</span><div class="display" style="font-size:17px">Premio entregado a ${esc(r.cliente.nombre.split(' ')[0])}</div></div><p class="sub">${esc(p.descripcion)} · ${fechaHora(new Date())}. Su tarjeta sigue en ${r.sellos} de ${r.meta}.</p></div>`; $('#pin').value=''; }catch(e){ err(e.message); } }); }
+      if(p){ holdToConfirm($('#canje'), async()=>{ try{ const per=leerPersonal(); const r=await rpc('canjear_premio',{p_premio_id:p.id, ...per}); recordarPin(per); det.innerHTML=`<div class="card outline"><div class="row"><span style="width:26px;height:26px">${icon.check}</span><div class="display" style="font-size:17px">Premio entregado a ${esc(r.cliente.nombre.split(' ')[0])}</div></div><p class="sub">${esc(p.descripcion)} · ${fechaHora(new Date())}. Su tarjeta sigue en ${r.sellos} de ${r.meta}.</p></div>`; }catch(e){ if(/PIN incorrecto/.test(e.message)){ olvidarPin(); $('#pin').value=''; } err(e.message); } }); }
     }catch(e){ det.innerHTML=''; err(e.message); } }
 }
 function holdToConfirm(btn, fn){ let t; const start=()=>{ btn.classList.add('holding'); t=setTimeout(()=>{ btn.classList.remove('holding'); fn(); },1500); }; const stop=()=>{ btn.classList.remove('holding'); clearTimeout(t); };
@@ -421,10 +426,10 @@ function holdToConfirm(btn, fn){ let t; const start=()=>{ btn.classList.add('hol
 function vHistorial(){
   $('#titulo').textContent='Historial';
   $('#vista').innerHTML=`<div class="list" id="h"><div class="skeleton"></div><div class="skeleton"></div></div>`;
-  rpc('historial',{p_limite:60}).then(l=>{ $('#h').innerHTML = l.length? l.map(c=>`<div class="item ${c.anulada?'':''}" style="${c.anulada?'opacity:.5':''}"><div class="avatar">${ini(c.cliente)}</div><div class="grow"><div class="t">${esc(c.cliente)} · ${soles(c.monto)}</div><div class="s">${fechaHora(c.creado_en)} · por ${esc(c.por)}${c.anulada?' · ANULADA':''}</div></div>${c.suma_sello&&!c.anulada?'<span class="chip y">+1 sello</span>':'<span class="chip">sin sello</span>'}${panel.es_admin&&!c.anulada?`<button class="btn sm danger" data-id="${c.id}" style="height:36px;padding:0 10px;font-size:13px">Anular</button>`:''}</div>`).join('') : '<p class="hint">Todavía no hay compras registradas.</p>';
+  rpc('historial',{p_limite:60}).then(l=>{ $('#h').innerHTML = l.length? l.map(c=>`<div class="item" style="${c.anulada?'opacity:.5':''};align-items:flex-start"><div class="avatar">${ini(c.cliente)}</div><div class="grow"><div class="row" style="justify-content:space-between;align-items:baseline"><span class="t">${esc(c.cliente)}</span><span class="display" style="font-size:17px;color:var(--amarillo);white-space:nowrap">${soles(c.monto)}</span></div><div class="s">${fechaHora(c.creado_en)} · ${esc(c.por)}${c.anulada?' · ANULADA':''}</div><div class="row" style="margin-top:6px;gap:6px">${c.suma_sello&&!c.anulada?'<span class="chip y">+1 sello</span>':'<span class="chip">sin sello</span>'}${panel.es_admin&&!c.anulada?`<button class="btn sm danger" data-id="${c.id}" style="height:30px;padding:0 10px;font-size:12.5px">Anular</button>`:''}</div></div></div>`).join('') : '<p class="hint">Todavía no hay compras registradas.</p>';
     $('#h').querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>anular(b.dataset.id)); }).catch(e=>{ $('#h').innerHTML=`<div class="msg err">${esc(e.message)}</div>`; });
   function anular(id){ const v=$('#vista'); v.insertAdjacentHTML('afterbegin',`<div class="card" id="an" style="margin-bottom:12px"><h3>Anular compra</h3>${selectorPersonal()}<div class="field"><label>Motivo</label><input id="mot" placeholder="Ej. se registró dos veces"></div><div id="m2" class="msg err hidden"></div><div class="row"><button class="btn sm" id="ok">Anular</button><button class="btn sm ghost" id="no">Cancelar</button></div></div>`);
-    $('#no').onclick=()=>$('#an').remove(); $('#ok').onclick=async()=>{ try{ const per=leerPersonal(); if(!$('#mot').value.trim()) throw new Error('Escribe el motivo.'); await rpc('anular_compra',{p_compra_id:id,p_motivo:$('#mot').value.trim(),...per}); vHistorial(); }catch(e){ const m=$('#m2'); m.textContent=e.message; m.classList.remove('hidden'); } }; }
+    enlazarPin(); $('#no').onclick=()=>$('#an').remove(); $('#ok').onclick=async()=>{ try{ const per=leerPersonal(); if(!$('#mot').value.trim()) throw new Error('Escribe el motivo.'); await rpc('anular_compra',{p_compra_id:id,p_motivo:$('#mot').value.trim(),...per}); vHistorial(); }catch(e){ const m=$('#m2'); m.textContent=e.message; m.classList.remove('hidden'); } }; }
 }
 
 // ----- Panel del encargado -----
