@@ -6,10 +6,10 @@
 <meta name="theme-color" content="#460E0D">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Jota Fideliza</title>
+<title>YA! VOLVERÁS...</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23460E0D'/%3E%3Ccircle cx='32' cy='32' r='16' fill='%23F9B40F'/%3E%3Cpath d='M23 33l6 6 12-13' stroke='%23460E0D' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800;900&family=Anton&display=swap">
 <style>
 :root{--vino:#460E0D;--vino2:#5A1A18;--vino3:#6B2A26;--amarillo:#F9B40F;--amarillo2:#FFC63A;--crema:#F3DDD5;--rosa:#C98E80;--borde:#9A4A3E;--blanco:#FFFFFF;--ok:#F9B40F;--error:#FF8A80;
 --ease-out:cubic-bezier(.23,1,.32,1);--ease-in-out:cubic-bezier(.77,0,.175,1);--ease-arrive:cubic-bezier(.16,1,.3,1);--dur:180ms}
@@ -83,6 +83,37 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 a{color:var(--amarillo)}
 .skeleton{background:linear-gradient(90deg,var(--vino2),var(--vino3),var(--vino2));background-size:200% 100%;animation:sk 1.2s linear infinite;border-radius:14px;height:60px}
 @keyframes sk{to{background-position:-200% 0}}
+
+/* ---- Lobby YA! VOLVERÁS... (blanco y azul) ---- */
+body.lobby{background:#FFFFFF;color:#0A0A0A;--lb-bg2:#F5F5F7;--lb-ink2:#3A3A3C;--lb-ink3:#6E6E73;--lb-az:#0A5BD3;--lb-deep:#063A8A;--lb-night:#041F4D;--lb-border:#EDEDF0}
+body.lobby .app{max-width:440px}
+body.lobby h1,body.lobby h2,body.lobby h3{font-family:'Nunito',sans-serif;font-weight:900;letter-spacing:-.02em;color:#0A0A0A}
+body.lobby .sub{color:var(--lb-ink2)}body.lobby .hint{color:var(--lb-ink3)}
+body.lobby label{color:var(--lb-ink2)}
+body.lobby input,body.lobby select,body.lobby textarea{background:var(--lb-bg2);border-color:transparent;color:#0A0A0A;border-radius:16px}
+body.lobby input::placeholder{color:#9A9AA0}
+body.lobby input:focus,body.lobby select:focus{border-color:var(--lb-az);background:#fff}
+body.lobby .btn{background:var(--lb-az);color:#fff;border-radius:999px;font-family:'Nunito',sans-serif;font-weight:800}
+body.lobby .btn.ghost{background:transparent;border:1.5px solid var(--lb-az);color:var(--lb-az)}
+body.lobby .btn.danger{background:transparent;border:1.5px solid var(--lb-border);color:var(--lb-ink2)}
+body.lobby .card{background:var(--lb-bg2)}body.lobby .card.white{background:#fff;border:1px solid var(--lb-border)}
+body.lobby .msg.err{background:#FFF1F0;border-color:#F5B5AE;color:#8A1C12}body.lobby .msg.ok{background:#EAF2FF;border-color:#B9D3FF;color:#063A8A}
+body.lobby .item{background:#fff;border:1px solid var(--lb-border)}body.lobby .item .s{color:var(--lb-ink3)}
+body.lobby .chip{background:var(--lb-bg2);color:var(--lb-ink2)}body.lobby .chip.y{background:var(--lb-az);color:#fff}
+body.lobby .kpi{background:#fff;border:1px solid var(--lb-border)}body.lobby .kpi .n{color:var(--lb-az)}body.lobby .kpi .l{color:var(--lb-ink3)}
+body.lobby a{color:var(--lb-az)}body.lobby .avatar{background:var(--lb-az);color:#fff}
+body.lobby .skeleton{background:linear-gradient(90deg,#F5F5F7,#ECECEF,#F5F5F7);background-size:200% 100%}
+body.lobby .nav{background:#fff;border-top:1px solid var(--lb-border)}body.lobby .nav button{color:var(--lb-ink3)}body.lobby .nav button.on{color:var(--lb-az)}
+@media (hover:hover) and (pointer:fine){body.lobby .btn:hover{background:#0848A8}body.lobby .btn.ghost:hover,body.lobby .btn.danger:hover{background:var(--lb-bg2)}}
+.yv{display:inline-flex;flex-direction:column;align-items:flex-start;font-family:'Anton',sans-serif;line-height:.88;letter-spacing:.01em;white-space:nowrap;color:#0A5BD3;text-shadow:1px 1px 0 #063A8A,2px 2px 0 #063A8A,3px 3px 0 #063A8A,4px 4px 0 #063A8A}
+.yv .ya{font-size:48px}.yv .vo{font-size:21px;letter-spacing:.09em}
+.yv.sm{text-shadow:1px 1px 0 #063A8A,2px 2px 0 #063A8A}.yv.sm .ya{font-size:26px}.yv.sm .vo{font-size:11.5px;letter-spacing:.09em}
+.yv.w{color:#fff;text-shadow:1px 1px 0 #041F4D,2px 2px 0 #041F4D,3px 3px 0 #041F4D}
+.yv.row{flex-direction:row;align-items:baseline;gap:.3em}.yv.row .vo{font-size:inherit;letter-spacing:.03em}
+.yv-foot{font-family:'Anton',sans-serif;font-size:12px;letter-spacing:.04em;white-space:nowrap}
+.tabla{width:100%;border-collapse:collapse;font-size:14px}.tabla th{text-align:left;font-weight:700;color:#6E6E73;font-size:12px;padding:8px 10px;border-bottom:1px solid #EDEDF0}.tabla td{padding:12px 10px;border-bottom:1px solid #EDEDF0;vertical-align:middle}
+.dot{display:inline-block;width:8px;height:8px;border-radius:999px;background:#1F9D55;margin-right:6px}.dot.off{background:#C7C7CC}
+
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media (hover:hover) and (pointer:fine){.btn:hover{background:var(--amarillo2)}.btn.ghost:hover,.btn.danger:hover{background:var(--vino2)}}
 </style>
@@ -119,6 +150,20 @@ const icon = {
   logout:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17l5-5-5-5M15 12H3M21 3v18"/></svg>'
 };
 
+
+const LOGO = (cls='') => `<span class="yv ${cls}" aria-label="YA! VOLVERÁS..."><span class="ya">YA!</span><span class="vo">VOLVERÁS...</span></span>`;
+const PIE = `<span class="yv-foot">YA! VOLVERÁS...</span>`;
+function hexMix(a, b, t){ const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)); const A=p(a),B=p(b); return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join(''); }
+function aplicarTema(n){
+  const p=(n&&n.color_primario)||'#460E0D', a=(n&&n.color_acento)||'#F9B40F';
+  const r=document.documentElement.style;
+  r.setProperty('--vino',p); r.setProperty('--vino2',hexMix(p,'#ffffff',.1)); r.setProperty('--vino3',hexMix(p,'#ffffff',.18));
+  r.setProperty('--borde',hexMix(p,'#ffffff',.38)); r.setProperty('--rosa',hexMix(p,'#ffffff',.6)); r.setProperty('--crema',hexMix(p,'#ffffff',.85));
+  r.setProperty('--amarillo',a); r.setProperty('--amarillo2',hexMix(a,'#ffffff',.18)); r.setProperty('--ok',a);
+  document.body.classList.remove('lobby'); const m=document.querySelector('meta[name=theme-color]'); if(m) m.content=p;
+}
+function modoLobby(){ document.body.classList.add('lobby'); const m=document.querySelector('meta[name=theme-color]'); if(m) m.content='#FFFFFF'; }
+
 // ---------- Tarjeta pública del cliente (?t=TOKEN) ----------
 const token = new URLSearchParams(location.search).get('t');
 if (token) { vistaTarjeta(token); } else { iniciarStaff(); }
@@ -134,11 +179,11 @@ async function vistaTarjeta(tok){
     renderTarjeta(e, tok);
     document.addEventListener('visibilitychange', async()=>{ if(!document.hidden){ try{ renderTarjeta(await rpc('tarjeta_por_token',{p_token:tok}), tok);}catch{} } });
   }catch(err){
-    app.innerHTML = `<div class="screen center" style="justify-content:center"><h1>Tarjeta no encontrada</h1><p class="sub">Pide en caja que te vuelvan a enviar tu link.</p></div>`;
+    modoLobby(); app.innerHTML = `<div class="screen center" style="justify-content:center"><h1>Tarjeta no encontrada</h1><p class="sub">Pide en caja que te vuelvan a enviar tu link.</p></div>`;
   }
 }
 function renderTarjeta(e, tok){
-  const n=e.negocio, link=`${BASE_URL}?t=${tok}`;
+  const n=e.negocio, link=`${BASE_URL}?t=${tok}`; aplicarTema(n);
   const premio=e.premio_disponible;
   app.innerHTML = `
   <div class="screen" style="padding-bottom:24px">
@@ -159,7 +204,7 @@ function renderTarjeta(e, tok){
         <span style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--borde)">${esc(tok.slice(0,8).toUpperCase())}</span>
       </div>
     </div>
-    <div class="row" style="justify-content:space-between;padding:0 4px"><span class="hint">${esc(n.nombre)}${n.direccion?' · '+esc(n.direccion):''}</span><span class="display" style="font-size:12px;color:var(--amarillo)">Jota Fideliza</span></div>
+    <div class="row" style="justify-content:space-between;padding:0 4px"><span class="hint">${esc(n.nombre)}${n.direccion?' · '+esc(n.direccion):''}</span><span style="color:var(--amarillo)">${PIE}</span></div>
     <p class="hint center">Guarda esta página en tu pantalla de inicio para tenerla a mano.</p>
   </div>`;
 }
@@ -174,60 +219,101 @@ async function iniciarStaff(){
 }
 async function cargarPanel(){
   try{ panel = await rpc('mi_panel'); }catch(err){ return vistaLogin(err.message); }
+  if(panel && panel.es_superadmin && (!panel.negocio || vistaForzada==='maestro')) return vistaMaestro();
   if(!panel || !panel.negocio) return vistaRegistrarNegocio();
   render();
 }
+let vistaForzada=null;
 
-function vistaLogin(msg=''){
-  app.innerHTML = `<div class="screen" style="justify-content:center;gap:18px">
-    <div class="center"><span class="eyebrow">Jota Fideliza</span><h1 style="margin-top:4px">Ingresa a tu negocio</h1></div>
-    <form id="f" class="card" style="gap:12px">
-      <div class="field"><label for="em">Correo del negocio</label><input id="em" type="email" autocomplete="username" required placeholder="caja@minegocio.com"></div>
-      <div class="field"><label for="pw">Contraseña</label><input id="pw" type="password" autocomplete="current-password" required minlength="6" placeholder="••••••••"></div>
+function vistaLogin(msg='', crear=false){
+  modoLobby(); document.title='YA! VOLVERÁS...';
+  app.innerHTML = `<div class="screen" style="justify-content:center;gap:26px;padding-bottom:40px">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:18px">${LOGO()}<h1 style="font-size:28px">${crear?'Crea tu cuenta':'Ingresa a tu negocio'}</h1></div>
+    <form id="f" style="display:flex;flex-direction:column;gap:10px">
+      <div class="field ${crear?'':'hidden'}" id="fcod"><input id="cod" autocomplete="off" placeholder="Código de acceso (YV-XXXXX)" style="text-transform:uppercase;letter-spacing:.12em;font-weight:800" value="${esc(store.get('yv_codigo')||'')}"></div>
+      <div class="field"><input id="em" type="email" autocomplete="username" required placeholder="Correo"></div>
+      <div class="field"><input id="pw" type="password" autocomplete="${crear?'new-password':'current-password'}" required minlength="6" placeholder="Contraseña"></div>
       <div id="m" class="msg err ${msg?'':'hidden'}">${esc(msg)}</div>
-      <button class="btn" type="submit">Entrar</button>
-      <button class="btn ghost" type="button" id="crear">Crear cuenta de negocio</button>
+      <button class="btn" type="submit" style="margin-top:4px">${crear?'Crear cuenta':'Entrar'}</button>
     </form>
-    <p class="hint center">Cada negocio tiene su propia cuenta. Los datos no se mezclan entre negocios.</p>
+    <p class="center" style="font-size:15px;color:var(--lb-ink2)">${crear?'¿Ya tienes cuenta? <a href="#" id="alt" style="font-weight:800;text-decoration:none">Entrar</a>':'¿Nuevo negocio? <a href="#" id="alt" style="font-weight:800;text-decoration:none">Crear cuenta</a>'}</p>
+    <p class="hint center" style="margin-top:auto">Cada negocio tiene su propia cuenta.${crear?' Pide tu código de acceso a YA! VOLVERÁS...':''}</p>
   </div>`;
   const f=$('#f'), m=$('#m');
-  const showErr = t => { m.textContent=t; m.classList.remove('hidden'); };
+  const showErr = t => { m.className='msg err'; m.textContent=t; };
+  $('#alt').onclick = ev => { ev.preventDefault(); vistaLogin('', !crear); };
   f.onsubmit = async ev => { ev.preventDefault(); m.classList.add('hidden'); const b=f.querySelector('.btn'); b.disabled=true;
-    const {error} = await sb.auth.signInWithPassword({email:$('#em').value.trim(), password:$('#pw').value});
-    b.disabled=false; if(error) return showErr(traduceAuth(error.message));
-    const {data:{session:s}} = await sb.auth.getSession(); session=s; await cargarPanel(); };
-  $('#crear').onclick = async () => { m.classList.add('hidden'); const email=$('#em').value.trim(), pass=$('#pw').value;
-    if(!email||pass.length<6) return showErr('Escribe tu correo y una contraseña de al menos 6 caracteres.');
-    const {data,error} = await sb.auth.signUp({email, password:pass});
-    if(error) return showErr(traduceAuth(error.message));
-    if(!data.session){ m.className='msg ok'; m.textContent='Cuenta creada. Revisa tu correo, confirma el enlace y luego pulsa Entrar.'; return; }
-    session=data.session; await cargarPanel(); };
+    const email=$('#em').value.trim(), pass=$('#pw').value;
+    try{
+      if(crear){
+        const cod=$('#cod').value.trim().toUpperCase(); if(!/^YV-[A-Z0-9]{5}$/.test(cod)) throw new Error('Escribe tu código de acceso (ej. YV-7K2PM).');
+        store.set('yv_codigo', cod);
+        const {data,error} = await sb.auth.signUp({email, password:pass});
+        if(error) throw new Error(traduceAuth(error.message));
+        if(!data.session){ m.className='msg ok'; m.textContent='Cuenta creada. Revisa tu correo, confirma el enlace y luego entra con tu correo y contraseña.'; b.disabled=false; return; }
+        session=data.session; await cargarPanel(); return;
+      }
+      const {error} = await sb.auth.signInWithPassword({email, password:pass});
+      if(error) throw new Error(traduceAuth(error.message));
+      const {data:{session:s}} = await sb.auth.getSession(); session=s; await cargarPanel();
+    }catch(e){ showErr(e.message); b.disabled=false; } };
 }
-function traduceAuth(m){ if(/Invalid login/i.test(m)) return 'Correo o contraseña incorrectos.'; if(/Email not confirmed/i.test(m)) return 'Confirma tu correo desde el enlace que te enviamos.'; if(/already registered/i.test(m)) return 'Ese correo ya tiene cuenta. Pulsa Entrar.'; return m; }
+function traduceAuth(m){ if(/Invalid login/i.test(m)) return 'Correo o contraseña incorrectos.'; if(/Email not confirmed/i.test(m)) return 'Confirma tu correo desde el enlace que te enviamos.'; if(/already registered/i.test(m)) return 'Ese correo ya tiene cuenta. Pulsa Entrar.'; if(/rate limit/i.test(m)) return 'Demasiados intentos. Espera un momento.'; return m; }
 
 function vistaRegistrarNegocio(){
-  app.innerHTML = `<div class="screen" style="gap:16px">
-    <div><span class="eyebrow">Paso 1 de 2</span><h1>Registra tu negocio</h1><p class="sub">Esto se hace una sola vez.</p></div>
-    <form id="f" class="card" style="gap:12px">
+  modoLobby();
+  app.innerHTML = `<div class="screen" style="gap:18px">
+    <div style="display:flex;flex-direction:column;align-items:flex-start;gap:14px">${LOGO('sm')}<div><span class="eyebrow" style="color:var(--lb-az)">Paso 1 de 2</span><h1 style="font-size:28px">Registra tu negocio</h1><p class="sub">Esto se hace una sola vez.</p></div></div>
+    <form id="f" style="display:flex;flex-direction:column;gap:12px">
+      <div class="field"><label>Código de acceso</label><input id="cod" required autocomplete="off" placeholder="YV-XXXXX" style="text-transform:uppercase;letter-spacing:.12em;font-weight:800" value="${esc(store.get('yv_codigo')||'')}"></div>
       <div class="field"><label>Nombre del negocio</label><input id="nn" required placeholder="El Chacombo"></div>
       <div class="field"><label>Premio al completar 6 sellos</label><input id="np" placeholder="6 alitas + papas nativas + 1 salsa a elección"></div>
-      <div class="field"><label>WhatsApp de pedidos (opcional)</label><input id="nw" type="tel" placeholder="934517954"></div>
-      <div class="field"><label>Dirección corta (opcional)</label><input id="nd" placeholder="San Hilarión, SJL"></div>
+      <div class="row"><div class="field grow"><label>WhatsApp (opcional)</label><input id="nw" type="tel" placeholder="934517954"></div><div class="field grow"><label>Dirección (opcional)</label><input id="nd" placeholder="San Hilarión, SJL"></div></div>
       <div id="m" class="msg err hidden"></div>
       <button class="btn" type="submit">Crear negocio</button>
       <button class="btn danger" type="button" id="salir">Salir</button>
     </form>
-    <p class="hint">Reglas iniciales: 1 sello por compra desde S/20, meta 6 sellos, el premio vence a los 7 días. Se pueden cambiar en el panel.</p>
+    <p class="hint">Reglas iniciales: 1 sello por compra desde S/20, meta 6 sellos, el premio vence a los 7 días. Se cambian en el panel.</p>
   </div>`;
   $('#salir').onclick = ()=>sb.auth.signOut();
   $('#f').onsubmit = async ev => { ev.preventDefault(); const m=$('#m'); m.classList.add('hidden');
-    try{ await rpc('registrar_mi_negocio',{p_slug:$('#nn').value, p_nombre:$('#nn').value, p_premio:$('#np').value||null, p_whatsapp:$('#nw').value||null, p_direccion:$('#nd').value||null});
-      await cargarPanel(); }catch(err){ m.textContent=err.message; m.classList.remove('hidden'); } };
+    try{ await rpc('registrar_mi_negocio',{p_codigo:$('#cod').value.trim().toUpperCase(), p_slug:$('#nn').value, p_nombre:$('#nn').value, p_premio:$('#np').value||null, p_whatsapp:$('#nw').value||null, p_direccion:$('#nd').value||null});
+      store.set('yv_codigo',''); await cargarPanel(); }catch(err){ m.textContent=err.message; m.classList.remove('hidden'); } };
+}
+
+// ----- Panel maestro (solo administrador de la plataforma) -----
+async function vistaMaestro(){
+  modoLobby(); document.title='Panel maestro · YA! VOLVERÁS...';
+  app.innerHTML = `<div class="screen" style="gap:16px;padding-bottom:40px">
+    <div class="top"><div style="display:flex;flex-direction:column;gap:8px">${LOGO('sm')}<h1 style="font-size:26px">Panel maestro</h1></div><button class="btn sm ghost" id="out">Salir</button></div>
+    <div id="mm"></div>
+    <div class="kpis" id="k"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+    <div class="card white"><div class="row" style="justify-content:space-between"><h3>Códigos de acceso</h3><button class="btn sm" id="gen">Generar código</button></div><p class="hint">Cada código sirve para registrar un solo negocio. Envíalo por WhatsApp al dueño.</p><div class="list" id="cods"></div></div>
+    <div class="card white"><h3>Negocios</h3><div class="list" id="negs"><div class="skeleton"></div></div></div>
+    ${panel.negocio?`<button class="btn ghost" id="mio">Ir a mi negocio (${esc(panel.negocio.nombre)})</button>`:''}
+  </div>`;
+  $('#out').onclick=()=>sb.auth.signOut();
+  if($('#mio')) $('#mio').onclick=()=>{ vistaForzada='negocio'; render(); };
+  const msg=(t,ok)=>{ $('#mm').innerHTML=`<div class="msg ${ok?'ok':'err'}" style="margin-bottom:4px">${esc(t)}</div>`; };
+  async function cargar(){
+    try{ const d=await rpc('panel_maestro'); if(!d) throw new Error('No tienes permiso.');
+      $('#k').innerHTML=[['Negocios activos',d.totales.activos],['Suspendidos',d.totales.suspendidos],['Clientes en total',d.totales.clientes],['Sellos este mes',d.totales.sellos_mes]].map(([l,v])=>`<div class="kpi"><div class="n">${v}</div><div class="l">${l}</div></div>`).join('');
+      const libres=d.codigos.filter(c=>!c.usado&&c.activo), usados=d.codigos.filter(c=>c.usado);
+      $('#cods').innerHTML = (libres.map(c=>`<div class="item"><div class="grow"><div class="t" style="letter-spacing:.12em;font-family:Anton,sans-serif;font-weight:400;font-size:18px;color:var(--lb-az)">${c.codigo}</div><div class="s">creado ${fecha(c.creado_en)}${c.nota?' · '+esc(c.nota):''}</div></div><button class="btn sm ghost" data-copy="${c.codigo}" style="height:36px;padding:0 10px;font-size:13px">Copiar</button><a class="btn sm ghost" style="height:36px;padding:0 10px;text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(`Hola, este es tu código de acceso a YA! VOLVERÁS...: ${c.codigo}\nEntra a ${BASE_URL}, pulsa "Crear cuenta" y escribe el código.`)}"><span style="width:18px;height:18px">${icon.wa}</span></a><button class="btn sm danger" data-anular="${c.codigo}" style="height:36px;padding:0 10px;font-size:13px">Anular</button></div>`).join('')
+        + usados.slice(0,5).map(c=>`<div class="item" style="opacity:.55"><div class="grow"><div class="t" style="letter-spacing:.12em">${c.codigo}</div><div class="s">usado por ${esc(c.negocio||'—')}</div></div><span class="chip">usado</span></div>`).join('')) || '<p class="hint">Aún no hay códigos. Genera uno.</p>';
+      $('#negs').innerHTML = d.negocios.length ? d.negocios.map(n=>`<div class="item" style="${n.activo?'':'opacity:.6'}">${n.logo_url?`<img src="${esc(n.logo_url)}" alt="" style="width:40px;height:40px;border-radius:10px;object-fit:cover">`:`<div class="avatar">${ini(n.nombre)}</div>`}<div class="grow"><div class="t">${esc(n.nombre)}</div><div class="s">${esc(n.correo||'')}${n.direccion?' · '+esc(n.direccion):''}</div><div class="s">${n.clientes} clientes · ${n.sellos_30d} sellos (30 d) · ${n.premios} premios · desde ${fecha(n.creado_en)}</div></div><div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><span class="chip ${n.activo?'y':''}"><span class="dot ${n.activo?'':'off'}" style="background:${n.activo?'#fff':'#C7C7CC'}"></span>${n.activo?'Activo':'Suspendido'}</span><button class="btn sm ${n.activo?'danger':''}" data-sus="${n.id}" data-act="${n.activo}" style="height:32px;padding:0 10px;font-size:12.5px">${n.activo?'Suspender':'Activar'}</button></div></div>`).join('') : '<p class="hint">Todavía no hay negocios registrados.</p>';
+      document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{ try{ await navigator.clipboard.writeText(b.dataset.copy); b.textContent='Copiado'; setTimeout(()=>b.textContent='Copiar',1500);}catch{ msg('Copia el código manualmente: '+b.dataset.copy,true);} });
+      document.querySelectorAll('[data-anular]').forEach(b=>b.onclick=async()=>{ try{ await rpc('anular_codigo',{p_codigo:b.dataset.anular}); cargar(); }catch(e){ msg(e.message); } });
+      document.querySelectorAll('[data-sus]').forEach(b=>b.onclick=async()=>{ const act=b.dataset.act==='true'; if(act && !confirm('¿Suspender este negocio? Su caja no podrá registrar ni canjear hasta que lo actives.')) return; try{ await rpc('suspender_negocio',{p_id:b.dataset.sus,p_activo:!act}); cargar(); }catch(e){ msg(e.message); } });
+    }catch(e){ msg(e.message); }
+  }
+  $('#gen').onclick=async()=>{ try{ const c=await rpc('generar_codigo'); msg('Código creado: '+c,true); cargar(); }catch(e){ msg(e.message); } };
+  cargar();
 }
 
 function render(){
   if(!panel) return vistaLogin();
-  const n=panel.negocio;
+  const n=panel.negocio; aplicarTema(n); document.title=n.nombre+' · YA! VOLVERÁS...';
   const sinPersonal = !panel.personal.length;
   if(sinPersonal && panel.es_admin && tab!=='panel'){ tab='panel'; }
   app.innerHTML = `<div class="screen">
@@ -345,7 +431,7 @@ function vHistorial(){
 function vPanel(){
   $('#titulo').textContent='Panel';
   const n=panel.negocio;
-  if(!panel.es_admin){ $('#vista').innerHTML=`<div class="msg ok">Solo el encargado administra el negocio.</div><button class="btn danger" id="out" style="margin-top:12px">Cerrar sesión</button>`; $('#out').onclick=()=>sb.auth.signOut(); return; }
+  if(!panel.es_admin){ $('#vista').innerHTML=`<div class="msg ok">Solo el encargado administra el negocio.</div><button class="btn danger" id="out" style="margin-top:12px">Cerrar sesión</button><p class="hint center" style="margin-top:14px">Sistema de fidelización por ${PIE}</p>`; $('#out').onclick=()=>sb.auth.signOut(); return; }
   $('#vista').innerHTML=`<div style="display:flex;flex-direction:column;gap:16px">
     <div class="kpis" id="k"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
     <div class="card"><div class="row" style="justify-content:space-between"><h3>Personal</h3><button class="btn sm ghost" id="addp">Agregar</button></div>
@@ -359,17 +445,21 @@ function vPanel(){
         <div class="field"><label>Premio</label><input id="c_premio" value="${esc(n.premio)}"></div>
         <div class="row"><div class="field grow"><label>Monto mínimo (S/)</label><input id="c_min" type="number" step="0.5" value="${n.monto_minimo}"></div><div class="field grow"><label>Meta de sellos</label><input id="c_meta" type="number" min="2" max="20" value="${n.meta_sellos}"></div><div class="field grow"><label>Premio vence (días)</label><input id="c_vig" type="number" min="1" value="${n.premio_vigencia_dias}"></div></div>
         <div class="row"><div class="field grow"><label>WhatsApp</label><input id="c_wa" value="${esc(n.whatsapp||'')}"></div><div class="field grow"><label>Dirección</label><input id="c_dir" value="${esc(n.direccion||'')}"></div></div>
+        <div class="row"><div class="field grow"><label>Color principal</label><input id="c_col1" type="color" value="${n.color_primario||'#460E0D'}" style="padding:4px;height:50px"></div><div class="field grow"><label>Color de acento</label><input id="c_col2" type="color" value="${n.color_acento||'#F9B40F'}" style="padding:4px;height:50px"></div></div>
         <div class="field"><label>Logo (imagen, máx. 200 KB)</label><input id="c_logo" type="file" accept="image/*" style="padding:10px"></div>
         <div id="mc" class="msg hidden"></div><button class="btn sm" type="submit">Guardar cambios</button></form></div>
+    ${panel.es_superadmin?'<button class="btn ghost" id="maestro">Panel maestro YA! VOLVERÁS...</button>':''}
     <button class="btn danger" id="out">Cerrar sesión</button>
+    <p class="hint center" style="opacity:.8">Sistema de fidelización por ${PIE}</p>
   </div>`;
+  if($('#maestro')) $('#maestro').onclick=()=>{ vistaForzada='maestro'; vistaMaestro(); };
   rpc('resumen_negocio').then(r=>{ $('#k').innerHTML=[['Clientes',r.clientes],['Compras (30 d)',r.compras],['Ventas (30 d)',soles(r.ventas)],['Sellos (30 d)',r.sellos],['Premios ganados',r.premios_otorgados],['Premios canjeados',r.premios_canjeados]].map(([l,v])=>`<div class="kpi"><div class="n">${v}</div><div class="l">${l}</div></div>`).join(''); }).catch(()=>{});
   $('#addp').onclick=()=>$('#fp').classList.toggle('hidden');
   $('#fp').onsubmit=async ev=>{ev.preventDefault(); try{ await rpc('guardar_personal',{p_nombre:$('#pn').value.trim(),p_rol:$('#pr').value,p_pin:$('#pp').value}); await cargarPanel(); }catch(e){ const m=$('#mp'); m.textContent=e.message; m.classList.remove('hidden'); }};
   $('#pl').querySelectorAll('button[data-id]').forEach(b=>b.onclick=async()=>{ try{ await rpc('desactivar_personal',{p_id:b.dataset.id,p_activo:b.dataset.act!=='true'}); await cargarPanel(); }catch(e){ alertMsg(e.message);} });
   let t; $('#cq').oninput=()=>{clearTimeout(t);t=setTimeout(async()=>{ const l=await rpc('buscar_clientes',{p_q:$('#cq').value}); $('#cl').innerHTML=l.map(c=>{const link=`${BASE_URL}?t=${c.token}`; return `<div class="item"><div class="avatar">${ini(c.nombre)}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">${c.celular}</div></div><a class="btn sm ghost" style="text-decoration:none;height:36px;padding:0 10px" href="https://wa.me/51${c.celular}?text=${encodeURIComponent(`Hola ${c.nombre.split(' ')[0]}, esta es tu tarjeta de sellos de ${n.nombre}: ${link}`)}" target="_blank" rel="noopener"><span style="width:18px;height:18px">${icon.wa}</span></a></div>`}).join('')||'<p class="hint">Sin resultados.</p>'; },300)};
   $('#fc').onsubmit=async ev=>{ev.preventDefault(); const m=$('#mc'); m.className='msg hidden'; try{ let logo=null; const f=$('#c_logo').files[0]; if(f){ if(f.size>200*1024) throw new Error('El logo pesa más de 200 KB; redúcelo.'); logo=await new Promise((ok,ko)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=ko;r.readAsDataURL(f);}); }
-    await rpc('actualizar_negocio',{p_nombre:$('#c_nombre').value,p_premio:$('#c_premio').value,p_monto_minimo:parseFloat($('#c_min').value),p_meta:parseInt($('#c_meta').value),p_vigencia:parseInt($('#c_vig').value),p_whatsapp:$('#c_wa').value,p_direccion:$('#c_dir').value,p_logo_url:logo});
+    await rpc('actualizar_negocio',{p_nombre:$('#c_nombre').value,p_premio:$('#c_premio').value,p_monto_minimo:parseFloat($('#c_min').value),p_meta:parseInt($('#c_meta').value),p_vigencia:parseInt($('#c_vig').value),p_whatsapp:$('#c_wa').value,p_direccion:$('#c_dir').value,p_logo_url:logo,p_color_primario:$('#c_col1').value,p_color_acento:$('#c_col2').value});
     await cargarPanel(); }catch(e){ m.className='msg err'; m.textContent=e.message; }};
   $('#out').onclick=()=>sb.auth.signOut();
 }
