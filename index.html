@@ -248,7 +248,7 @@ function vistaLogin(msg='', crear=false){
       if(crear){
         const cod=$('#cod').value.trim().toUpperCase(); if(!/^YV-[A-Z0-9]{5}$/.test(cod)) throw new Error('Escribe tu código de acceso (ej. YV-7K2PM).');
         store.set('yv_codigo', cod);
-        const {data,error} = await sb.auth.signUp({email, password:pass});
+        const {data,error} = await sb.auth.signUp({email, password:pass, options:{emailRedirectTo: BASE_URL}});
         if(error) throw new Error(traduceAuth(error.message));
         if(!data.session){ m.className='msg ok'; m.textContent='Cuenta creada. Revisa tu correo, confirma el enlace y luego entra con tu correo y contraseña.'; b.disabled=false; return; }
         session=data.session; await cargarPanel(); return;
