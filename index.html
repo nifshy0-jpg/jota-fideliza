@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#460E0D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Jota Fideliza</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23460E0D'/%3E%3Ccircle cx='32' cy='32' r='16' fill='%23F9B40F'/%3E%3Cpath d='M23 33l6 6 12-13' stroke='%23460E0D' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700&display=swap">
+<style>
+:root{--vino:#460E0D;--vino2:#5A1A18;--vino3:#6B2A26;--amarillo:#F9B40F;--amarillo2:#FFC63A;--crema:#F3DDD5;--rosa:#C98E80;--borde:#9A4A3E;--blanco:#FFFFFF;--ok:#F9B40F;--error:#FF8A80;
+--ease-out:cubic-bezier(.23,1,.32,1);--ease-in-out:cubic-bezier(.77,0,.175,1);--ease-arrive:cubic-bezier(.16,1,.3,1);--dur:180ms}
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{background:var(--vino);color:var(--blanco);font-family:'Nunito',system-ui,sans-serif;font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+h1,h2,h3,.display{font-family:'Baloo 2','Nunito',sans-serif;font-weight:800;line-height:1.05;margin:0}
+h1{font-size:30px}h2{font-size:22px}h3{font-size:18px;font-weight:700}
+p{margin:0}button,input,select,textarea{font:inherit;color:inherit}
+.app{max-width:480px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column}
+.screen{padding:24px 20px 96px;display:flex;flex-direction:column;gap:14px;flex:1}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--amarillo);text-transform:uppercase}
+.sub{font-size:14px;color:var(--crema)}
+.card{background:var(--vino2);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.card.outline{background:transparent;border:1.5px solid var(--amarillo)}
+.card.yellow{background:var(--amarillo);color:var(--vino)}
+.card.white{background:var(--blanco);color:var(--vino)}
+label{font-size:13px;font-weight:700;color:var(--crema);display:block;margin-bottom:6px}
+.field{display:flex;flex-direction:column}
+input,select,textarea{width:100%;height:50px;border:1.5px solid var(--borde);border-radius:14px;background:var(--vino2);color:#fff;padding:0 14px;font-size:17px;font-weight:600;outline:none;transition:border-color var(--dur) var(--ease-out)}
+textarea{height:auto;padding:12px 14px;min-height:80px}
+input:focus,select:focus,textarea:focus{border-color:var(--amarillo)}
+input::placeholder{color:#B07C70}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23F9B40F' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px}
+.money{display:flex;align-items:center;height:60px;border:1.5px solid var(--borde);border-radius:14px;background:var(--vino2);padding:0 16px;gap:8px}
+.money span{font-family:'Baloo 2',sans-serif;font-size:22px;font-weight:700;color:var(--rosa)}
+.money input{border:0;background:transparent;height:100%;padding:0;font-family:'Baloo 2',sans-serif;font-size:30px;font-weight:800}
+.btn{height:56px;border:0;border-radius:16px;background:var(--amarillo);color:var(--vino);font-family:'Baloo 2',sans-serif;font-size:18px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform 120ms var(--ease-out),background var(--dur) var(--ease-out);width:100%}
+.btn:active{transform:scale(.98)}.btn:disabled{opacity:.5;cursor:default}
+.btn.ghost{background:transparent;border:1.5px solid var(--amarillo);color:var(--amarillo)}
+.btn.sm{height:44px;font-size:15px;border-radius:12px;width:auto;padding:0 16px}
+.btn.danger{background:transparent;border:1.5px solid var(--borde);color:var(--crema)}
+.row{display:flex;gap:8px;align-items:center}.grow{flex:1;min-width:0}
+.hint{font-size:12.5px;color:var(--rosa)}
+.msg{border-radius:14px;padding:12px 14px;font-weight:600;font-size:14px}
+.msg.err{background:#2E0A0A;border:1.5px solid #B3473A;color:#FFD0CA}
+.msg.ok{background:var(--vino2);border:1.5px solid var(--amarillo)}
+.seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;background:var(--vino2);border-radius:14px;padding:5px}
+.seg button{height:40px;border:0;border-radius:10px;background:transparent;color:var(--crema);font-weight:700;font-size:14px;cursor:pointer;transition:background var(--dur) var(--ease-out),color var(--dur)}
+.seg button.on{background:var(--amarillo);color:var(--vino)}
+.avatar{width:40px;height:40px;border-radius:999px;background:var(--amarillo);color:var(--vino);display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:18px;flex-shrink:0}
+.stamps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.stamp{aspect-ratio:1;border-radius:999px;border:2px solid var(--borde);display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;color:var(--rosa);transition:transform 220ms var(--ease-out),background 220ms var(--ease-out),border-color 220ms var(--ease-out)}
+.stamp.on{background:var(--amarillo);border-color:var(--amarillo);color:var(--vino)}
+.stamp.new{animation:pop 320ms var(--ease-out)}
+@keyframes pop{from{transform:scale(.85);opacity:.4}to{transform:scale(1);opacity:1}}
+.premio-in{animation:arrive 600ms var(--ease-arrive)}
+@keyframes arrive{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+.nav{position:fixed;left:0;right:0;bottom:0;background:var(--vino);border-top:1px solid var(--vino2);padding:8px 0 calc(10px + env(safe-area-inset-bottom));display:flex;justify-content:center}
+.nav .in{width:100%;max-width:480px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.nav button{background:none;border:0;color:var(--rosa);font-size:11.5px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;cursor:pointer;min-height:48px}
+.nav button.on{color:var(--amarillo)}
+.nav svg{width:24px;height:24px}
+.list{display:flex;flex-direction:column;gap:8px}
+.item{background:var(--vino2);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+.item .t{font-weight:700}.item .s{font-size:12.5px;color:var(--crema)}
+.chip{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--vino3);color:var(--crema);white-space:nowrap}
+.chip.y{background:var(--amarillo);color:var(--vino)}
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.kpi{background:var(--vino2);border-radius:14px;padding:12px 14px}
+.kpi .n{font-family:'Baloo 2',sans-serif;font-size:28px;font-weight:800;color:var(--amarillo);line-height:1}
+.kpi .l{font-size:12.5px;color:var(--crema);margin-top:4px}
+.logo{max-width:180px;max-height:110px;object-fit:contain;border-radius:10px}
+.qr{width:150px;height:150px;flex-shrink:0;background:#fff;border-radius:12px;padding:6px}
+.qr svg{width:100%;height:100%;display:block}
+.hold{position:relative;overflow:hidden}
+.hold .bar{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(70,14,13,.18);transition:none}
+.hold.holding .bar{width:100%;transition:width 1.5s linear}
+.hidden{display:none !important}
+.center{text-align:center}
+a{color:var(--amarillo)}
+.skeleton{background:linear-gradient(90deg,var(--vino2),var(--vino3),var(--vino2));background-size:200% 100%;animation:sk 1.2s linear infinite;border-radius:14px;height:60px}
+@keyframes sk{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (hover:hover) and (pointer:fine){.btn:hover{background:var(--amarillo2)}.btn.ghost:hover,.btn.danger:hover{background:var(--vino2)}}
+</style>
+</head>
+<body>
+<div class="app" id="app"><div class="screen"><div class="skeleton"></div><div class="skeleton"></div></div></div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import qrcode from 'https://esm.sh/qrcode-generator@1.4.4';
+
+const SUPABASE_URL = 'https://ildmschqezgtkoeokcja.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_OX_eva6RkRAN0uqUfuZLOg_bnn8wT_k';
+const BASE_URL = location.origin + location.pathname.replace(/index\.html$/, '');
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+const app = document.getElementById('app');
+const $ = (s, r=document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const soles = n => 'S/ ' + Number(n||0).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fecha = d => new Date(d).toLocaleDateString('es-PE',{day:'2-digit',month:'short'});
+const fechaHora = d => new Date(d).toLocaleString('es-PE',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+const ini = n => (n||'?').trim().charAt(0).toUpperCase();
+const store = { get:k=>{try{return localStorage.getItem(k)}catch{return null}}, set:(k,v)=>{try{localStorage.setItem(k,v)}catch{}} };
+const rpc = async (fn, args={}) => { const {data,error} = await sb.rpc(fn, args); if (error) throw new Error(limpiaError(error.message)); return data; };
+const limpiaError = m => (m||'Error').replace(/^.*?:\s*/,'').replace(/\(SQLSTATE.*\)/,'').trim();
+const icon = {
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>',
+  gift:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v8H4v-8M2 7h20v5H2zM12 22V7M12 7c-2-3-6-3-6-1s4 1 6 1zM12 7c2-3 6-3 6-1s-4 1-6 1z"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  panel:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  scan:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/><rect x="7" y="7" width="4" height="4"/><rect x="13" y="7" width="4" height="4"/><rect x="7" y="13" width="4" height="4"/><path d="M13 13h4v4"/></svg>',
+  wa:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.9 11.9 0 0 0 4.5 4c1.7.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.2c0-.1-.2-.2-.4-.3z"/></svg>',
+  logout:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17l5-5-5-5M15 12H3M21 3v18"/></svg>'
+};
+
+// ---------- Tarjeta pública del cliente (?t=TOKEN) ----------
+const token = new URLSearchParams(location.search).get('t');
+if (token) { vistaTarjeta(token); } else { iniciarStaff(); }
+
+function qrSVG(text){ const q = qrcode(0,'M'); q.addData(text); q.make(); return q.createSvgTag({cellSize:4, margin:0, scalable:true}); }
+function stampsHTML(sellos, meta, nuevo){ let h=''; for(let i=1;i<=meta;i++){ const on=i<=sellos; h+=`<div class="stamp ${on?'on':''} ${on&&nuevo===i?'new':''}">${on?icon.check:i}</div>`; } return h; }
+function mensajeSellos(s, meta){ const f=meta-s; if(s===0) return 'Tu primera compra suma tu primer sello.'; if(f===1) return 'Te falta 1 sello para tu premio.'; if(f<=0) return 'Completaste la tarjeta.'; return `Te faltan ${f} sellos para tu premio.`; }
+
+async function vistaTarjeta(tok){
+  document.title = 'Mi tarjeta';
+  try{
+    const e = await rpc('tarjeta_por_token',{p_token:tok});
+    renderTarjeta(e, tok);
+    document.addEventListener('visibilitychange', async()=>{ if(!document.hidden){ try{ renderTarjeta(await rpc('tarjeta_por_token',{p_token:tok}), tok);}catch{} } });
+  }catch(err){
+    app.innerHTML = `<div class="screen center" style="justify-content:center"><h1>Tarjeta no encontrada</h1><p class="sub">Pide en caja que te vuelvan a enviar tu link.</p></div>`;
+  }
+}
+function renderTarjeta(e, tok){
+  const n=e.negocio, link=`${BASE_URL}?t=${tok}`;
+  const premio=e.premio_disponible;
+  app.innerHTML = `
+  <div class="screen" style="padding-bottom:24px">
+    <div class="center">${n.logo_url?`<img class="logo" src="${esc(n.logo_url)}" alt="${esc(n.nombre)}">`:`<h2>${esc(n.nombre)}</h2>`}</div>
+    <div><h1>Hola, ${esc(e.cliente.nombre.split(' ')[0])}</h1><p class="sub">Tu tarjeta de sellos</p></div>
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><h3>Tus sellos</h3><span class="display" style="font-size:22px;color:var(--amarillo)">${e.sellos} de ${e.meta}</span></div>
+      <div class="stamps">${stampsHTML(e.sellos,e.meta)}</div>
+      <p class="sub">${mensajeSellos(e.sellos,e.meta)}</p>
+    </div>
+    ${premio?`<div class="card yellow premio-in"><span class="display" style="font-size:19px">Tienes un premio listo</span><span style="font-weight:600">${esc(premio.descripcion)}</span><span style="font-size:12.5px;font-weight:700">Vence el ${fecha(premio.vence_en)} · muéstralo en caja</span></div>`
+            :`<div class="card outline" style="gap:3px"><span class="eyebrow" style="text-transform:none;letter-spacing:.02em">Tu premio al completar ${e.meta}</span><span class="display" style="font-size:17px;font-weight:700">${esc(n.premio)}</span></div>`}
+    <div class="card white" style="flex-direction:row;align-items:center;gap:14px">
+      <div class="qr">${qrSVG(link)}</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span class="display" style="font-size:17px">Muestra este código en caja</span>
+        <span style="font-size:13px;line-height:1.35;color:var(--vino3)">1 sello por cada compra desde ${soles(n.monto_minimo)}. El premio vence a los ${n.premio_vigencia_dias} días.</span>
+        <span style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--borde)">${esc(tok.slice(0,8).toUpperCase())}</span>
+      </div>
+    </div>
+    <div class="row" style="justify-content:space-between;padding:0 4px"><span class="hint">${esc(n.nombre)}${n.direccion?' · '+esc(n.direccion):''}</span><span class="display" style="font-size:12px;color:var(--amarillo)">Jota Fideliza</span></div>
+    <p class="hint center">Guarda esta página en tu pantalla de inicio para tenerla a mano.</p>
+  </div>`;
+}
+
+// ---------- App del personal ----------
+let session=null, panel=null, tab='registrar', estadoActual=null;
+async function iniciarStaff(){
+  const {data:{session:s}} = await sb.auth.getSession(); session=s;
+  sb.auth.onAuthStateChange((_e,s2)=>{ session=s2; if(!s2){ panel=null; render(); } });
+  if(!session) return vistaLogin();
+  await cargarPanel();
+}
+async function cargarPanel(){
+  try{ panel = await rpc('mi_panel'); }catch(err){ return vistaLogin(err.message); }
+  if(!panel || !panel.negocio) return vistaRegistrarNegocio();
+  render();
+}
+
+function vistaLogin(msg=''){
+  app.innerHTML = `<div class="screen" style="justify-content:center;gap:18px">
+    <div class="center"><span class="eyebrow">Jota Fideliza</span><h1 style="margin-top:4px">Ingresa a tu negocio</h1></div>
+    <form id="f" class="card" style="gap:12px">
+      <div class="field"><label for="em">Correo del negocio</label><input id="em" type="email" autocomplete="username" required placeholder="caja@minegocio.com"></div>
+      <div class="field"><label for="pw">Contraseña</label><input id="pw" type="password" autocomplete="current-password" required minlength="6" placeholder="••••••••"></div>
+      <div id="m" class="msg err ${msg?'':'hidden'}">${esc(msg)}</div>
+      <button class="btn" type="submit">Entrar</button>
+      <button class="btn ghost" type="button" id="crear">Crear cuenta de negocio</button>
+    </form>
+    <p class="hint center">Cada negocio tiene su propia cuenta. Los datos no se mezclan entre negocios.</p>
+  </div>`;
+  const f=$('#f'), m=$('#m');
+  const showErr = t => { m.textContent=t; m.classList.remove('hidden'); };
+  f.onsubmit = async ev => { ev.preventDefault(); m.classList.add('hidden'); const b=f.querySelector('.btn'); b.disabled=true;
+    const {error} = await sb.auth.signInWithPassword({email:$('#em').value.trim(), password:$('#pw').value});
+    b.disabled=false; if(error) return showErr(traduceAuth(error.message));
+    const {data:{session:s}} = await sb.auth.getSession(); session=s; await cargarPanel(); };
+  $('#crear').onclick = async () => { m.classList.add('hidden'); const email=$('#em').value.trim(), pass=$('#pw').value;
+    if(!email||pass.length<6) return showErr('Escribe tu correo y una contraseña de al menos 6 caracteres.');
+    const {data,error} = await sb.auth.signUp({email, password:pass});
+    if(error) return showErr(traduceAuth(error.message));
+    if(!data.session){ m.className='msg ok'; m.textContent='Cuenta creada. Revisa tu correo, confirma el enlace y luego pulsa Entrar.'; return; }
+    session=data.session; await cargarPanel(); };
+}
+function traduceAuth(m){ if(/Invalid login/i.test(m)) return 'Correo o contraseña incorrectos.'; if(/Email not confirmed/i.test(m)) return 'Confirma tu correo desde el enlace que te enviamos.'; if(/already registered/i.test(m)) return 'Ese correo ya tiene cuenta. Pulsa Entrar.'; return m; }
+
+function vistaRegistrarNegocio(){
+  app.innerHTML = `<div class="screen" style="gap:16px">
+    <div><span class="eyebrow">Paso 1 de 2</span><h1>Registra tu negocio</h1><p class="sub">Esto se hace una sola vez.</p></div>
+    <form id="f" class="card" style="gap:12px">
+      <div class="field"><label>Nombre del negocio</label><input id="nn" required placeholder="El Chacombo"></div>
+      <div class="field"><label>Premio al completar 6 sellos</label><input id="np" placeholder="6 alitas + papas nativas + 1 salsa a elección"></div>
+      <div class="field"><label>WhatsApp de pedidos (opcional)</label><input id="nw" type="tel" placeholder="934517954"></div>
+      <div class="field"><label>Dirección corta (opcional)</label><input id="nd" placeholder="San Hilarión, SJL"></div>
+      <div id="m" class="msg err hidden"></div>
+      <button class="btn" type="submit">Crear negocio</button>
+      <button class="btn danger" type="button" id="salir">Salir</button>
+    </form>
+    <p class="hint">Reglas iniciales: 1 sello por compra desde S/20, meta 6 sellos, el premio vence a los 7 días. Se pueden cambiar en el panel.</p>
+  </div>`;
+  $('#salir').onclick = ()=>sb.auth.signOut();
+  $('#f').onsubmit = async ev => { ev.preventDefault(); const m=$('#m'); m.classList.add('hidden');
+    try{ await rpc('registrar_mi_negocio',{p_slug:$('#nn').value, p_nombre:$('#nn').value, p_premio:$('#np').value||null, p_whatsapp:$('#nw').value||null, p_direccion:$('#nd').value||null});
+      await cargarPanel(); }catch(err){ m.textContent=err.message; m.classList.remove('hidden'); } };
+}
+
+function render(){
+  if(!panel) return vistaLogin();
+  const n=panel.negocio;
+  const sinPersonal = !panel.personal.length;
+  if(sinPersonal && panel.es_admin && tab!=='panel'){ tab='panel'; }
+  app.innerHTML = `<div class="screen">
+    <div class="top">
+      <div><span class="eyebrow">${esc(n.nombre)}</span><h1 id="titulo"></h1></div>
+      <div class="row">${n.logo_url?`<img src="${esc(n.logo_url)}" alt="" style="height:40px;border-radius:8px">`:''}</div>
+    </div>
+    <div id="vista"></div>
+  </div>
+  <nav class="nav"><div class="in">
+    <button data-t="registrar">${icon.plus}Registrar</button>
+    <button data-t="canjear">${icon.gift}Canjear</button>
+    <button data-t="historial">${icon.clock}Historial</button>
+    <button data-t="panel">${icon.panel}Panel</button>
+  </div></nav>`;
+  document.querySelectorAll('.nav button').forEach(b=>{ b.classList.toggle('on', b.dataset.t===tab); b.onclick=()=>{ tab=b.dataset.t; render(); }; });
+  ({registrar:vRegistrar, canjear:vCanjear, historial:vHistorial, panel:vPanel})[tab]();
+  if(sinPersonal && tab==='panel'){ $('#vista').insertAdjacentHTML('afterbegin', `<div class="msg ok" style="margin-bottom:12px">Primero agrega a las personas que van a registrar (caja, mesero, encargado), cada una con su PIN.</div>`); }
+}
+
+function selectorPersonal(){
+  const ult = store.get('jf_personal');
+  return `<div class="row">
+    <div class="field grow"><label>¿Quién registra?</label><select id="quien">${panel.personal.filter(p=>p.activo).map(p=>`<option value="${p.id}" ${p.id===ult?'selected':''}>${esc(p.nombre)} · ${p.rol}</option>`).join('')}</select></div>
+    <div class="field" style="width:120px"><label for="pin">PIN</label><input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••"></div>
+  </div>`;
+}
+function leerPersonal(){ const q=$('#quien'); if(!q||!q.value) throw new Error('Agrega personal en el Panel antes de registrar.'); store.set('jf_personal', q.value); const pin=$('#pin').value; if(pin.length<4) throw new Error('Escribe tu PIN.'); return {p_personal_id:q.value, p_pin:pin}; }
+
+function bloqueCliente(c, est){
+  return `<div class="item"><div class="avatar">${ini(c.nombre)}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">${esc(c.celular)}${est&&est.ultima_compra?` · última compra ${fecha(est.ultima_compra.fecha)} · ${soles(est.ultima_compra.monto)}`:''}</div></div>${est?`<span class="display" style="font-size:18px;color:var(--amarillo)">${est.sellos} de ${est.meta}</span>`:''}</div>`;
+}
+
+// ----- Registrar compra -----
+let clienteSel=null;
+function vRegistrar(){
+  $('#titulo').textContent='Caja';
+  $('#vista').innerHTML = `<div style="display:flex;flex-direction:column;gap:14px">
+    ${selectorPersonal()}
+    <div class="field"><label for="cel">Celular del cliente</label>
+      <div class="row"><input id="cel" class="grow" type="tel" inputmode="numeric" maxlength="12" placeholder="987 654 321"><button class="btn sm ghost" id="scan" aria-label="Escanear QR" style="width:50px;padding:0">${icon.scan}</button></div></div>
+    <div id="res" class="list"></div>
+    <div id="nuevo" class="field hidden"><label for="nom">Cliente nuevo: nombre</label><input id="nom" placeholder="Nombre y apellido"></div>
+    <div id="cli"></div>
+    <div class="field"><label for="monto">Monto de la compra</label><div class="money"><span>S/</span><input id="monto" type="text" inputmode="decimal" placeholder="0.00"></div>
+      <span class="hint" style="margin-top:6px">Desde ${soles(panel.negocio.monto_minimo)} suma 1 sello. Una compra = un sello, sin importar el monto.</span></div>
+    <div id="m" class="msg err hidden"></div>
+    <button class="btn" id="go">Registrar compra y sumar sello</button>
+    <div id="out"></div>
+  </div>`;
+  const cel=$('#cel'), res=$('#res'), nuevo=$('#nuevo'), cli=$('#cli'), m=$('#m'), out=$('#out');
+  const err = t => { m.textContent=t; m.classList.remove('hidden'); };
+  let timer; clienteSel=null;
+  const buscar = async () => { const q=cel.value.replace(/\D/g,''); res.innerHTML=''; nuevo.classList.add('hidden'); cli.innerHTML=''; clienteSel=null; if(q.length<3) return;
+    try{ const lista = await rpc('buscar_clientes',{p_q:q});
+      if(lista.length){ res.innerHTML = lista.map(c=>`<button class="item" style="border:0;text-align:left;width:100%;cursor:pointer" data-id="${c.id}" data-nombre="${esc(c.nombre)}" data-cel="${c.celular}"><div class="avatar">${ini(c.nombre)}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">${c.celular}</div></div></button>`).join('');
+        res.querySelectorAll('button').forEach(b=>b.onclick=()=>elegir({id:b.dataset.id,nombre:b.dataset.nombre,celular:b.dataset.cel})); }
+      if(q.length===9 && !lista.some(c=>c.celular===q)){ nuevo.classList.remove('hidden'); }
+    }catch(e){ err(e.message); } };
+  cel.oninput = () => { clearTimeout(timer); timer=setTimeout(buscar,300); };
+  async function elegir(c){ clienteSel=c; res.innerHTML=''; nuevo.classList.add('hidden'); cli.innerHTML=`<div class="skeleton"></div>`;
+    try{ estadoActual = await rpc('estado_tarjeta',{p_cliente_id:c.id}); cli.innerHTML = bloqueCliente(c, estadoActual); }catch(e){ cli.innerHTML=''; err(e.message); } $('#monto').focus(); }
+  $('#scan').onclick = () => escanear(t => { const tok = (t.match(/[?&]t=([a-f0-9]+)/)||[])[1]; if(!tok) return err('Ese código no es de una tarjeta.'); buscarPorToken(tok); });
+  async function buscarPorToken(tok){ try{ const e = await rpc('tarjeta_por_token',{p_token:tok}); const lista = await rpc('buscar_clientes',{p_q:e.cliente.nombre}); const c = lista.find(x=>x.token===tok); if(!c) return err('Esa tarjeta no es de este negocio.'); cel.value=c.celular; elegir(c); }catch(e){ err(e.message); } }
+  $('#go').onclick = async () => { m.classList.add('hidden'); out.innerHTML=''; const b=$('#go'); b.disabled=true;
+    try{ const per = leerPersonal();
+      if(!clienteSel){ const q=cel.value.replace(/\D/g,''); if(q.length!==9) throw new Error('Escribe los 9 dígitos del celular y elige al cliente.'); const c = await rpc('buscar_o_crear_cliente',{p_nombre:$('#nom').value, p_celular:q}); clienteSel={id:c.id,nombre:c.nombre,celular:c.celular,token:c.token_tarjeta}; }
+      const monto = parseFloat(String($('#monto').value).replace(',','.')); if(isNaN(monto)||monto<0) throw new Error('Escribe el monto de la compra.');
+      const r = await rpc('registrar_compra',{p_cliente_id:clienteSel.id, p_monto:monto, ...per});
+      const link=`${BASE_URL}?t=${r.cliente.token}`; const wa=`https://wa.me/51${r.cliente.celular}?text=${encodeURIComponent(`Hola ${r.cliente.nombre.split(' ')[0]}, esta es tu tarjeta de sellos de ${panel.negocio.nombre}: ${link}`)}`;
+      out.innerHTML = `<div class="card ${r.premio_nuevo?'yellow premio-in':'outline'}" style="margin-top:4px">
+        <div class="row"><span style="width:26px;height:26px;flex-shrink:0">${icon.check}</span><div class="grow"><div class="display" style="font-size:16px">${r.sumo_sello?`Sello sumado · ${esc(r.cliente.nombre.split(' ')[0])} tiene ${r.sellos} de ${r.meta}`:`Compra registrada (no suma sello: menor a ${soles(panel.negocio.monto_minimo)})`}</div><div class="s" style="font-size:12.5px">${soles(monto)} · ${fechaHora(new Date())}</div></div></div>
+        ${r.premio_nuevo?`<div style="font-weight:700">¡Completó la tarjeta! Premio disponible: ${esc(panel.negocio.premio)} (vence en ${panel.negocio.premio_vigencia_dias} días).</div>`:''}
+        <div class="stamps">${stampsHTML(r.sellos,r.meta,r.sumo_sello?r.sellos:0)}</div>
+        <a class="btn sm ${r.premio_nuevo?'':'ghost'}" style="text-decoration:none;${r.premio_nuevo?'background:var(--vino);color:var(--amarillo)':''}" href="${wa}" target="_blank" rel="noopener"><span style="width:20px;height:20px">${icon.wa}</span>Enviar tarjeta por WhatsApp</a>
+      </div>`;
+      cel.value=''; $('#monto').value=''; $('#pin').value=''; clienteSel=null; cli.innerHTML=''; nuevo.classList.add('hidden');
+    }catch(e){ err(e.message); } b.disabled=false; };
+}
+
+// ----- Canjear premio -----
+function vCanjear(){
+  $('#titulo').textContent='Canjear premio';
+  $('#vista').innerHTML = `<div style="display:flex;flex-direction:column;gap:14px">
+    ${selectorPersonal()}
+    <div class="field"><label for="q">Buscar cliente (celular o nombre)</label><div class="row"><input id="q" class="grow" placeholder="987 654 321"><button class="btn sm ghost" id="scan" aria-label="Escanear QR" style="width:50px;padding:0">${icon.scan}</button></div></div>
+    <div id="res" class="list"></div><div id="det"></div><div id="m" class="msg err hidden"></div></div>`;
+  const q=$('#q'), res=$('#res'), det=$('#det'), m=$('#m'); const err=t=>{m.textContent=t;m.classList.remove('hidden')};
+  let timer; q.oninput=()=>{clearTimeout(timer);timer=setTimeout(async()=>{ det.innerHTML=''; if(q.value.trim().length<2){res.innerHTML='';return;} try{ const l=await rpc('buscar_clientes',{p_q:q.value.trim()}); res.innerHTML=l.map(c=>`<button class="item" style="border:0;text-align:left;width:100%;cursor:pointer" data-id="${c.id}"><div class="avatar">${ini(c.nombre)}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">${c.celular}</div></div></button>`).join('')||'<p class="hint">Sin resultados.</p>'; res.querySelectorAll('button').forEach(b=>b.onclick=()=>detalle(b.dataset.id)); }catch(e){err(e.message)} },300)};
+  $('#scan').onclick=()=>escanear(async t=>{ const tok=(t.match(/[?&]t=([a-f0-9]+)/)||[])[1]; if(!tok) return err('Ese código no es de una tarjeta.'); try{ const e=await rpc('tarjeta_por_token',{p_token:tok}); const l=await rpc('buscar_clientes',{p_q:e.cliente.nombre}); const c=l.find(x=>x.token===tok); if(!c) return err('Esa tarjeta no es de este negocio.'); detalle(c.id);}catch(e){err(e.message)} });
+  async function detalle(id){ res.innerHTML=''; m.classList.add('hidden'); det.innerHTML='<div class="skeleton"></div>';
+    try{ const e=await rpc('estado_tarjeta',{p_cliente_id:id}); const p=e.premio_disponible;
+      det.innerHTML = `${bloqueCliente(e.cliente,e)}
+        <div class="card" style="margin-top:8px"><div class="stamps">${stampsHTML(e.sellos,e.meta)}</div><p class="sub">${mensajeSellos(e.sellos,e.meta)}</p></div>
+        ${p?`<div class="card yellow" style="margin-top:8px"><span class="display" style="font-size:18px">Premio disponible</span><span style="font-weight:600">${esc(p.descripcion)}</span><span style="font-size:12.5px;font-weight:700">Otorgado el ${fecha(p.otorgado_en)} · vence el ${fecha(p.vence_en)}</span>
+             <button class="btn hold" id="canje" style="background:var(--vino);color:var(--amarillo);margin-top:6px"><div class="bar"></div><span style="position:relative">Mantén presionado para canjear</span></button></div>`
+          :`<div class="msg ok" style="margin-top:8px">Este cliente no tiene premio disponible todavía.</div>`}`;
+      if(p){ holdToConfirm($('#canje'), async()=>{ try{ const per=leerPersonal(); const r=await rpc('canjear_premio',{p_premio_id:p.id, ...per}); det.innerHTML=`<div class="card outline"><div class="row"><span style="width:26px;height:26px">${icon.check}</span><div class="display" style="font-size:17px">Premio entregado a ${esc(r.cliente.nombre.split(' ')[0])}</div></div><p class="sub">${esc(p.descripcion)} · ${fechaHora(new Date())}. Su tarjeta sigue en ${r.sellos} de ${r.meta}.</p></div>`; $('#pin').value=''; }catch(e){ err(e.message); } }); }
+    }catch(e){ det.innerHTML=''; err(e.message); } }
+}
+function holdToConfirm(btn, fn){ let t; const start=()=>{ btn.classList.add('holding'); t=setTimeout(()=>{ btn.classList.remove('holding'); fn(); },1500); }; const stop=()=>{ btn.classList.remove('holding'); clearTimeout(t); };
+  btn.addEventListener('pointerdown',start); ['pointerup','pointerleave','pointercancel'].forEach(ev=>btn.addEventListener(ev,stop)); btn.addEventListener('contextmenu',e=>e.preventDefault()); }
+
+// ----- Historial -----
+function vHistorial(){
+  $('#titulo').textContent='Historial';
+  $('#vista').innerHTML=`<div class="list" id="h"><div class="skeleton"></div><div class="skeleton"></div></div>`;
+  rpc('historial',{p_limite:60}).then(l=>{ $('#h').innerHTML = l.length? l.map(c=>`<div class="item ${c.anulada?'':''}" style="${c.anulada?'opacity:.5':''}"><div class="avatar">${ini(c.cliente)}</div><div class="grow"><div class="t">${esc(c.cliente)} · ${soles(c.monto)}</div><div class="s">${fechaHora(c.creado_en)} · por ${esc(c.por)}${c.anulada?' · ANULADA':''}</div></div>${c.suma_sello&&!c.anulada?'<span class="chip y">+1 sello</span>':'<span class="chip">sin sello</span>'}${panel.es_admin&&!c.anulada?`<button class="btn sm danger" data-id="${c.id}" style="height:36px;padding:0 10px;font-size:13px">Anular</button>`:''}</div>`).join('') : '<p class="hint">Todavía no hay compras registradas.</p>';
+    $('#h').querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>anular(b.dataset.id)); }).catch(e=>{ $('#h').innerHTML=`<div class="msg err">${esc(e.message)}</div>`; });
+  function anular(id){ const v=$('#vista'); v.insertAdjacentHTML('afterbegin',`<div class="card" id="an" style="margin-bottom:12px"><h3>Anular compra</h3>${selectorPersonal()}<div class="field"><label>Motivo</label><input id="mot" placeholder="Ej. se registró dos veces"></div><div id="m2" class="msg err hidden"></div><div class="row"><button class="btn sm" id="ok">Anular</button><button class="btn sm ghost" id="no">Cancelar</button></div></div>`);
+    $('#no').onclick=()=>$('#an').remove(); $('#ok').onclick=async()=>{ try{ const per=leerPersonal(); if(!$('#mot').value.trim()) throw new Error('Escribe el motivo.'); await rpc('anular_compra',{p_compra_id:id,p_motivo:$('#mot').value.trim(),...per}); vHistorial(); }catch(e){ const m=$('#m2'); m.textContent=e.message; m.classList.remove('hidden'); } }; }
+}
+
+// ----- Panel del encargado -----
+function vPanel(){
+  $('#titulo').textContent='Panel';
+  const n=panel.negocio;
+  if(!panel.es_admin){ $('#vista').innerHTML=`<div class="msg ok">Solo el encargado administra el negocio.</div><button class="btn danger" id="out" style="margin-top:12px">Cerrar sesión</button>`; $('#out').onclick=()=>sb.auth.signOut(); return; }
+  $('#vista').innerHTML=`<div style="display:flex;flex-direction:column;gap:16px">
+    <div class="kpis" id="k"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+    <div class="card"><div class="row" style="justify-content:space-between"><h3>Personal</h3><button class="btn sm ghost" id="addp">Agregar</button></div>
+      <div class="list" id="pl">${panel.personal.map(p=>`<div class="item"><div class="avatar" style="${p.activo?'':'opacity:.4'}">${ini(p.nombre)}</div><div class="grow"><div class="t">${esc(p.nombre)}</div><div class="s">${p.rol}${p.activo?'':' · inactivo'}</div></div><button class="btn sm danger" data-id="${p.id}" data-act="${p.activo}" style="height:36px;padding:0 10px;font-size:13px">${p.activo?'Desactivar':'Activar'}</button></div>`).join('')||'<p class="hint">Aún no hay personal.</p>'}</div>
+      <form id="fp" class="hidden" style="display:flex;flex-direction:column;gap:10px"><div class="field"><label>Nombre</label><input id="pn" required placeholder="Juan"></div><div class="row"><div class="field grow"><label>Rol</label><select id="pr"><option value="caja">Caja</option><option value="mesero">Mesero</option><option value="encargado">Encargado</option></select></div><div class="field" style="width:130px"><label>PIN (4–8 dígitos)</label><input id="pp" type="password" inputmode="numeric" minlength="4" maxlength="8" required></div></div><div id="mp" class="msg err hidden"></div><button class="btn sm" type="submit">Guardar</button></form>
+    </div>
+    <div class="card"><h3>Clientes</h3><input id="cq" placeholder="Buscar por nombre o celular"><div class="list" id="cl"></div></div>
+    <div class="card"><h3>Configuración</h3>
+      <form id="fc" style="display:flex;flex-direction:column;gap:10px">
+        <div class="field"><label>Nombre</label><input id="c_nombre" value="${esc(n.nombre)}"></div>
+        <div class="field"><label>Premio</label><input id="c_premio" value="${esc(n.premio)}"></div>
+        <div class="row"><div class="field grow"><label>Monto mínimo (S/)</label><input id="c_min" type="number" step="0.5" value="${n.monto_minimo}"></div><div class="field grow"><label>Meta de sellos</label><input id="c_meta" type="number" min="2" max="20" value="${n.meta_sellos}"></div><div class="field grow"><label>Premio vence (días)</label><input id="c_vig" type="number" min="1" value="${n.premio_vigencia_dias}"></div></div>
+        <div class="row"><div class="field grow"><label>WhatsApp</label><input id="c_wa" value="${esc(n.whatsapp||'')}"></div><div class="field grow"><label>Dirección</label><input id="c_dir" value="${esc(n.direccion||'')}"></div></div>
+        <div class="field"><label>Logo (imagen, máx. 200 KB)</label><input id="c_logo" type="file" accept="image/*" style="padding:10px"></div>
+        <div id="mc" class="msg hidden"></div><button class="btn sm" type="submit">Guardar cambios</button></form></div>
+    <button class="btn danger" id="out">Cerrar sesión</button>
+  </div>`;
+  rpc('resumen_negocio').then(r=>{ $('#k').innerHTML=[['Clientes',r.clientes],['Compras (30 d)',r.compras],['Ventas (30 d)',soles(r.ventas)],['Sellos (30 d)',r.sellos],['Premios ganados',r.premios_otorgados],['Premios canjeados',r.premios_canjeados]].map(([l,v])=>`<div class="kpi"><div class="n">${v}</div><div class="l">${l}</div></div>`).join(''); }).catch(()=>{});
+  $('#addp').onclick=()=>$('#fp').classList.toggle('hidden');
+  $('#fp').onsubmit=async ev=>{ev.preventDefault(); try{ await rpc('guardar_personal',{p_nombre:$('#pn').value.trim(),p_rol:$('#pr').value,p_pin:$('#pp').value}); await cargarPanel(); }catch(e){ const m=$('#mp'); m.textContent=e.message; m.classList.remove('hidden'); }};
+  $('#pl').querySelectorAll('button[data-id]').forEach(b=>b.onclick=async()=>{ try{ await rpc('desactivar_personal',{p_id:b.dataset.id,p_activo:b.dataset.act!=='true'}); await cargarPanel(); }catch(e){ alertMsg(e.message);} });
+  let t; $('#cq').oninput=()=>{clearTimeout(t);t=setTimeout(async()=>{ const l=await rpc('buscar_clientes',{p_q:$('#cq').value}); $('#cl').innerHTML=l.map(c=>{const link=`${BASE_URL}?t=${c.token}`; return `<div class="item"><div class="avatar">${ini(c.nombre)}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">${c.celular}</div></div><a class="btn sm ghost" style="text-decoration:none;height:36px;padding:0 10px" href="https://wa.me/51${c.celular}?text=${encodeURIComponent(`Hola ${c.nombre.split(' ')[0]}, esta es tu tarjeta de sellos de ${n.nombre}: ${link}`)}" target="_blank" rel="noopener"><span style="width:18px;height:18px">${icon.wa}</span></a></div>`}).join('')||'<p class="hint">Sin resultados.</p>'; },300)};
+  $('#fc').onsubmit=async ev=>{ev.preventDefault(); const m=$('#mc'); m.className='msg hidden'; try{ let logo=null; const f=$('#c_logo').files[0]; if(f){ if(f.size>200*1024) throw new Error('El logo pesa más de 200 KB; redúcelo.'); logo=await new Promise((ok,ko)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=ko;r.readAsDataURL(f);}); }
+    await rpc('actualizar_negocio',{p_nombre:$('#c_nombre').value,p_premio:$('#c_premio').value,p_monto_minimo:parseFloat($('#c_min').value),p_meta:parseInt($('#c_meta').value),p_vigencia:parseInt($('#c_vig').value),p_whatsapp:$('#c_wa').value,p_direccion:$('#c_dir').value,p_logo_url:logo});
+    await cargarPanel(); }catch(e){ m.className='msg err'; m.textContent=e.message; }};
+  $('#out').onclick=()=>sb.auth.signOut();
+}
+function alertMsg(t){ const v=$('#vista'); v.insertAdjacentHTML('afterbegin',`<div class="msg err" style="margin-bottom:10px">${esc(t)}</div>`); }
+
+// ----- Escáner QR (usa la cámara si el navegador lo permite) -----
+async function escanear(onResult){
+  if(!('BarcodeDetector' in window) || !navigator.mediaDevices){ alertMsg('Este navegador no permite escanear; escribe el celular del cliente.'); return; }
+  const ov=document.createElement('div'); ov.style.cssText='position:fixed;inset:0;background:#000;z-index:50;display:flex;flex-direction:column';
+  ov.innerHTML='<video autoplay playsinline style="flex:1;width:100%;object-fit:cover"></video><button class="btn" style="border-radius:0">Cancelar</button>';
+  document.body.appendChild(ov); const video=ov.querySelector('video'); let stream, stop=false;
+  const cerrar=()=>{ stop=true; if(stream) stream.getTracks().forEach(t=>t.stop()); ov.remove(); }; ov.querySelector('button').onclick=cerrar;
+  try{ stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}); video.srcObject=stream; const det=new BarcodeDetector({formats:['qr_code']});
+    const loop=async()=>{ if(stop) return; try{ const codes=await det.detect(video); if(codes.length){ cerrar(); onResult(codes[0].rawValue); return; } }catch{} requestAnimationFrame(loop); }; video.onloadedmetadata=()=>loop();
+  }catch(e){ cerrar(); alertMsg('No se pudo abrir la cámara. Escribe el celular del cliente.'); }
+}
+</script>
+</body>
+</html>
