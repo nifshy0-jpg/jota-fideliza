@@ -1,0 +1,14 @@
+name: Chequeo de salud diario
+on:
+  schedule:
+    - cron: '23 12 * * *'   # 07:23 hora de Lima, todos los días
+  workflow_dispatch:
+jobs:
+  salud:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: node scripts/salud.mjs
