@@ -59,7 +59,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .premio-in{animation:arrive 600ms var(--ease-arrive)}
 @keyframes arrive{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
 .nav{position:fixed;left:0;right:0;bottom:0;background:var(--vino);border-top:1px solid var(--vino2);padding:8px 0 calc(10px + env(safe-area-inset-bottom));display:flex;justify-content:center}
-.nav .in{width:100%;max-width:480px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.nav .in{width:100%;max-width:480px;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}
 .nav button{background:none;border:0;color:var(--rosa);font-size:11.5px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;cursor:pointer;min-height:48px}
 .nav button.on{color:var(--amarillo)}
 .nav svg{width:24px;height:24px}
@@ -112,6 +112,13 @@ body.lobby .nav{background:#fff;border-top:1px solid var(--lb-border)}body.lobby
 .yv.row{flex-direction:row;align-items:baseline;gap:.3em}.yv.row .vo{font-size:inherit;letter-spacing:.03em}
 .yv-foot{font-family:'Anton',sans-serif;font-size:12px;letter-spacing:.04em;white-space:nowrap}
 .tabla{width:100%;border-collapse:collapse;font-size:14px}.tabla th{text-align:left;font-weight:700;color:#6E6E73;font-size:12px;padding:8px 10px;border-bottom:1px solid #EDEDF0}.tabla td{padding:12px 10px;border-bottom:1px solid #EDEDF0;vertical-align:middle}
+.seg.s3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.delta{font-size:12px;font-weight:800;margin-top:6px}.delta.up{color:var(--amarillo)}.delta.down{color:var(--error)}.delta.eq{color:var(--rosa)}.delta span{font-weight:600;color:var(--rosa)}
+.chart svg{width:100%;height:auto;display:block;touch-action:pan-y}
+.tip{font-size:13px;font-weight:700;color:var(--crema);min-height:19px}
+.leyenda{display:flex;gap:14px;font-size:12px;color:var(--crema);font-weight:700}.leyenda i{display:inline-block;width:14px;height:0;border-top:2.5px solid var(--amarillo);vertical-align:middle;margin-right:5px}.leyenda i.prev{border-top:2px dashed var(--rosa)}
+.rank{width:30px;height:30px;border-radius:999px;background:var(--vino3);color:var(--crema);display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:14px;flex-shrink:0}.rank.r1{background:var(--amarillo);color:var(--vino)}
+.podio{display:flex;flex-direction:column;gap:6px}.podio .p{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.08);border-radius:12px;padding:8px 10px}.podio .rank{background:var(--vino);color:var(--amarillo)}
 .dot{display:inline-block;width:8px;height:8px;border-radius:999px;background:#1F9D55;margin-right:6px}.dot.off{background:#C7C7CC}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -147,6 +154,7 @@ const icon = {
   check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
   scan:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/><rect x="7" y="7" width="4" height="4"/><rect x="13" y="7" width="4" height="4"/><rect x="7" y="13" width="4" height="4"/><path d="M13 13h4v4"/></svg>',
   wa:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.9 11.9 0 0 0 4.5 4c1.7.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.2c0-.1-.2-.2-.4-.3z"/></svg>',
+  stats:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
   logout:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17l5-5-5-5M15 12H3M21 3v18"/></svg>'
 };
 
@@ -196,6 +204,7 @@ function renderTarjeta(e, tok){
     </div>
     ${premio?`<div class="card yellow premio-in"><span class="display" style="font-size:19px">Tienes un premio listo</span><span style="font-weight:600">${esc(premio.descripcion)}</span><span style="font-size:12.5px;font-weight:700">Vence el ${fecha(premio.vence_en)} · muéstralo en caja</span></div>`
             :`<div class="card outline" style="gap:3px"><span class="eyebrow" style="text-transform:none;letter-spacing:.02em">Tu premio al completar ${e.meta}</span><span class="display" style="font-size:17px;font-weight:700">${esc(n.premio)}</span></div>`}
+    ${bloqueRanking(e)}
     <div class="card white" style="flex-direction:row;align-items:center;gap:14px">
       <div class="qr">${qrSVG(link)}</div>
       <div style="display:flex;flex-direction:column;gap:6px">
@@ -206,6 +215,19 @@ function renderTarjeta(e, tok){
     </div>
     <div class="row" style="justify-content:space-between;padding:0 4px"><span class="hint">${esc(n.nombre)}${n.direccion?' · '+esc(n.direccion):''}</span><span style="color:var(--amarillo)">${PIE}</span></div>
     <p class="hint center">Guarda esta página en tu pantalla de inicio para tenerla a mano.</p>
+  </div>`;
+}
+
+const mesLima = (off=0) => { const d=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Lima'})); d.setDate(1); d.setMonth(d.getMonth()+off); return d.toLocaleDateString('es-PE',{month:'long'}); };
+function bloqueRanking(e){
+  const pm=e.negocio.premio_mes, rk=e.ranking||{}; if(!pm) return '';
+  const v=rk.visitas_mes||0;
+  return `<div class="card outline" style="gap:6px">
+    <span class="eyebrow" style="text-transform:none;letter-spacing:.02em">Cliente del mes · ${mesLima()}</span>
+    ${rk.puesto?`<div class="row" style="align-items:baseline;gap:8px"><span class="display" style="font-size:34px;color:var(--amarillo)">#${rk.puesto}</span><span class="sub">de ${rk.participantes} cliente${rk.participantes==1?'':'s'} · ${v} visita${v==1?'':'s'} este mes</span></div>
+      <p class="sub" style="font-weight:700">${rk.puesto==1?'¡Vas primero! Sigue así para ganar.':'Cada visita te acerca al primer puesto.'}</p>`
+      :`<p class="sub" style="font-weight:700">Aún no tienes visitas este mes. Tu próxima compra te pone en carrera.</p>`}
+    <p class="hint" style="color:var(--crema)">El cliente con más visitas del mes gana: <b style="color:var(--amarillo)">${esc(pm)}</b></p>
   </div>`;
 }
 
@@ -328,10 +350,12 @@ function render(){
     <button data-t="registrar">${icon.plus}Registrar</button>
     <button data-t="canjear">${icon.gift}Canjear</button>
     <button data-t="historial">${icon.clock}Historial</button>
+    ${panel.es_admin?`<button data-t="stats">${icon.stats}Estadísticas</button>`:''}
     <button data-t="panel">${icon.panel}Panel</button>
   </div></nav>`;
   document.querySelectorAll('.nav button').forEach(b=>{ b.classList.toggle('on', b.dataset.t===tab); b.onclick=()=>{ tab=b.dataset.t; render(); }; });
-  ({registrar:vRegistrar, canjear:vCanjear, historial:vHistorial, panel:vPanel})[tab]();
+  if(tab==='stats' && !panel.es_admin) tab='registrar';
+  ({registrar:vRegistrar, canjear:vCanjear, historial:vHistorial, stats:vEstadisticas, panel:vPanel})[tab]();
   if(sinPersonal && tab==='panel'){ $('#vista').insertAdjacentHTML('afterbegin', `<div class="msg ok" style="margin-bottom:12px">Primero agrega a las personas que van a registrar (caja, mesero, encargado), cada una con su PIN.</div>`); }
 }
 
@@ -432,6 +456,122 @@ function vHistorial(){
   function anular(id){ const v=$('#vista'); v.insertAdjacentHTML('afterbegin',`<div class="card" id="an" style="margin-bottom:12px"><h3>Anular compra</h3>${selectorPersonal()}<div class="field"><label>Motivo</label><input id="mot" placeholder="Ej. se registró dos veces"></div><div id="m2" class="msg err hidden"></div><div class="row"><button class="btn sm" id="ok">Anular</button><button class="btn sm ghost" id="no">Cancelar</button></div></div>`);
     enlazarPin(); $('#no').onclick=()=>$('#an').remove(); $('#ok').onclick=async()=>{ try{ const per=leerPersonal(); if(!$('#mot').value.trim()) throw new Error('Escribe el motivo.'); await rpc('anular_compra',{p_compra_id:id,p_motivo:$('#mot').value.trim(),...per}); vHistorial(); }catch(e){ const m=$('#m2'); m.textContent=e.message; m.classList.remove('hidden'); } }; }
 }
+
+// ----- Estadísticas -----
+let periodo=30;
+const DIAS=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const hora12 = h => `${(h%12)||12} ${h<12?'am':'pm'}`;
+const fechaISO = f => new Date(f+'T12:00:00');
+const primerNombre = n => String(n||'').trim().split(' ')[0];
+function vEstadisticas(){
+  $('#titulo').textContent='Estadísticas';
+  $('#vista').innerHTML=`<div style="display:flex;flex-direction:column;gap:16px">
+    <div class="seg s3" id="per">${[7,30,90].map(d=>`<button data-d="${d}" class="${d===periodo?'on':''}">${d} días</button>`).join('')}</div>
+    <div id="st" style="display:flex;flex-direction:column;gap:16px"><div class="kpis"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div><div class="skeleton" style="height:180px"></div></div>
+  </div>`;
+  $('#per').querySelectorAll('button').forEach(b=>b.onclick=()=>{ periodo=+b.dataset.d; vEstadisticas(); });
+  const pedido=periodo;
+  rpc('estadisticas_negocio',{p_dias:periodo}).then(d=>{ if(pedido===periodo && $('#st')) pintarStats(d); }).catch(e=>{ if($('#st')) $('#st').innerHTML=`<div class="msg err">${esc(e.message)}</div>`; });
+}
+function delta(cur, prev, dias){
+  cur=+cur||0; prev=+prev||0;
+  if(!prev && !cur) return `<div class="delta eq">sin movimiento</div>`;
+  if(!prev) return `<div class="delta up">▲ nuevo <span>vs. ${dias} días antes</span></div>`;
+  const p=Math.round((cur-prev)/prev*100);
+  if(p===0) return `<div class="delta eq">= igual <span>vs. ${dias} días antes</span></div>`;
+  return `<div class="delta ${p>0?'up':'down'}">${p>0?'▲':'▼'} ${Math.abs(p)}% <span>vs. ${dias} días antes</span></div>`;
+}
+function waLink(cel, txt){ return `https://wa.me/51${cel}?text=${encodeURIComponent(txt)}`; }
+function pintarStats(d){
+  const k=d.kpis, n=panel.negocio, dias=d.dias, vacio=!k.compras && !k.compras_prev;
+  const kpi=(l,v,dl)=>`<div class="kpi"><div class="n" style="font-size:24px">${v}</div><div class="l">${l}</div>${dl||''}</div>`;
+  const pct = k.clientes ? Math.round(k.recurrentes/k.clientes*100) : 0;
+  const cm=d.cliente_mes||{}, podio=cm.podio||[], ga=cm.ganador_anterior;
+  const maxDia=Math.max(...d.por_dia.map(x=>x.compras)), maxHora=Math.max(...d.por_hora.map(x=>x.compras));
+  const diaTop=d.por_dia.find(x=>x.compras===maxDia&&maxDia>0), horaTop=d.por_hora.find(x=>x.compras===maxHora&&maxHora>0);
+  $('#st').innerHTML=`
+    <div class="kpis">
+      ${kpi('Ventas',soles(k.ventas),delta(k.ventas,k.ventas_prev,dias))}
+      ${kpi('Visitas (compras)',k.compras,delta(k.compras,k.compras_prev,dias))}
+      ${kpi('Clientes que vinieron',k.clientes,delta(k.clientes,k.clientes_prev,dias))}
+      ${kpi('Ticket promedio',soles(k.ticket),delta(k.ticket,k.ticket_prev,dias))}
+      ${kpi('Clientes nuevos',k.nuevos,delta(k.nuevos,k.nuevos_prev,dias))}
+      ${kpi('Volvieron 2 o más veces',k.recurrentes,`<div class="delta eq">${pct}% de los que vinieron</div>`)}
+    </div>
+    ${bloqueClienteMes(cm, podio, ga)}
+    ${vacio?`<div class="msg ok">Todavía no hay compras en estos ${dias} días. Los gráficos se llenan solos cuando la caja registra.</div>`:`
+    <div class="card"><div class="row" style="justify-content:space-between;align-items:baseline"><h3>Ventas por día</h3><span class="display" style="font-size:18px;color:var(--amarillo)">${soles(k.ventas)}</span></div>
+      <div class="leyenda"><span><i></i>Últimos ${dias} días</span><span><i class="prev"></i>${dias} días anteriores</span></div>
+      <div class="chart" id="ch_l">${graficoLinea(d.serie)}</div><div class="tip" id="tip_l">Toca el gráfico para ver cada día.</div></div>
+    <div class="card"><h3>Días con más clientes</h3>${diaTop?`<p class="sub">Tu día más fuerte: <b style="color:var(--amarillo)">${DIAS[diaTop.dia-1]}</b></p>`:''}
+      <div class="chart" id="ch_d">${graficoBarras(d.por_dia.map(x=>({v:x.compras,l:DIAS[x.dia-1].slice(0,2),t:`${DIAS[x.dia-1]} · ${x.compras} visita${x.compras==1?'':'s'}`})))}</div><div class="tip" id="tip_d"></div></div>
+    <div class="card"><h3>Horas con más clientes</h3>${horaTop?`<p class="sub">Hora pico: <b style="color:var(--amarillo)">${hora12(horaTop.hora)} a ${hora12((horaTop.hora+1)%24)}</b></p>`:''}
+      <div class="chart" id="ch_h">${graficoBarras(rangoHoras(d.por_hora).map(x=>({v:x.compras,l:x.hora%2===0?hora12(x.hora).replace(' ',''):'',t:`${hora12(x.hora)} a ${hora12((x.hora+1)%24)} · ${x.compras} visita${x.compras==1?'':'s'}`})))}</div><div class="tip" id="tip_h"></div></div>`}
+    <div class="card"><h3>Clientes más fieles</h3><p class="hint">Los que más vinieron en los últimos ${dias} días.</p>
+      <div class="list">${d.top.length?d.top.map((c,i)=>`<div class="item" style="background:var(--vino3)"><div class="rank ${i===0?'r1':''}">${i+1}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">${c.visitas} visita${c.visitas==1?'':'s'} · ${soles(c.gastado)} · última ${fecha(c.ultima)}</div></div><a class="btn sm ghost" aria-label="WhatsApp" style="text-decoration:none;height:36px;width:40px;padding:0" target="_blank" rel="noopener" href="${waLink(c.celular,`Hola ${primerNombre(c.nombre)}, gracias por ser de nuestros clientes más fieles en ${n.nombre}. Tu tarjeta de sellos: ${BASE_URL}?t=${c.token}`)}"><span style="width:18px;height:18px">${icon.wa}</span></a></div>`).join(''):'<p class="hint">Aún no hay clientes en este periodo.</p>'}</div></div>
+    <div class="card"><h3>Clientes que dejaron de venir</h3><p class="hint">Venían seguido (3 o más visitas) y no vuelven hace más de 3 semanas. Un mensaje a tiempo los recupera.</p>
+      <div class="list">${d.en_riesgo.length?d.en_riesgo.map(c=>`<div class="item" style="background:var(--vino3)"><div class="avatar">${ini(c.nombre)}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">no viene hace ${c.dias} días · ${c.visitas} visitas antes</div></div><a class="btn sm" style="text-decoration:none;height:36px;padding:0 12px;font-size:13px;gap:6px" target="_blank" rel="noopener" href="${waLink(c.celular,`Hola ${primerNombre(c.nombre)}, te extrañamos en ${n.nombre}. Vuelve pronto, tu tarjeta de sellos te espera: ${BASE_URL}?t=${c.token}`)}"><span style="width:16px;height:16px">${icon.wa}</span>Escribir</a></div>`).join(''):'<p class="hint">Nadie por ahora. Tus clientes frecuentes siguen viniendo.</p>'}</div></div>`;
+  enlazarClienteMes();
+  if(!vacio){ hoverLinea(d.serie); hoverBarras('ch_d','tip_d'); hoverBarras('ch_h','tip_h'); }
+}
+function rangoHoras(ph){ const con=ph.filter(x=>x.compras>0); if(!con.length) return ph.filter(x=>x.hora>=8&&x.hora<=22); const a=Math.max(0,Math.min(...con.map(x=>x.hora))-1), b=Math.min(23,Math.max(...con.map(x=>x.hora))+1); return ph.filter(x=>x.hora>=a&&x.hora<=b); }
+function bloqueClienteMes(cm, podio, ga){
+  const n=panel.negocio;
+  return `<div class="card yellow" id="cmes"><span class="eyebrow" style="color:var(--vino);opacity:.75">Cliente del mes · ${mesLima()}</span>
+    <div class="row" style="justify-content:space-between;align-items:flex-start;gap:10px"><div class="grow"><div class="display" style="font-size:19px">${cm.premio?esc(cm.premio):'Aún no pusiste el premio'}</div><div style="font-size:12.5px;font-weight:700;opacity:.8">${cm.premio?'Premio para el cliente con más visitas del mes':'Ponle un premio para que tus clientes compitan'}</div></div><button class="btn sm" id="cm_edit" style="background:var(--vino);color:var(--amarillo);height:36px;padding:0 12px;font-size:13px">${cm.premio?'Cambiar':'Poner premio'}</button></div>
+    <form id="cm_f" class="hidden" style="display:flex;flex-direction:column;gap:8px"><input id="cm_in" maxlength="120" placeholder="Ej. Un combo familiar gratis" value="${esc(cm.premio||'')}" style="background:#fff;color:var(--vino);border-color:transparent"><div class="row"><button class="btn sm" type="submit" style="background:var(--vino);color:var(--amarillo)">Guardar</button><button class="btn sm" type="button" id="cm_no" style="background:transparent;border:1.5px solid var(--vino);color:var(--vino)">Cancelar</button></div><div id="cm_m" style="font-size:13px;font-weight:700"></div></form>
+    <div class="podio">${podio.length?podio.map((c,i)=>`<div class="p"><div class="rank">${i+1}</div><div class="grow" style="font-weight:800">${esc(c.nombre)}</div><span style="font-weight:800;font-size:13px">${c.visitas} visita${c.visitas==1?'':'s'}</span></div>`).join(''):'<div style="font-size:13.5px;font-weight:700">Nadie todavía este mes. El primero que compre empieza a liderar.</div>'}</div>
+    ${ga?`<div style="border-top:1.5px solid rgba(0,0,0,.12);padding-top:10px;display:flex;align-items:center;gap:10px"><div class="grow" style="font-size:13px;font-weight:700">Ganador de ${mesLima(-1)}: <b>${esc(ga.nombre)}</b> (${ga.visitas} visitas)</div>${cm.premio?`<a class="btn sm" style="text-decoration:none;background:var(--vino);color:var(--amarillo);height:36px;padding:0 12px;font-size:13px;gap:6px" target="_blank" rel="noopener" href="${waLink(ga.celular,`¡Hola ${primerNombre(ga.nombre)}! Fuiste el cliente del mes de ${mesLima(-1)} en ${n.nombre}. Ganaste: ${cm.premio}. Acércate a reclamarlo.`)}"><span style="width:16px;height:16px">${icon.wa}</span>Avisarle</a>`:''}</div>`:''}
+    <div style="font-size:12px;font-weight:600;opacity:.75">Gana quien tenga más visitas en el mes (si empatan, el que más consumió). Se reinicia el día 1. Cada cliente ve su puesto en su tarjeta.</div>
+  </div>`;
+}
+function enlazarClienteMes(){
+  const f=$('#cm_f'); if(!f) return;
+  $('#cm_edit').onclick=()=>{ f.classList.remove('hidden'); $('#cm_edit').classList.add('hidden'); $('#cm_in').focus(); };
+  $('#cm_no').onclick=()=>{ f.classList.add('hidden'); $('#cm_edit').classList.remove('hidden'); };
+  f.onsubmit=async ev=>{ ev.preventDefault(); const b=f.querySelector('button[type=submit]'); b.disabled=true;
+    try{ await rpc('guardar_premio_mes',{p_premio_mes:$('#cm_in').value}); vEstadisticas(); }catch(e){ $('#cm_m').textContent=e.message; b.disabled=false; } };
+}
+const CW=340;
+function graficoLinea(serie){
+  const H=170, L=6, R=6, T=22, B=22, n=serie.length, w=CW-L-R, h=H-T-B;
+  const max=Math.max(1,...serie.map(s=>Math.max(+s.ventas,+s.ventas_prev)));
+  const x=i=>L+(n>1?i*w/(n-1):w/2), y=v=>T+(1-(+v)/max)*h;
+  const pts=k=>serie.map((s,i)=>`${x(i).toFixed(1)},${y(s[k]).toFixed(1)}`).join(' L');
+  const area=`M${x(0)},${T+h} L${pts('ventas')} L${x(n-1)},${T+h} Z`;
+  const lab=[0,Math.floor((n-1)/2),n-1].map((i,j)=>`<text x="${x(i)}" y="${H-5}" text-anchor="${['start','middle','end'][j]}" font-size="11" fill="var(--rosa)" font-weight="700">${fecha(fechaISO(serie[i].fecha))}</text>`).join('');
+  return `<svg viewBox="0 0 ${CW} ${H}" role="img" aria-label="Ventas por día">
+    ${[0,.5,1].map(t=>`<line x1="${L}" x2="${CW-R}" y1="${T+h*t}" y2="${T+h*t}" stroke="var(--vino3)" stroke-width="1"/>`).join('')}
+    <text x="${L}" y="${T-8}" font-size="11" fill="var(--rosa)" font-weight="700">${soles(max).replace('.00','')}</text>
+    <path d="${area}" fill="var(--amarillo)" opacity=".14"/>
+    <path d="M${pts('ventas_prev')}" fill="none" stroke="var(--rosa)" stroke-width="2" stroke-dasharray="4 4" stroke-linejoin="round"/>
+    <path d="M${pts('ventas')}" fill="none" stroke="var(--amarillo)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <line id="cx" x1="0" x2="0" y1="${T}" y2="${T+h}" stroke="var(--crema)" stroke-width="1" opacity="0"/>
+    <circle id="cd" r="5" cx="0" cy="0" fill="var(--amarillo)" stroke="var(--vino2)" stroke-width="2" opacity="0"/>
+    ${lab}
+    <rect id="hit" x="0" y="0" width="${CW}" height="${H}" fill="transparent"/>
+  </svg>`;
+}
+function hoverLinea(serie){
+  const svg=$('#ch_l svg'); if(!svg) return; const n=serie.length, L=6, w=CW-12, T=22, h=170-44;
+  const max=Math.max(1,...serie.map(s=>Math.max(+s.ventas,+s.ventas_prev)));
+  const mover=ev=>{ const r=svg.getBoundingClientRect(); const px=(ev.clientX-r.left)*CW/r.width; const i=Math.max(0,Math.min(n-1,Math.round((px-L)/(n>1?w/(n-1):1)))); const s=serie[i]; const cx=L+(n>1?i*w/(n-1):w/2), cy=T+(1-(+s.ventas)/max)*h;
+    $('#cx').setAttribute('x1',cx); $('#cx').setAttribute('x2',cx); $('#cx').setAttribute('opacity','.5'); const c=$('#cd'); c.setAttribute('cx',cx); c.setAttribute('cy',cy); c.setAttribute('opacity','1');
+    $('#tip_l').textContent=`${fechaISO(s.fecha).toLocaleDateString('es-PE',{weekday:'short',day:'2-digit',month:'short'})} · ${soles(s.ventas)} (${s.compras} compra${s.compras==1?'':'s'}) · antes ${soles(s.ventas_prev)}`; };
+  svg.addEventListener('pointermove',mover); svg.addEventListener('pointerdown',mover);
+}
+function graficoBarras(items){
+  const H=140, T=8, B=20, n=items.length, gap=n>12?2:6, bw=(CW-gap*(n-1))/n, h=H-T-B;
+  const max=Math.max(1,...items.map(i=>i.v));
+  return `<svg viewBox="0 0 ${CW} ${H}" role="img">
+    <line x1="0" x2="${CW}" y1="${T+h}" y2="${T+h}" stroke="var(--vino3)" stroke-width="1"/>
+    ${items.map((it,i)=>{ const x=i*(bw+gap), bh=it.v?Math.max(3,it.v/max*h):0, y=T+h-bh, r=Math.min(4,bw/2,bh); const top=it.v===max&&it.v>0;
+      return `<g data-t="${esc(it.t)}">${bh?`<path d="M${x},${T+h} V${y+r} Q${x},${y} ${x+r},${y} H${x+bw-r} Q${x+bw},${y} ${x+bw},${y+r} V${T+h} Z" fill="${top?'var(--amarillo)':'var(--borde)'}"/>`:''}
+        ${it.l?`<text x="${x+bw/2}" y="${H-5}" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--rosa)">${it.l}</text>`:''}
+        <rect x="${x-gap/2}" y="0" width="${bw+gap}" height="${H}" fill="transparent"/></g>`; }).join('')}
+  </svg>`;
+}
+function hoverBarras(id, tipId){ const svg=$('#'+id+' svg'); if(!svg) return; svg.querySelectorAll('g[data-t]').forEach(g=>{ const f=()=>{ $('#'+tipId).textContent=g.dataset.t; svg.querySelectorAll('g path').forEach(p=>p.style.opacity=''); svg.querySelectorAll('g').forEach(o=>{ if(o!==g){ const p=o.querySelector('path'); if(p) p.style.opacity='.45'; } }); }; g.addEventListener('pointerenter',f); g.addEventListener('pointerdown',f); }); svg.addEventListener('pointerleave',()=>svg.querySelectorAll('g path').forEach(p=>p.style.opacity='')); }
 
 // ----- Panel del encargado -----
 function vPanel(){
