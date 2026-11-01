@@ -47,6 +47,9 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .msg{border-radius:14px;padding:12px 14px;font-weight:600;font-size:14px}
 .msg.err{background:#2E0A0A;border:1.5px solid #B3473A;color:#FFD0CA}
 .msg.ok{background:var(--vino2);border:1.5px solid var(--amarillo)}
+.wallet-btns{display:flex;flex-direction:column;gap:10px}
+.wbtn{display:flex;align-items:center;justify-content:center;gap:10px;height:54px;border-radius:14px;background:#000;color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.35)}
+.wbtn svg{width:26px;height:26px}.wbtn span{display:flex;flex-direction:column;line-height:1.05;font-weight:700;font-size:17px;text-align:left}.wbtn small{font-size:11px;font-weight:600;opacity:.85}
 .aviso{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translate(-50%,12px);width:max-content;max-width:min(92vw,440px);z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
 .aviso.ver{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;background:var(--vino2);border-radius:14px;padding:5px}
@@ -149,6 +152,8 @@ const store = { get:k=>{try{return localStorage.getItem(k)}catch{return null}}, 
 const rpc = async (fn, args={}) => { const {data,error} = await sb.rpc(fn, args); if (error) throw new Error(limpiaError(error.message)); return data; };
 const limpiaError = m => (m||'Error').replace(/^.*?:\s*/,'').replace(/\(SQLSTATE.*\)/,'').trim();
 const icon = {
+  applew:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="3"/><path d="M3 9h18M16 14h2"/><path d="M6 5l9-3 2 3"/></svg>',
+  googlew:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="3"/><path d="M3 9h18M16 14h2"/><path d="M6 5l9-3 2 3"/></svg>',
   plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>',
   gift:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v8H4v-8M2 7h20v5H2zM12 22V7M12 7c-2-3-6-3-6-1s4 1 6 1zM12 7c2-3 6-3 6-1s-4 1-6 1z"/></svg>',
   clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
@@ -174,6 +179,26 @@ function aplicarTema(n){
 }
 function modoLobby(){ document.body.classList.add('lobby'); const m=document.querySelector('meta[name=theme-color]'); if(m) m.content='#FFFFFF'; }
 
+// ---------- Apple Wallet / Google Wallet ----------
+const WALLET_URL = `${SUPABASE_URL}/functions/v1/wallet`;
+let walletOn = {apple:false, google:false};
+const walletListo = fetch(`${WALLET_URL}/estado`).then(r=>r.json()).then(j=>{ walletOn=j; return j; }).catch(()=>walletOn);
+const esIOS = /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent) && !/Android/.test(navigator.userAgent);
+const esAndroid = /Android/.test(navigator.userAgent);
+function msgTarjeta(nombre, negocio, link){
+  const w = walletOn.apple || walletOn.google;
+  return `Hola ${String(nombre||'').split(' ')[0]}, esta es tu tarjeta de sellos de ${negocio}: ${link}` + (w ? `\n\nÁbrela y toca «Añadir a Wallet» para tenerla siempre en tu celular.` : '');
+}
+function botonesWallet(tok){
+  const apple = walletOn.apple && (esIOS || !esAndroid), google = walletOn.google && (esAndroid || !esIOS);
+  if(!apple && !google) return '';
+  const t = encodeURIComponent(tok);
+  return `<div class="wallet-btns">
+    ${apple?`<a class="wbtn" href="${WALLET_URL}/apple?t=${t}">${icon.applew}<span><small>Añadir a</small>Apple Wallet</span></a>`:''}
+    ${google?`<a class="wbtn" href="${WALLET_URL}/google?t=${t}">${icon.googlew}<span><small>Añadir a</small>Google Wallet</span></a>`:''}
+  </div>`;
+}
+
 // ---------- Tarjeta pública del cliente (?t=TOKEN) ----------
 const token = new URLSearchParams(location.search).get('t');
 if (token) { vistaTarjeta(token); } else { iniciarStaff(); }
@@ -187,6 +212,8 @@ async function vistaTarjeta(tok){
   try{
     const e = await rpc('tarjeta_por_token',{p_token:tok});
     renderTarjeta(e, tok);
+    walletListo.then(()=>renderTarjeta(e, tok));
+    const aviso = new URLSearchParams(location.search).get('aviso'); if(aviso) alertMsg(aviso);
     document.addEventListener('visibilitychange', async()=>{ if(!document.hidden){ try{ renderTarjeta(await rpc('tarjeta_por_token',{p_token:tok}), tok);}catch{} } });
   }catch(err){
     modoLobby(); app.innerHTML = `<div class="screen center" style="justify-content:center"><h1>Tarjeta no encontrada</h1><p class="sub">Pide en caja que te vuelvan a enviar tu link.</p></div>`;
@@ -215,8 +242,9 @@ function renderTarjeta(e, tok){
         <span style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--borde)">${esc(tok.slice(0,8).toUpperCase())}</span>
       </div>
     </div>
+    <div id="wbox">${botonesWallet(tok)}</div>
     <div class="row" style="justify-content:space-between;padding:0 4px"><span class="hint">${esc(n.nombre)}${n.direccion?' · '+esc(n.direccion):''}</span><span style="color:var(--amarillo)">${PIE}</span></div>
-    <p class="hint center">Guarda esta página en tu pantalla de inicio para tenerla a mano.</p>
+    <p class="hint center">${walletOn.apple||walletOn.google?'Guárdala en tu Wallet o en la pantalla de inicio para tenerla a mano.':'Guarda esta página en tu pantalla de inicio para tenerla a mano.'}</p>
   </div>`;
 }
 
@@ -415,7 +443,7 @@ function vRegistrar(){
       if(!clienteSel){ const q=cel.value.replace(/\D/g,''); if(q.length!==9) throw new Error('Escribe los 9 dígitos del celular y elige al cliente.'); const c = await rpc('buscar_o_crear_cliente',{p_nombre:$('#nom').value, p_celular:q}); clienteSel={id:c.id,nombre:c.nombre,celular:c.celular,token:c.token_tarjeta}; }
       const monto = parseFloat(String($('#monto').value).replace(',','.')); if(isNaN(monto)||monto<0) throw new Error('Escribe el monto de la compra.');
       const r = await rpc('registrar_compra',{p_cliente_id:clienteSel.id, p_monto:monto, ...per}); recordarPin(per);
-      const link=`${BASE_URL}?t=${r.cliente.token}`; const wa=`https://wa.me/51${r.cliente.celular}?text=${encodeURIComponent(`Hola ${r.cliente.nombre.split(' ')[0]}, esta es tu tarjeta de sellos de ${panel.negocio.nombre}: ${link}`)}`;
+      const link=`${BASE_URL}?t=${r.cliente.token}`; const wa=`https://wa.me/51${r.cliente.celular}?text=${encodeURIComponent(msgTarjeta(r.cliente.nombre, panel.negocio.nombre, link))}`;
       out.innerHTML = `<div class="card ${r.premio_nuevo?'yellow premio-in':'outline'}" style="margin-top:4px">
         <div class="row"><span style="width:26px;height:26px;flex-shrink:0">${icon.check}</span><div class="grow"><div class="display" style="font-size:16px">${r.premio_nuevo?`¡Tarjeta completa! ${esc(r.cliente.nombre.split(' ')[0])} llegó a ${r.meta} de ${r.meta}`:r.sumo_sello?`Sello sumado · ${esc(r.cliente.nombre.split(' ')[0])} tiene ${r.sellos} de ${r.meta}`:`Compra registrada (no suma sello: menor a ${soles(panel.negocio.monto_minimo)})`}</div><div class="s" style="font-size:12.5px">${soles(monto)} · ${fechaHora(new Date())}</div></div></div>
         ${r.premio_nuevo?`<div style="font-weight:700">Premio disponible: ${esc(panel.negocio.premio)} (vence en ${panel.negocio.premio_vigencia_dias} días). Su tarjeta vuelve a empezar en 0 de ${r.meta}.</div>`:''}
@@ -594,7 +622,7 @@ function vPanel(){
         <div class="row"><div class="field grow"><label>Monto mínimo (S/)</label><input id="c_min" type="number" step="0.5" value="${n.monto_minimo}"></div><div class="field grow"><label>Meta de sellos</label><input id="c_meta" type="number" min="2" max="20" value="${n.meta_sellos}"></div><div class="field grow"><label>Premio vence (días)</label><input id="c_vig" type="number" min="1" value="${n.premio_vigencia_dias}"></div></div>
         <div class="row"><div class="field grow"><label>WhatsApp</label><input id="c_wa" value="${esc(n.whatsapp||'')}"></div><div class="field grow"><label>Dirección</label><input id="c_dir" value="${esc(n.direccion||'')}"></div></div>
         <div class="row"><div class="field grow"><label>Color principal</label><input id="c_col1" type="color" value="${n.color_primario||'#460E0D'}" style="padding:4px;height:50px"></div><div class="field grow"><label>Color de acento</label><input id="c_col2" type="color" value="${n.color_acento||'#F9B40F'}" style="padding:4px;height:50px"></div></div>
-        <div class="field"><label>Logo (imagen, máx. 200 KB)</label><input id="c_logo" type="file" accept="image/*" style="padding:10px"></div>
+        <div class="field"><label>Logo (PNG o JPG; se ajusta solo)</label><input id="c_logo" type="file" accept="image/*" style="padding:10px"></div>
         <div id="mc" class="msg hidden"></div><button class="btn sm" type="submit">Guardar cambios</button></form></div>
     ${panel.es_superadmin?'<button class="btn ghost" id="maestro">Panel maestro YA! VOLVERÁS...</button>':''}
     <button class="btn danger" id="out">Cerrar sesión</button>
@@ -605,11 +633,25 @@ function vPanel(){
   $('#addp').onclick=()=>$('#fp').classList.toggle('hidden');
   $('#fp').onsubmit=async ev=>{ev.preventDefault(); try{ await rpc('guardar_personal',{p_nombre:$('#pn').value.trim(),p_rol:$('#pr').value,p_pin:$('#pp').value}); await cargarPanel(); }catch(e){ const m=$('#mp'); m.textContent=e.message; m.classList.remove('hidden'); }};
   $('#pl').querySelectorAll('button[data-id]').forEach(b=>b.onclick=async()=>{ try{ await rpc('desactivar_personal',{p_id:b.dataset.id,p_activo:b.dataset.act!=='true'}); await cargarPanel(); }catch(e){ alertMsg(e.message);} });
-  let t; $('#cq').oninput=()=>{clearTimeout(t);t=setTimeout(async()=>{ const l=await rpc('buscar_clientes',{p_q:$('#cq').value}); $('#cl').innerHTML=l.map(c=>{const link=`${BASE_URL}?t=${c.token}`; return `<div class="item"><div class="avatar">${ini(c.nombre)}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">${c.celular}</div></div><a class="btn sm ghost" style="text-decoration:none;height:36px;padding:0 10px" href="https://wa.me/51${c.celular}?text=${encodeURIComponent(`Hola ${c.nombre.split(' ')[0]}, esta es tu tarjeta de sellos de ${n.nombre}: ${link}`)}" target="_blank" rel="noopener"><span style="width:18px;height:18px">${icon.wa}</span></a></div>`}).join('')||'<p class="hint">Sin resultados.</p>'; },300)};
-  $('#fc').onsubmit=async ev=>{ev.preventDefault(); const m=$('#mc'); m.className='msg hidden'; try{ let logo=null; const f=$('#c_logo').files[0]; if(f){ if(f.size>200*1024) throw new Error('El logo pesa más de 200 KB; redúcelo.'); logo=await new Promise((ok,ko)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=ko;r.readAsDataURL(f);}); }
+  let t; $('#cq').oninput=()=>{clearTimeout(t);t=setTimeout(async()=>{ const l=await rpc('buscar_clientes',{p_q:$('#cq').value}); $('#cl').innerHTML=l.map(c=>{const link=`${BASE_URL}?t=${c.token}`; return `<div class="item"><div class="avatar">${ini(c.nombre)}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">${c.celular}</div></div><a class="btn sm ghost" style="text-decoration:none;height:36px;padding:0 10px" href="https://wa.me/51${c.celular}?text=${encodeURIComponent(msgTarjeta(c.nombre, n.nombre, link))}" target="_blank" rel="noopener"><span style="width:18px;height:18px">${icon.wa}</span></a></div>`}).join('')||'<p class="hint">Sin resultados.</p>'; },300)};
+  $('#fc').onsubmit=async ev=>{ev.preventDefault(); const m=$('#mc'); m.className='msg hidden'; try{ let logo=null; const f=$('#c_logo').files[0]; if(f){ if(f.size>3*1024*1024) throw new Error('El logo pesa más de 3 MB; usa una imagen más liviana.'); logo=await logoPNG(f); }
     await rpc('actualizar_negocio',{p_nombre:$('#c_nombre').value,p_premio:$('#c_premio').value,p_monto_minimo:parseFloat($('#c_min').value),p_meta:parseInt($('#c_meta').value),p_vigencia:parseInt($('#c_vig').value),p_whatsapp:$('#c_wa').value,p_direccion:$('#c_dir').value,p_logo_url:logo,p_color_primario:$('#c_col1').value,p_color_acento:$('#c_col2').value});
     await cargarPanel(); }catch(e){ m.className='msg err'; m.textContent=e.message; }};
   $('#out').onclick=salir;
+}
+// Logo: se guarda siempre como PNG (Apple Wallet solo acepta PNG) y se achica hasta pesar menos de 200 KB.
+async function logoPNG(f){
+  const url=URL.createObjectURL(f);
+  try{
+    const img=await new Promise((ok,ko)=>{const i=new Image(); i.onload=()=>ok(i); i.onerror=()=>ko(new Error('No se pudo leer la imagen del logo.')); i.src=url;});
+    for(const lado of [600,480,360,260]){
+      const k=Math.min(1, lado/Math.max(img.naturalWidth,img.naturalHeight));
+      const c=document.createElement('canvas'); c.width=Math.max(1,Math.round(img.naturalWidth*k)); c.height=Math.max(1,Math.round(img.naturalHeight*k));
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      const d=c.toDataURL('image/png'); if(d.length*0.75 < 200*1024) return d;
+    }
+    throw new Error('El logo es muy pesado incluso achicado; usa una imagen más simple.');
+  } finally { URL.revokeObjectURL(url); }
 }
 // Cerrar sesión a prueba de fallos: intenta avisar al servidor, pero igual borra la sesión del equipo y recarga.
 async function salir(){
