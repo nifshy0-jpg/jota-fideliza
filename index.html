@@ -47,6 +47,8 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .msg{border-radius:14px;padding:12px 14px;font-weight:600;font-size:14px}
 .msg.err{background:#2E0A0A;border:1.5px solid #B3473A;color:#FFD0CA}
 .msg.ok{background:var(--vino2);border:1.5px solid var(--amarillo)}
+.aviso{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translate(-50%,12px);width:max-content;max-width:min(92vw,440px);z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+.aviso.ver{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;background:var(--vino2);border-radius:14px;padding:5px}
 .seg button{height:40px;border:0;border-radius:10px;background:transparent;color:var(--crema);font-weight:700;font-size:14px;cursor:pointer;transition:background var(--dur) var(--ease-out),color var(--dur)}
 .seg button.on{background:var(--amarillo);color:var(--vino)}
@@ -609,7 +611,14 @@ function vPanel(){
     await cargarPanel(); }catch(e){ m.className='msg err'; m.textContent=e.message; }};
   $('#out').onclick=()=>sb.auth.signOut();
 }
-function alertMsg(t){ const v=$('#vista'); v.insertAdjacentHTML('afterbegin',`<div class="msg err" style="margin-bottom:10px">${esc(t)}</div>`); }
+// Aviso flotante único: si ya hay uno, se reemplaza (nunca se apilan) y se oculta solo a los 4 s.
+let _avisoT;
+function alertMsg(t){
+  let el=document.getElementById('aviso');
+  if(!el){ el=document.createElement('div'); el.id='aviso'; el.className='msg err aviso'; el.setAttribute('role','alert'); el.onclick=()=>el.classList.remove('ver'); document.body.appendChild(el); }
+  el.textContent=t; el.classList.add('ver');
+  clearTimeout(_avisoT); _avisoT=setTimeout(()=>el.classList.remove('ver'),4000);
+}
 
 // ----- Escáner QR (usa la cámara si el navegador lo permite) -----
 async function escanear(onResult){
