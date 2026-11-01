@@ -170,7 +170,7 @@ if (token) { vistaTarjeta(token); } else { iniciarStaff(); }
 
 function qrSVG(text){ const q = qrcode(0,'M'); q.addData(text); q.make(); return q.createSvgTag({cellSize:4, margin:0, scalable:true}); }
 function stampsHTML(sellos, meta, nuevo){ let h=''; for(let i=1;i<=meta;i++){ const on=i<=sellos; h+=`<div class="stamp ${on?'on':''} ${on&&nuevo===i?'new':''}">${on?icon.check:i}</div>`; } return h; }
-function mensajeSellos(s, meta){ const f=meta-s; if(s===0) return 'Tu primera compra suma tu primer sello.'; if(f===1) return 'Te falta 1 sello para tu premio.'; if(f<=0) return 'Completaste la tarjeta.'; return `Te faltan ${f} sellos para tu premio.`; }
+function mensajeSellos(s, meta, premio){ const f=meta-s; if(premio && s===0) return 'Completaste tu tarjeta: tu premio está listo. Tu próxima compra inicia una nueva.'; if(s===0) return 'Tu primera compra suma tu primer sello.'; if(f===1) return 'Te falta 1 sello para tu premio.'; if(f<=0) return 'Completaste la tarjeta.'; return `Te faltan ${f} sellos para tu premio.`; }
 
 async function vistaTarjeta(tok){
   document.title = 'Mi tarjeta';
@@ -192,7 +192,7 @@ function renderTarjeta(e, tok){
     <div class="card">
       <div class="row" style="justify-content:space-between"><h3>Tus sellos</h3><span class="display" style="font-size:22px;color:var(--amarillo)">${e.sellos} de ${e.meta}</span></div>
       <div class="stamps">${stampsHTML(e.sellos,e.meta)}</div>
-      <p class="sub">${mensajeSellos(e.sellos,e.meta)}</p>
+      <p class="sub">${mensajeSellos(e.sellos,e.meta,!!premio)}</p>
     </div>
     ${premio?`<div class="card yellow premio-in"><span class="display" style="font-size:19px">Tienes un premio listo</span><span style="font-weight:600">${esc(premio.descripcion)}</span><span style="font-size:12.5px;font-weight:700">Vence el ${fecha(premio.vence_en)} · muéstralo en caja</span></div>`
             :`<div class="card outline" style="gap:3px"><span class="eyebrow" style="text-transform:none;letter-spacing:.02em">Tu premio al completar ${e.meta}</span><span class="display" style="font-size:17px;font-weight:700">${esc(n.premio)}</span></div>`}
@@ -390,9 +390,9 @@ function vRegistrar(){
       const r = await rpc('registrar_compra',{p_cliente_id:clienteSel.id, p_monto:monto, ...per}); recordarPin(per);
       const link=`${BASE_URL}?t=${r.cliente.token}`; const wa=`https://wa.me/51${r.cliente.celular}?text=${encodeURIComponent(`Hola ${r.cliente.nombre.split(' ')[0]}, esta es tu tarjeta de sellos de ${panel.negocio.nombre}: ${link}`)}`;
       out.innerHTML = `<div class="card ${r.premio_nuevo?'yellow premio-in':'outline'}" style="margin-top:4px">
-        <div class="row"><span style="width:26px;height:26px;flex-shrink:0">${icon.check}</span><div class="grow"><div class="display" style="font-size:16px">${r.sumo_sello?`Sello sumado · ${esc(r.cliente.nombre.split(' ')[0])} tiene ${r.sellos} de ${r.meta}`:`Compra registrada (no suma sello: menor a ${soles(panel.negocio.monto_minimo)})`}</div><div class="s" style="font-size:12.5px">${soles(monto)} · ${fechaHora(new Date())}</div></div></div>
-        ${r.premio_nuevo?`<div style="font-weight:700">¡Completó la tarjeta! Premio disponible: ${esc(panel.negocio.premio)} (vence en ${panel.negocio.premio_vigencia_dias} días).</div>`:''}
-        <div class="stamps">${stampsHTML(r.sellos,r.meta,r.sumo_sello?r.sellos:0)}</div>
+        <div class="row"><span style="width:26px;height:26px;flex-shrink:0">${icon.check}</span><div class="grow"><div class="display" style="font-size:16px">${r.premio_nuevo?`¡Tarjeta completa! ${esc(r.cliente.nombre.split(' ')[0])} llegó a ${r.meta} de ${r.meta}`:r.sumo_sello?`Sello sumado · ${esc(r.cliente.nombre.split(' ')[0])} tiene ${r.sellos} de ${r.meta}`:`Compra registrada (no suma sello: menor a ${soles(panel.negocio.monto_minimo)})`}</div><div class="s" style="font-size:12.5px">${soles(monto)} · ${fechaHora(new Date())}</div></div></div>
+        ${r.premio_nuevo?`<div style="font-weight:700">Premio disponible: ${esc(panel.negocio.premio)} (vence en ${panel.negocio.premio_vigencia_dias} días). Su tarjeta vuelve a empezar en 0 de ${r.meta}.</div>`:''}
+        <div class="stamps">${r.premio_nuevo?stampsHTML(r.meta,r.meta,r.meta):stampsHTML(r.sellos,r.meta,r.sumo_sello?r.sellos:0)}</div>
         <a class="btn sm ${r.premio_nuevo?'':'ghost'}" style="text-decoration:none;${r.premio_nuevo?'background:var(--vino);color:var(--amarillo)':''}" href="${wa}" target="_blank" rel="noopener"><span style="width:20px;height:20px">${icon.wa}</span>Enviar tarjeta por WhatsApp</a>
       </div>`;
       cel.value=''; $('#monto').value=''; clienteSel=null; cli.innerHTML=''; nuevo.classList.add('hidden'); cel.focus();
@@ -412,7 +412,7 @@ function vCanjear(){
   async function detalle(id){ res.innerHTML=''; m.classList.add('hidden'); det.innerHTML='<div class="skeleton"></div>';
     try{ const e=await rpc('estado_tarjeta',{p_cliente_id:id}); const p=e.premio_disponible;
       det.innerHTML = `${bloqueCliente(e.cliente,e)}
-        <div class="card" style="margin-top:8px"><div class="stamps">${stampsHTML(e.sellos,e.meta)}</div><p class="sub">${mensajeSellos(e.sellos,e.meta)}</p></div>
+        <div class="card" style="margin-top:8px"><div class="stamps">${stampsHTML(e.sellos,e.meta)}</div><p class="sub">${mensajeSellos(e.sellos,e.meta,!!p)}</p></div>
         ${p?`<div class="card yellow" style="margin-top:8px"><span class="display" style="font-size:18px">Premio disponible</span><span style="font-weight:600">${esc(p.descripcion)}</span><span style="font-size:12.5px;font-weight:700">Otorgado el ${fecha(p.otorgado_en)} · vence el ${fecha(p.vence_en)}</span>
              <button class="btn hold" id="canje" style="background:var(--vino);color:var(--amarillo);margin-top:6px"><div class="bar"></div><span style="position:relative">Mantén presionado para canjear</span></button></div>`
           :`<div class="msg ok" style="margin-top:8px">Este cliente no tiene premio disponible todavía.</div>`}`;
