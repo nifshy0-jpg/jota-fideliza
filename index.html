@@ -218,6 +218,7 @@ async function iniciarStaff(){
   await cargarPanel();
 }
 async function cargarPanel(){
+  const {error:eu} = await sb.auth.getUser(); if(eu){ await sb.auth.signOut().catch(()=>{}); session=null; panel=null; return vistaLogin('Tu sesión ya no es válida. Vuelve a entrar.'); }
   try{ panel = await rpc('mi_panel'); }catch(err){ return vistaLogin(err.message); }
   if(panel && panel.es_superadmin && (!panel.negocio || vistaForzada==='maestro')) return vistaMaestro();
   if(!panel || !panel.negocio) return vistaRegistrarNegocio();
