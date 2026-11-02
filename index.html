@@ -182,8 +182,8 @@ function modoLobby(){ document.body.classList.add('lobby'); const m=document.que
 // ---------- Apple Wallet / Google Wallet ----------
 const WALLET_URL = `${SUPABASE_URL}/functions/v1/wallet`;
 let walletOn = {apple:false, google:false};
-// Google Wallet sigue en modo prueba (solo la cuenta de Jason puede guardar): el botón se muestra cuando Google apruebe la publicación.
-const GOOGLE_PUBLICO = false;
+// Google Wallet: acceso de publicación aprobado por Google el 2 nov 2026.
+const GOOGLE_PUBLICO = true;
 const walletListo = fetch(`${WALLET_URL}/estado`).then(r=>r.json()).then(j=>{ walletOn={apple:!!j.apple, google:!!j.google && GOOGLE_PUBLICO}; return walletOn; }).catch(()=>walletOn);
 const esIOS = /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent) && !/Android/.test(navigator.userAgent);
 const esAndroid = /Android/.test(navigator.userAgent);
