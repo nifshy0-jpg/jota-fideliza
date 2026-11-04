@@ -397,23 +397,31 @@ let vistaForzada=null;
 const usuarioACorreo = u => { u=String(u||'').trim().toLowerCase(); return u.includes('@') ? u : `${u}@yavolveras.com`; };
 function vistaLogin(msg=''){
   modoLobby(); document.title='YA! VOLVERÁS...';
+  let finT=''; try{ finT=localStorage.getItem('yv_fin_turno')||''; localStorage.removeItem('yv_fin_turno'); }catch{}
   app.innerHTML = `<div class="screen" style="justify-content:center;gap:26px;padding-bottom:40px">
     <div style="display:flex;flex-direction:column;align-items:center;gap:18px">${LOGO()}<h1 style="font-size:28px">Ingresa a tu negocio</h1></div>
     <form id="f" style="display:flex;flex-direction:column;gap:10px">
       <div class="field"><input id="em" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required placeholder="Usuario" value="${esc(store.get('yv_usuario')||'')}"></div>
-      <div class="field"><input id="pw" type="password" autocomplete="current-password" required minlength="6" placeholder="Contraseña"></div>
+      <div class="field"><input id="pw" type="password" autocomplete="current-password" required minlength="4" placeholder="Contraseña o PIN"></div>
       <div id="m" class="msg err ${msg?'':'hidden'}">${esc(msg)}</div>
+      ${finT?`<div class="msg ok">${esc(finT)}</div>`:''}
       <button class="btn" type="submit" style="margin-top:4px">Entrar</button>
     </form>
-    <p class="hint center" style="margin-top:auto">Tu usuario y contraseña te los entrega YA! VOLVERÁS...</p>
+    <p class="hint center" style="margin-top:auto">Empleados y Caja: tu usuario y tu PIN de 4 números.<br>Dueños: tu usuario y tu contraseña.</p>
   </div>`;
   const f=$('#f'), m=$('#m');
   const showErr = t => { m.className='msg err'; m.textContent=t; };
   f.onsubmit = async ev => { ev.preventDefault(); m.classList.add('hidden'); const b=f.querySelector('.btn'); b.disabled=true;
     const usuario=$('#em').value.trim(), pass=$('#pw').value;
     try{
-      const {error} = await sb.auth.signInWithPassword({email:usuarioACorreo(usuario), password:pass});
-      if(error) throw new Error(traduceAuth(error.message));
+      if(/^\d{4}$/.test(pass)){
+        const a = await rpc('acceso_empleado',{p_usuario:usuario, p_pin:pass}); if(a.error) throw new Error(a.error.replace('Te quedan 1 intentos','Te queda 1 intento'));
+        const {error} = await sb.auth.signInWithPassword({email:a.email, password:a.clave}); if(error) throw new Error(traduceAuth(error.message));
+        await rpc('empezar_turno');
+      } else {
+        const {error} = await sb.auth.signInWithPassword({email:usuarioACorreo(usuario), password:pass});
+        if(error) throw new Error(traduceAuth(error.message));
+      }
       if(!usuario.includes('@')) store.set('yv_usuario', usuario.toLowerCase());
       const {data:{session:s}} = await sb.auth.getSession(); session=s; await cargarPanel();
     }catch(e){ showErr(e.message); b.disabled=false; } };
@@ -501,60 +509,77 @@ async function vistaMaestro(){
   cargar();
 }
 
+const ROL={dueno:'Dueño', caja:'Caja', mesero:'Empleado'};
+const horaCorta = t => new Date(t).toLocaleTimeString('es-PE',{hour:'numeric',minute:'2-digit'});
 function render(){
   if(!panel) return vistaLogin();
   const n=panel.negocio; aplicarTema(n); document.title=n.nombre+' · YA! VOLVERÁS...';
-  const sinPersonal = !panel.personal.length;
-  if(sinPersonal && panel.es_admin && tab!=='panel'){ tab='panel'; }
-  if(!libre() && !['registrar','canjear','qr'].includes(tab)) tab='registrar';
-  if(libre() && tab==='qr') tab='registrar';
+  const rol = panel.rol || (panel.es_admin?'dueno':'mesero');
+  if(rol!=='dueno' && panel.yo && !panel.turno) return vistaTurno();
+  if(tab==='panel') tab='ajustes'; if(tab==='stats') tab='resultados';
+  const T={registrar:[icon.plus,'Registrar',vRegistrar], canjear:[icon.gift,'Canjear',vCanjear], historial:[icon.clock,'Historial',vHistorial],
+    resultados:[icon.stats,'Resultados',vResultados], ajustes:[icon.panel,'Ajustes',vPanel], qr:[icon.qr,'QR clientes',vQR], cuadre:[icon.stats,'Cuadre',vCuadre]};
+  const tabs = rol==='dueno' ? ['registrar','canjear','historial','resultados','ajustes'] : rol==='caja' ? ['registrar','canjear','qr','cuadre'] : ['registrar','canjear','qr'];
+  if(!tabs.includes(tab)) tab='registrar';
+  const quien = panel.yo ? `Atiende: ${esc(panel.yo.nombre)}${panel.turno?` · desde ${horaCorta(panel.turno.inicio)}`:''}` : '';
   app.innerHTML = `<div class="screen">
     ${panel.es_superadmin?`<div class="msg ok" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px"><span style="font-size:13px">Estás dentro de <b>${esc(n.nombre)}</b> como administrador</span><button class="btn sm" id="volverM" style="height:34px;padding:0 12px;font-size:13px;flex-shrink:0">Panel maestro</button></div>`:''}
     <div class="top" style="align-items:flex-start">
-      <div>${n.logo_url?`<img class="toplogo" src="${esc(n.logo_url)}" alt="${esc(n.nombre)}">`:`<span class="eyebrow">${esc(n.nombre)}</span>`}<h1 id="titulo"></h1></div>
-      <div class="row">${puedeBloquear()?`<button class="lockb ${libre()?'abierto':''}" id="lockb">${libre()?icon.unlock+'Bloquear':icon.lock+'Dueño'}</button>`:''}</div>
+      <div>${n.logo_url?`<img class="toplogo" src="${esc(n.logo_url)}" alt="${esc(n.nombre)}">`:`<span class="eyebrow">${esc(n.nombre)}</span>`}${quien?`<div class="hint" style="color:var(--crema);font-weight:700;margin:2px 0 4px">${quien}</div>`:''}<h1 id="titulo"></h1></div>
+      <div class="row">${rol!=='dueno' && panel.turno?`<button class="lockb" id="finTurno">${icon.logout}Terminar turno</button>`:''}</div>
     </div>
     <div id="vista"></div>
   </div>
-  <nav class="nav"><div class="in">
-    <button data-t="registrar">${icon.plus}Registrar</button>
-    <button data-t="canjear">${icon.gift}Canjear</button>
-    ${libre()?`<button data-t="historial">${icon.clock}Historial</button>
-    ${panel.es_admin?`<button data-t="stats">${icon.stats}Estadísticas</button>`:''}
-    <button data-t="panel">${icon.panel}Panel</button>`:`<button data-t="qr">${icon.qr}QR clientes</button>`}
-  </div></nav>`;
+  <nav class="nav"><div class="in">${tabs.map(t=>`<button data-t="${t}">${T[t][0]}${T[t][1]}</button>`).join('')}</div></nav>`;
   document.querySelectorAll('.nav button').forEach(b=>{ b.classList.toggle('on', b.dataset.t===tab); b.onclick=()=>{ tab=b.dataset.t; render(); }; });
   if($('#volverM')) $('#volverM').onclick=async()=>{ try{ await rpc('admin_salir_negocio'); }catch{} vistaForzada='maestro'; await cargarPanel(); };
-  if(tab==='stats' && !panel.es_admin) tab='registrar';
-  if($('#lockb')) $('#lockb').onclick=()=>{ if(libre()){ bloquear(); } else pedirDesbloqueo(); };
-  ({registrar:vRegistrar, canjear:vCanjear, historial:vHistorial, stats:vEstadisticas, panel:vPanel, qr:vQR})[tab]();
-  if(!sinPersonal && tab==='panel' && panel.es_admin && !panel.es_superadmin && !adminsLocal().length){ $('#vista').insertAdjacentHTML('afterbegin', `<div class="msg ok" style="margin-bottom:12px">Agrega a alguien con rol Caja o Encargado para activar el modo empleado (los demás solo verán Registrar, Canjear y QR).</div>`); }
-  if(sinPersonal && tab==='panel'){ $('#vista').insertAdjacentHTML('afterbegin', `<div class="msg ok" style="margin-bottom:12px">Primero agrega a las personas que van a registrar (caja, mesero, encargado), cada una con su PIN.</div>`); }
+  if($('#finTurno')) dobleToque($('#finTurno'), async()=>{ try{ const r=await rpc('terminar_turno'); if(r.ok) try{ localStorage.setItem('yv_fin_turno', `Turno terminado: ${horaCorta(r.inicio)} a ${horaCorta(r.fin)} · ${r.ventas} venta${r.ventas===1?'':'s'}.`); }catch{} }catch{} salir(); });
+  T[tab][2]();
 }
 
-// ----- Modo empleado / modo dueño -----
-// El equipo del local abre siempre en modo empleado (Registrar, Canjear, QR). Caja o Encargado lo desbloquean con su PIN; se vuelve a bloquear tras 5 min sin uso.
-const BLOQ_MIN=5; let desbloq={hasta:0,nombre:''};
-const adminsLocal = () => panel ? panel.personal.filter(p=>p.activo && (p.rol==='caja'||p.rol==='encargado')) : [];
-const puedeBloquear = () => panel && panel.es_admin && !panel.es_superadmin && adminsLocal().length>0;
-const libre = () => !puedeBloquear() || Date.now()<desbloq.hasta;
-function bloquear(aviso){ desbloq={hasta:0,nombre:''}; olvidarPin(); render(); if(aviso) alertMsg(aviso); }
-['pointerdown','keydown'].forEach(e=>document.addEventListener(e,()=>{ if(desbloq.hasta>Date.now()) desbloq.hasta=Date.now()+BLOQ_MIN*60000; },{passive:true}));
-setInterval(()=>{ if(desbloq.hasta && Date.now()>=desbloq.hasta && panel && !document.querySelector('.hoja')) bloquear('Se activó el modo empleado.'); },10000);
-function pedirDesbloqueo(){
-  const ad=adminsLocal(), ult=store.get('jf_admin');
-  const ov=document.createElement('div'); ov.className='hoja';
-  ov.innerHTML=`<form class="card" id="fd"><div class="row" style="justify-content:space-between"><h3>Modo dueño</h3><button type="button" class="btn sm danger" id="dx" style="height:34px;width:auto;padding:0 12px;font-size:13px">Cancelar</button></div>
-    <p class="hint" style="color:var(--crema)">Solo Caja o Encargado. Da acceso a Historial, Estadísticas y Panel; se bloquea solo tras ${BLOQ_MIN} minutos sin uso.</p>
-    <div class="row"><div class="field grow"><label>¿Quién eres?</label><select id="dq">${ad.map(p=>`<option value="${p.id}" ${p.id===ult?'selected':''}>${esc(p.nombre)} · ${p.rol}</option>`).join('')}</select></div>
-    <div class="field" style="width:120px"><label for="dp">PIN</label><input id="dp" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••" required></div></div>
-    <div id="dm" class="msg err hidden"></div><button class="btn" type="submit">${icon.unlock.replace('<svg','<svg style="width:20px;height:20px"')}Desbloquear</button></form>`;
-  document.body.appendChild(ov); const cerrar=()=>ov.remove();
-  ov.onclick=e=>{ if(e.target===ov) cerrar(); }; $('#dx').onclick=cerrar; setTimeout(()=>$('#dp').focus(),50);
-  $('#fd').onsubmit=async ev=>{ ev.preventDefault(); const b=ov.querySelector('button[type=submit]'); b.disabled=true;
-    try{ const r=await rpc('desbloquear_admin',{p_personal_id:$('#dq').value,p_pin:$('#dp').value}); store.set('jf_admin',$('#dq').value);
-      desbloq={hasta:Date.now()+BLOQ_MIN*60000,nombre:r.nombre}; cerrar(); render(); alertMsg(`Modo dueño activo: ${r.nombre}.`);
-    }catch(e){ const m=$('#dm'); m.textContent=/PIN/.test(e.message)?'PIN incorrecto.':e.message; m.classList.remove('hidden'); $('#dp').value=''; $('#dp').focus(); b.disabled=false; } };
+// ----- Turno: el empleado lo empieza al entrar y lo termina al irse -----
+function vistaTurno(){
+  const n=panel.negocio;
+  app.innerHTML=`<div class="screen" style="justify-content:center;gap:22px;padding-bottom:40px">
+    <div class="center">${n.logo_url?`<img class="logo" src="${esc(n.logo_url)}" alt="${esc(n.nombre)}">`:`<h2>${esc(n.nombre)}</h2>`}</div>
+    <div class="center"><h1>Hola, ${esc(primerNombre(panel.yo.nombre))}</h1><p class="sub" style="margin-top:6px">${ROL[panel.yo.rol]||''} · ${esc(panel.yo.usuario||'')}</p></div>
+    <button class="btn" id="empT">Empezar mi turno</button>
+    <div id="mt" class="msg err hidden"></div>
+    <button class="btn danger" id="noSoy">No soy ${esc(primerNombre(panel.yo.nombre))} · Salir</button>
+  </div>`;
+  $('#empT').onclick=async()=>{ $('#empT').disabled=true; try{ await rpc('empezar_turno'); await cargarPanel(); }catch(e){ const m=$('#mt'); m.textContent=e.message; m.classList.remove('hidden'); $('#empT').disabled=false; } };
+  $('#noSoy').onclick=salir;
+}
+
+// ----- Cuadre del día (Caja) -----
+async function vCuadre(){
+  $('#titulo').textContent='Cuadre del día';
+  $('#vista').innerHTML=`<div class="kpis"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>`;
+  try{ const c=await rpc('cuadre_dia',{}); const t=c.total||{};
+    $('#vista').innerHTML=`<div style="display:flex;flex-direction:column;gap:16px">
+      <div class="kpis">${[['Total vendido',soles(t.monto||0)],['Ventas',t.ventas||0],['Sellos dados',t.sellos||0],['Premios entregados',c.canjes||0]].map(([l,v])=>`<div class="kpi"><div class="n">${v}</div><div class="l">${l}</div></div>`).join('')}</div>
+      ${t.anuladas?`<p class="hint" style="color:var(--crema)">${t.anuladas} registro${t.anuladas===1?'':'s'} anulado${t.anuladas===1?'':'s'} hoy (no suman).</p>`:''}
+      <div class="card" style="gap:10px"><h3>Por persona</h3><div class="list">${c.por_persona.length?c.por_persona.map(x=>`<div class="item" style="padding:10px 12px"><div class="avatar">${ini(x.nombre)}</div><div class="grow"><div class="t">${esc(x.nombre)}</div><div class="s">${x.ventas} venta${x.ventas===1?'':'s'} · ${x.sellos} sello${x.sellos===1?'':'s'}</div></div><span class="display" style="font-size:17px;color:var(--amarillo)">${soles(x.monto)}</span></div>`).join(''):'<p class="hint">Aún no hay ventas hoy.</p>'}</div></div>
+      <div class="card" style="gap:10px"><h3>Registros de hoy</h3><p class="hint" style="color:var(--crema)">Si alguien se equivocó, puedes anular cualquier registro de hoy.</p>
+        <div class="list">${c.registros.length?c.registros.map(r=>`<div class="item" style="padding:10px 12px"><div class="grow"><div class="t" style="${r.anulada?'text-decoration:line-through;opacity:.6':''}">${esc(r.cliente)} · ${soles(r.monto)}</div><div class="s">${horaCorta(r.creado_en)} · ${esc(r.por||'')}${r.sello?' · con sello':''}</div></div>${r.anulada?'<span class="chip">Anulada</span>':`<button class="btn sm danger" data-anular="${r.id}" style="height:34px;width:auto;padding:0 12px;font-size:13px">Anular</button>`}</div>`).join(''):'<p class="hint">Sin registros.</p>'}</div></div>
+    </div>`;
+    $('#vista').querySelectorAll('[data-anular]').forEach(b=>dobleToque(b, async()=>{ b.disabled=true; try{ await rpc('anular_compra',{p_compra_id:b.dataset.anular, p_motivo:'Anulado en el cuadre de caja', ...leerPersonal()}); alertMsg('Registro anulado.'); vCuadre(); }catch(e){ alertMsg(e.message); b.disabled=false; } }));
+  }catch(e){ $('#vista').innerHTML=`<div class="msg err">${esc(e.message)}</div>`; }
+}
+
+// ----- Resultados (dueño): estadísticas + alertas + asistencia -----
+function vResultados(){
+  vEstadisticas(); $('#titulo').textContent='Resultados';
+  const box=$('#vista').firstElementChild;
+  box.insertAdjacentHTML('afterbegin', `<div id="alertas"></div>`);
+  box.insertAdjacentHTML('beforeend', `<div class="card" style="gap:10px"><div class="row" style="justify-content:space-between"><h3>Asistencia</h3><span class="hint" style="color:var(--crema)">Últimos 7 días</span></div><div id="asis" class="list"><div class="skeleton"></div></div></div>`);
+  rpc('alertas_dueno').then(al=>{ if(!al.length||!$('#alertas')) return;
+    $('#alertas').innerHTML=`<div class="card" style="gap:8px;border:1.5px solid #B3473A"><h3>Alertas</h3>${al.map(a=>`<div style="font-size:13.5px;font-weight:600">${a.tipo==='acceso_bloqueado'?`Alguien puso mal el PIN de <b>${esc(a.nombre||'')}</b> 5 veces (${fecha(a.fecha)}, ${horaCorta(a.fecha)}). Se bloqueó 15 minutos.`:`<b>${esc(a.nombre||'')}</b> no marcó su salida el ${fecha(a.fecha)}.`}</div>`).join('')}</div>`; }).catch(()=>{});
+  rpc('asistencia',{}).then(l=>{ if(!$('#asis')) return;
+    const dur=(a,b)=>{ const m=Math.round((new Date(b)-new Date(a))/60000); return `${Math.floor(m/60)} h ${String(m%60).padStart(2,'0')} min`; };
+    $('#asis').innerHTML = l.length ? l.map(t=>`<div class="item" style="padding:10px 12px;align-items:flex-start"><div class="avatar">${ini(t.nombre)}</div><div class="grow"><div class="t">${esc(t.nombre)} <span class="hint" style="color:var(--crema);font-weight:600">· ${ROL[t.rol]||''}</span></div>
+      <div class="s">${fecha(t.inicio)} · entrada ${horaCorta(t.inicio)} · ${t.abierto?'<b>trabajando ahora</b>':t.fin?`salida ${horaCorta(t.fin)} · ${dur(t.inicio,t.fin)}`:'<b style="color:#FFB4A8">salida no marcada</b>'}</div>
+      <div class="s">${t.ventas} venta${t.ventas==1?'':'s'} · ${soles(t.monto)}</div></div></div>`).join('') : '<p class="hint">Aún no hay turnos registrados.</p>'; }).catch(e=>{ if($('#asis')) $('#asis').innerHTML=`<div class="msg err">${esc(e.message)}</div>`; });
 }
 function vQR(){
   $('#titulo').textContent='QR clientes'; const n=panel.negocio, url=linkInscripcion(n.slug);
@@ -567,14 +592,15 @@ function vQR(){
 let pinCache={id:null,pin:'',t:0}; const PIN_MIN=15;
 function pinVigente(id){ return pinCache.id===id && pinCache.pin && (Date.now()-pinCache.t) < PIN_MIN*60000 ? pinCache.pin : ''; }
 function selectorPersonal(){
+  if(panel.yo) return '';
   const ult = store.get('jf_personal');
   return `<div class="row">
-    <div class="field grow"><label>¿Quién registra?</label><select id="quien">${panel.personal.filter(p=>p.activo).map(p=>`<option value="${p.id}" ${p.id===ult?'selected':''}>${esc(p.nombre)} · ${p.rol}</option>`).join('')}</select></div>
+    <div class="field grow"><label>¿Quién registra?</label><select id="quien">${panel.personal.filter(p=>p.activo).map(p=>`<option value="${p.id}" ${p.id===ult?'selected':''}>${esc(p.nombre)} · ${ROL[p.rol]||p.rol}</option>`).join('')}</select></div>
     <div class="field" style="width:120px"><label for="pin">PIN</label><input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••" value="${esc(pinVigente(ult))}"></div>
   </div>`;
 }
 function enlazarPin(){ const q=$('#quien'), p=$('#pin'); if(!q||!p) return; q.onchange=()=>{ p.value=pinVigente(q.value); if(!p.value) p.focus(); }; }
-function leerPersonal(){ const q=$('#quien'); if(!q||!q.value) throw new Error('Agrega personal en el Panel antes de registrar.'); store.set('jf_personal', q.value); const pin=$('#pin').value; if(pin.length<4) throw new Error('Escribe tu PIN.'); return {p_personal_id:q.value, p_pin:pin}; }
+function leerPersonal(){ if(panel.yo) return {p_personal_id:panel.yo.id, p_pin:null}; const q=$('#quien'); if(!q||!q.value) throw new Error('Agrega personal en el Panel antes de registrar.'); store.set('jf_personal', q.value); const pin=$('#pin').value; if(pin.length<4) throw new Error('Escribe tu PIN.'); return {p_personal_id:q.value, p_pin:pin}; }
 function recordarPin(per){ pinCache={id:per.p_personal_id, pin:per.p_pin, t:Date.now()}; }
 function olvidarPin(){ pinCache={id:null,pin:'',t:0}; }
 
@@ -588,14 +614,14 @@ function dobleToque(btn, fn){ let arm=false, t; const o=btn.innerHTML; btn.oncli
 let canjePendiente=null;
 async function anularMio(compraId){ const per=leerPersonal(); await rpc('anular_compra',{p_compra_id:compraId, p_motivo:'Error al registrar (deshecho por quien lo registró)', ...per}); recordarPin(per); }
 async function cargarHoy(){
-  const box=$('#hoy'), q=$('#quien'); if(!box||!q||!q.value) return;
-  const nom=(panel.personal.find(p=>p.id===q.value)||{}).nombre||'';
-  try{ const r=await rpc('mis_registros_hoy',{p_personal_id:q.value}); if($('#quien')?.value!==q.value) return;
+  const box=$('#hoy'), pid = panel.yo ? panel.yo.id : $('#quien')?.value; if(!box||!pid) return;
+  const nom=(panel.personal.find(p=>p.id===pid)||{}).nombre||'';
+  try{ const r=await rpc('mis_registros_hoy',{p_personal_id:pid}); if(!panel.yo && $('#quien')?.value!==pid) return;
     const hora=t=>new Date(t).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});
     box.innerHTML=`<div class="card outline" style="gap:10px"><div class="row" style="justify-content:space-between"><h3>Hoy · ${esc(nom)}</h3><span class="hint" style="color:var(--crema)">Solo tus registros</span></div>
       <div class="kpis" style="grid-template-columns:repeat(3,minmax(0,1fr))">${[['Ventas',r.ventas],['Sellos',r.sellos],['Premios entregados',r.canjes]].map(([l,v])=>`<div class="kpi"><div class="n">${v}</div><div class="l">${l}</div></div>`).join('')}</div>
       ${r.ultimos.length?`<div class="list">${r.ultimos.map(u=>`<div class="item" style="padding:10px 12px"><div class="grow"><div class="t" style="${u.anulada?'text-decoration:line-through;opacity:.6':''}">${esc(u.cliente)}</div><div class="s">${hora(u.creado_en)} · ${soles(u.monto)}</div></div>${u.anulada?'<span class="chip">Anulada</span>':u.anulable?`<button class="btn sm danger" data-anular="${u.id}" style="height:34px;width:auto;padding:0 12px;font-size:13px">Anular</button>`:''}</div>`).join('')}</div><p class="hint" style="color:var(--crema)">Puedes anular un registro tuyo hasta 10 minutos después. Luego, solo el encargado.</p>`:`<p class="hint" style="color:var(--crema)">Aún no registras ventas hoy.</p>`}</div>`;
-    box.querySelectorAll('[data-anular]').forEach(b=>dobleToque(b, async()=>{ b.disabled=true; try{ await anularMio(b.dataset.anular); alertMsg('Registro anulado. Se quitó el sello.'); cargarHoy(); }catch(e){ if(/PIN/.test(e.message)){ olvidarPin(); $('#pin').value=''; } alertMsg(e.message); b.disabled=false; } }));
+    box.querySelectorAll('[data-anular]').forEach(b=>dobleToque(b, async()=>{ b.disabled=true; try{ await anularMio(b.dataset.anular); alertMsg('Registro anulado. Se quitó el sello.'); cargarHoy(); }catch(e){ if(/PIN/.test(e.message)){ olvidarPin(); if($('#pin')) $('#pin').value=''; } alertMsg(e.message); b.disabled=false; } }));
   }catch{ box.innerHTML=''; }
 }
 
@@ -649,10 +675,10 @@ function vRegistrar(){
         ${r.referido?`<div style="font-weight:700;font-size:13.5px">${r.referido.premiado?`Regalo: ${esc(r.referido.nombre.split(' ')[0])} ganó 1 sello por invitar a ${esc(r.cliente.nombre.split(' ')[0])}.`:`${esc(r.referido.nombre.split(' ')[0])} lo invitó, pero ya usó sus 3 regalos de este mes.`}</div>`:''}
         <button class="btn sm danger" id="undo" style="height:38px">Me equivoqué: deshacer este registro</button>
       </div>`;
-      const compraId=r.compra_id; dobleToque($('#undo'), async()=>{ $('#undo').disabled=true; try{ await anularMio(compraId); out.innerHTML=`<div class="msg ok">Registro deshecho. No se sumó el sello; vuelve a registrarlo bien.</div>`; cargarHoy(); }catch(e){ if(/PIN/.test(e.message)){ olvidarPin(); $('#pin').value=''; } err(e.message); $('#undo').disabled=false; } });
+      const compraId=r.compra_id; dobleToque($('#undo'), async()=>{ $('#undo').disabled=true; try{ await anularMio(compraId); out.innerHTML=`<div class="msg ok">Registro deshecho. No se sumó el sello; vuelve a registrarlo bien.</div>`; cargarHoy(); }catch(e){ if(/PIN/.test(e.message)){ olvidarPin(); if($('#pin')) $('#pin').value=''; } err(e.message); $('#undo').disabled=false; } });
       cargarHoy();
       cel.value=''; $('#monto').value=''; clienteSel=null; cli.innerHTML=''; nuevo.classList.add('hidden'); cel.focus();
-    }catch(e){ if(/PIN incorrecto/.test(e.message)){ olvidarPin(); $('#pin').value=''; } err(e.message); } b.disabled=false; };
+    }catch(e){ if(/PIN incorrecto/.test(e.message)){ olvidarPin(); if($('#pin')) $('#pin').value=''; } err(e.message); } b.disabled=false; };
 }
 
 // ----- Canjear premio -----
@@ -672,7 +698,7 @@ function vCanjear(){
         ${p?`<div class="card yellow" style="margin-top:8px"><span class="display" style="font-size:18px">Premio disponible</span><span style="font-weight:600">${esc(p.descripcion)}</span><span style="font-size:12.5px;font-weight:700">Otorgado el ${fecha(p.otorgado_en)} · vence el ${fecha(p.vence_en)}</span>
              <button class="btn hold" id="canje" style="background:var(--vino);color:var(--amarillo);margin-top:6px"><div class="bar"></div><span style="position:relative">Mantén presionado para canjear</span></button></div>`
           :`<div class="msg ok" style="margin-top:8px">Este cliente no tiene premio disponible todavía.</div>`}`;
-      if(p){ holdToConfirm($('#canje'), async()=>{ try{ const per=leerPersonal(); const r=await rpc('canjear_premio',{p_premio_id:p.id, ...per}); recordarPin(per); det.innerHTML=`<div class="card outline"><div class="row"><span style="width:26px;height:26px">${icon.check}</span><div class="display" style="font-size:17px">Premio entregado a ${esc(r.cliente.nombre.split(' ')[0])}</div></div><p class="sub">${esc(p.descripcion)} · ${fechaHora(new Date())}. Su tarjeta sigue en ${r.sellos} de ${r.meta}.</p></div>`; }catch(e){ if(/PIN incorrecto/.test(e.message)){ olvidarPin(); $('#pin').value=''; } err(e.message); } }); }
+      if(p){ holdToConfirm($('#canje'), async()=>{ try{ const per=leerPersonal(); const r=await rpc('canjear_premio',{p_premio_id:p.id, ...per}); recordarPin(per); det.innerHTML=`<div class="card outline"><div class="row"><span style="width:26px;height:26px">${icon.check}</span><div class="display" style="font-size:17px">Premio entregado a ${esc(r.cliente.nombre.split(' ')[0])}</div></div><p class="sub">${esc(p.descripcion)} · ${fechaHora(new Date())}. Su tarjeta sigue en ${r.sellos} de ${r.meta}.</p></div>`; }catch(e){ if(/PIN incorrecto/.test(e.message)){ olvidarPin(); if($('#pin')) $('#pin').value=''; } err(e.message); } }); }
     }catch(e){ det.innerHTML=''; err(e.message); } }
   if(canjePendiente){ const id=canjePendiente; canjePendiente=null; detalle(id); }
 }
@@ -701,7 +727,7 @@ function vEstadisticas(){
     <div class="seg s3" id="per">${[7,30,90].map(d=>`<button data-d="${d}" class="${d===periodo?'on':''}">${d} días</button>`).join('')}</div>
     <div id="st" style="display:flex;flex-direction:column;gap:16px"><div class="kpis"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div><div class="skeleton" style="height:180px"></div></div>
   </div>`;
-  $('#per').querySelectorAll('button').forEach(b=>b.onclick=()=>{ periodo=+b.dataset.d; vEstadisticas(); });
+  $('#per').querySelectorAll('button').forEach(b=>b.onclick=()=>{ periodo=+b.dataset.d; vResultados(); });
   const pedido=periodo;
   rpc('estadisticas_negocio',{p_dias:periodo}).then(d=>{ if(pedido===periodo && $('#st')) pintarStats(d); }).catch(e=>{ if($('#st')) $('#st').innerHTML=`<div class="msg err">${esc(e.message)}</div>`; });
 }
@@ -807,15 +833,23 @@ function hoverBarras(id, tipId){ const svg=$('#'+id+' svg'); if(!svg) return; sv
 
 // ----- Panel del encargado -----
 function vPanel(){
-  $('#titulo').textContent='Panel';
+  $('#titulo').textContent='Ajustes';
   const n=panel.negocio;
   if(!panel.es_admin){ $('#vista').innerHTML=`<div class="msg ok">Solo el encargado administra el negocio.</div><button class="btn danger" id="out" style="margin-top:12px">Cerrar sesión</button><p class="hint center" style="margin-top:14px">Sistema de fidelización por ${PIE}</p>`; $('#out').onclick=salir; return; }
   $('#vista').innerHTML=`<div style="display:flex;flex-direction:column;gap:16px">
-    <div class="kpis" id="k"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
     <div class="card outline"><div class="row" style="justify-content:space-between;gap:12px"><div class="grow"><h3>QR para tus clientes</h3><p class="hint" style="color:var(--crema);margin-top:4px">Imprímelo y ponlo en el mostrador: el cliente se registra solo y guarda su tarjeta en el Wallet.</p></div><button class="btn sm" id="qrmat">Ver QR</button></div></div>
-    <div class="card"><div class="row" style="justify-content:space-between"><h3>Personal</h3><button class="btn sm ghost" id="addp">Agregar</button></div>
-      <div class="list" id="pl">${panel.personal.map(p=>`<div class="item"><div class="avatar" style="${p.activo?'':'opacity:.4'}">${ini(p.nombre)}</div><div class="grow"><div class="t">${esc(p.nombre)}</div><div class="s">${p.rol}${p.activo?'':' · inactivo'}</div></div><button class="btn sm danger" data-id="${p.id}" data-act="${p.activo}" style="height:36px;padding:0 10px;font-size:13px">${p.activo?'Desactivar':'Activar'}</button></div>`).join('')||'<p class="hint">Aún no hay personal.</p>'}</div>
-      <form id="fp" class="hidden" style="display:flex;flex-direction:column;gap:10px"><div class="field"><label>Nombre</label><input id="pn" required placeholder="Juan"></div><div class="row"><div class="field grow"><label>Rol</label><select id="pr"><option value="caja">Caja</option><option value="mesero">Mesero</option><option value="encargado">Encargado</option></select></div><div class="field" style="width:130px"><label>PIN (4–8 dígitos)</label><input id="pp" type="password" inputmode="numeric" minlength="4" maxlength="8" required></div></div><p class="hint" style="color:var(--crema)">Mesero: registra ventas, clientes y canjes. Caja y Encargado: además abren el modo dueño con su PIN.</p><div id="mp" class="msg err hidden"></div><button class="btn sm" type="submit">Guardar</button></form>
+    <div class="card" style="gap:10px"><div class="row" style="justify-content:space-between"><h3>Personal</h3><button class="btn sm ghost" id="addp">Agregar</button></div>
+      <p class="hint" style="color:var(--crema)">Cada persona entra desde su celular con su propio usuario. Empleados y Caja usan un PIN de 4 números; los dueños, una contraseña.</p>
+      <div id="pcred"></div>
+      <div class="list" id="pl">${panel.personal.map(itemPersona).join('')}</div>
+      <form id="fp" class="hidden" style="display:flex;flex-direction:column;gap:10px"><input type="hidden" id="p_id">
+        <div class="field"><label for="pn">Nombre</label><input id="pn" required maxlength="40" placeholder="Pepito Pérez"></div>
+        <div class="row"><div class="field grow"><label for="pr">Rol</label><select id="pr"><option value="mesero">Empleado</option><option value="caja">Caja</option><option value="dueno">Dueño</option></select></div>
+          <div class="field grow"><label for="pu">Usuario</label><input id="pu" required autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="pepito.chacombo"></div></div>
+        <div class="field"><label for="pp" id="ppl">PIN (4 números)</label><input id="pp" type="text" autocomplete="off" inputmode="numeric" maxlength="4" placeholder="4821"></div>
+        <p class="hint" id="pph" style="color:var(--crema)">Empleado: Registrar, Canjear y QR. Caja: además el cuadre del día. Dueño: todo.</p>
+        <div id="mp" class="msg err hidden"></div>
+        <div class="row"><button class="btn sm" type="submit">Guardar</button><button class="btn sm danger" type="button" id="pcan">Cancelar</button></div></form>
     </div>
     <div class="card"><h3>Clientes</h3><input id="cq" placeholder="Buscar por nombre o celular"><div class="list" id="cl"></div></div>
     <div class="card"><h3>Configuración</h3>
@@ -832,17 +866,50 @@ function vPanel(){
   </div>`;
   if($('#fcl')) $('#fcl').onsubmit=async ev=>{ ev.preventDefault(); const m=$('#cl_m'); const {error}=await sb.auth.updateUser({password:$('#cl_pw').value}); m.className='msg '+(error?'err':'ok'); m.textContent=error?traduceAuth(error.message):'Contraseña cambiada. Úsala la próxima vez que entres.'; if(!error) $('#cl_pw').value=''; };
   if($('#maestro')) $('#maestro').onclick=async()=>{ try{ await rpc('admin_salir_negocio'); }catch{} vistaForzada='maestro'; await cargarPanel(); };
-  rpc('resumen_negocio').then(r=>{ $('#k').innerHTML=[['Clientes',r.clientes],['Compras (30 d)',r.compras],['Ventas (30 d)',soles(r.ventas)],['Sellos (30 d)',r.sellos],['Premios ganados',r.premios_otorgados],['Premios canjeados',r.premios_canjeados]].map(([l,v])=>`<div class="kpi"><div class="n">${v}</div><div class="l">${l}</div></div>`).join(''); }).catch(()=>{});
   $('#qrmat').onclick=()=>materialQR(n.slug);
   $('#c_logo').onchange=()=>{ const f=$('#c_logo').files[0]; if(!f) return; const u=URL.createObjectURL(f); $('#c_pv').innerHTML=`<img src="${u}" alt="">`; $('#c_lt').textContent='Logo nuevo (toca Guardar cambios)'; };
-  $('#addp').onclick=()=>$('#fp').classList.toggle('hidden');
-  $('#fp').onsubmit=async ev=>{ev.preventDefault(); try{ const rol=$('#pr').value, nom=$('#pn').value.trim(); await rpc('guardar_personal',{p_nombre:nom,p_rol:rol,p_pin:$('#pp').value}); if(rol!=='mesero' && !(desbloq.hasta>Date.now())) desbloq={hasta:Date.now()+BLOQ_MIN*60000,nombre:nom}; await cargarPanel(); }catch(e){ const m=$('#mp'); m.textContent=e.message; m.classList.remove('hidden'); }};
-  $('#pl').querySelectorAll('button[data-id]').forEach(b=>b.onclick=async()=>{ try{ await rpc('desactivar_personal',{p_id:b.dataset.id,p_activo:b.dataset.act!=='true'}); await cargarPanel(); }catch(e){ alertMsg(e.message);} });
+  enlazarPersonal();
   let t; $('#cq').oninput=()=>{clearTimeout(t);t=setTimeout(async()=>{ const l=await rpc('buscar_clientes',{p_q:$('#cq').value}); $('#cl').innerHTML=l.map(c=>{const link=`${BASE_URL}?t=${c.token}`; return `<div class="item"><div class="avatar">${ini(c.nombre)}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">${c.celular}</div></div><a class="btn sm ghost" style="text-decoration:none;height:36px;padding:0 10px" href="https://wa.me/51${c.celular}?text=${encodeURIComponent(msgTarjeta(c.nombre, n.nombre, link))}" target="_blank" rel="noopener"><span style="width:18px;height:18px">${icon.wa}</span></a></div>`}).join('')||'<p class="hint">Sin resultados.</p>'; },300)};
   $('#fc').onsubmit=async ev=>{ev.preventDefault(); const m=$('#mc'); m.className='msg hidden'; try{ let logo=null; const f=$('#c_logo').files[0]; if(f){ if(f.size>3*1024*1024) throw new Error('El logo pesa más de 3 MB; usa una imagen más liviana.'); logo=await logoPNG(f); }
     await rpc('actualizar_negocio',{p_nombre:$('#c_nombre').value,p_premio:$('#c_premio').value,p_monto_minimo:parseFloat($('#c_min').value),p_meta:parseInt($('#c_meta').value),p_vigencia:parseInt($('#c_vig').value),p_whatsapp:$('#c_wa').value,p_direccion:$('#c_dir').value,p_logo_url:logo,p_color_primario:n.color_primario||null,p_color_acento:n.color_acento||null});
     await cargarPanel(); }catch(e){ m.className='msg err'; m.textContent=e.message; }};
   $('#out').onclick=salir;
+}
+
+// ----- Personal (Ajustes del dueño) -----
+let credPendiente=null;
+const slugTxt = t => String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/^(el|la|los|las)\s+/,'').replace(/[^a-z0-9]+/g,'');
+function itemPersona(p){
+  const chips=[p.es_yo?'<span class="chip y">Tú</span>':'', p.bloqueado?'<span class="chip" style="background:#7A1F17;color:#FFD0CA">Bloqueado</span>':'', p.activo?'':'<span class="chip">Inactivo</span>'].join('');
+  const bt=(attr,txt,cls='danger')=>`<button class="btn sm ${cls}" ${attr} style="height:34px;width:auto;padding:0 10px;font-size:12.5px">${txt}</button>`;
+  return `<div class="item" style="flex-wrap:wrap;gap:10px"><div class="avatar" style="${p.activo?'':'opacity:.4'}">${ini(p.nombre)}</div><div class="grow" style="min-width:140px"><div class="t">${esc(p.nombre)} ${chips}</div><div class="s">${ROL[p.rol]||p.rol} · ${p.usuario?esc(p.usuario):'sin usuario'}</div></div>
+    <div class="row" style="gap:6px">${bt(`data-edit="${p.id}"`,'Editar','ghost')}${p.bloqueado?bt(`data-desb="${p.id}"`,'Desbloquear','ghost'):''}${p.es_yo?'':bt(`data-tog="${p.id}" data-act="${p.activo}"`,p.activo?'Desactivar':'Activar')}</div></div>`;
+}
+function enlazarPersonal(){
+  const f=$('#fp'), pr=$('#pr'), pp=$('#pp'), pu=$('#pu'), pn=$('#pn'); let usrTocado=false, editando=null;
+  const sufijo = slugTxt((panel.personal.find(p=>p.rol==='dueno'&&p.usuario&&!p.usuario.includes('.'))||{}).usuario || panel.negocio.nombre);
+  const modoCred=()=>{ const d=pr.value==='dueno'; $('#ppl').textContent= d?'Contraseña (mínimo 6)':'PIN (4 números)'; pp.inputMode=d?'text':'numeric'; pp.maxLength=d?64:4;
+    const cambia = editando && ((editando.rol==='dueno')!==d); pp.placeholder = editando && !cambia ? 'Déjalo vacío para no cambiarlo' : (d?'Mínimo 6 caracteres':'4821'); };
+  const abrir=(p)=>{ editando=p||null; f.reset(); $('#p_id').value=p?p.id:''; usrTocado=!!p; $('#mp').classList.add('hidden');
+    if(p){ pn.value=p.nombre; pr.value=p.rol; pu.value=p.usuario||''; } modoCred(); f.classList.remove('hidden'); pn.focus(); };
+  $('#addp').onclick=()=>abrir(null); $('#pcan').onclick=()=>{ f.classList.add('hidden'); };
+  pn.oninput=()=>{ if(!usrTocado) pu.value = (slugTxt(pn.value.split(' ')[0])||'') + (sufijo?'.'+sufijo:''); };
+  pu.oninput=()=>{ usrTocado=true; }; pr.onchange=modoCred;
+  f.onsubmit=async ev=>{ ev.preventDefault(); const m=$('#mp'); m.classList.add('hidden'); const b=f.querySelector('button[type=submit]'); b.disabled=true;
+    const sec=pp.value.trim()||null, rol=pr.value, usuario=pu.value.trim().toLowerCase(), nombre=pn.value.trim();
+    try{ await rpc('guardar_personal',{p_nombre:nombre, p_rol:rol, p_usuario:usuario, p_secreto:sec, p_id:$('#p_id').value||null});
+      if(sec) credPendiente={nombre, usuario, sec, rol};
+      await cargarPanel();
+    }catch(e){ m.textContent=e.message; m.classList.remove('hidden'); b.disabled=false; } };
+  $('#pl').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>abrir(panel.personal.find(p=>p.id===b.dataset.edit)));
+  $('#pl').querySelectorAll('[data-desb]').forEach(b=>b.onclick=async()=>{ try{ await rpc('desbloquear_personal',{p_id:b.dataset.desb}); alertMsg('Usuario desbloqueado.'); await cargarPanel(); }catch(e){ alertMsg(e.message); } });
+  $('#pl').querySelectorAll('[data-tog]').forEach(b=>{ const fn=async()=>{ try{ await rpc('desactivar_personal',{p_id:b.dataset.tog,p_activo:b.dataset.act!=='true'}); await cargarPanel(); }catch(e){ alertMsg(e.message);} }; if(b.dataset.act==='true') dobleToque(b, fn); else b.onclick=fn; });
+  if(credPendiente){ const c=credPendiente; credPendiente=null; const esD=c.rol==='dueno';
+    const txt=`Tu acceso a ${panel.negocio.nombre} (YA! VOLVERÁS...)\n\nEntra a ${BASE_URL}\nUsuario: ${c.usuario}\n${esD?'Contraseña':'PIN'}: ${c.sec}\n\n${esD?'Guarda estos datos.':'Al llegar, entra con tu usuario y PIN para empezar tu turno, y al irte toca «Terminar turno». No compartas tu PIN.'}`;
+    $('#pcred').innerHTML=`<div class="msg ok" style="display:flex;flex-direction:column;gap:8px"><b>Acceso de ${esc(c.nombre)}</b><span>Usuario: <b>${esc(c.usuario)}</b> · ${esD?'Contraseña':'PIN'}: <b>${esc(c.sec)}</b></span>
+      <div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn sm ghost" type="button" id="cpc" style="height:36px;width:auto;padding:0 12px">Copiar datos</button><a class="btn sm" style="height:36px;width:auto;padding:0 12px;text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(txt)}">Enviar por WhatsApp</a></div></div>`;
+    $('#cpc').onclick=async()=>{ try{ await navigator.clipboard.writeText(txt); $('#cpc').textContent='Copiado'; }catch{ $('#cpc').textContent='Cópialo a mano'; } };
+  }
 }
 // Logo: se guarda siempre como PNG (Apple Wallet solo acepta PNG) y se achica hasta pesar menos de 200 KB.
 async function logoPNG(f){
