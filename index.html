@@ -68,6 +68,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .nav button{background:none;border:0;color:var(--rosa);font-size:11.5px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;cursor:pointer;min-height:48px}
 .nav button.on{color:var(--amarillo)}
 .nav svg{width:24px;height:24px}
+.toplogo{display:block;height:68px;width:auto;max-width:230px;object-fit:contain;margin:0 0 8px -2px}
 .lockb{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px;border-radius:999px;border:1.5px solid var(--borde);background:transparent;color:var(--crema);font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap}.lockb svg{width:16px;height:16px}.lockb.abierto{background:var(--amarillo);border-color:var(--amarillo);color:var(--vino)}
 .hoja{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;padding:12px}.hoja .card{background:var(--vino);width:100%;max-width:440px;gap:12px;margin-bottom:env(safe-area-inset-bottom);box-shadow:0 12px 40px rgba(0,0,0,.45)}
 .logobox{display:flex;align-items:center;gap:14px;padding:12px;border:1.5px solid var(--borde);border-radius:16px;background:var(--vino2)}.logobox .pv{width:64px;height:64px;border-radius:12px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:22px;color:var(--amarillo)}.logobox .pv img{width:100%;height:100%;object-fit:contain}
@@ -502,8 +503,8 @@ function render(){
   if(libre() && tab==='qr') tab='registrar';
   app.innerHTML = `<div class="screen">
     ${panel.es_superadmin?`<div class="msg ok" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px"><span style="font-size:13px">Estás dentro de <b>${esc(n.nombre)}</b> como administrador</span><button class="btn sm" id="volverM" style="height:34px;padding:0 12px;font-size:13px;flex-shrink:0">Panel maestro</button></div>`:''}
-    <div class="top">
-      <div><span class="eyebrow">${esc(n.nombre)}</span><h1 id="titulo"></h1></div>
+    <div class="top" style="align-items:flex-start">
+      <div>${n.logo_url?`<img class="toplogo" src="${esc(n.logo_url)}" alt="${esc(n.nombre)}">`:`<span class="eyebrow">${esc(n.nombre)}</span>`}<h1 id="titulo"></h1></div>
       <div class="row">${puedeBloquear()?`<button class="lockb ${libre()?'abierto':''}" id="lockb">${libre()?icon.unlock+'Bloquear':icon.lock+'Dueño'}</button>`:''}</div>
     </div>
     <div id="vista"></div>
