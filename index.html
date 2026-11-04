@@ -68,6 +68,10 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .nav button{background:none;border:0;color:var(--rosa);font-size:11.5px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;cursor:pointer;min-height:48px}
 .nav button.on{color:var(--amarillo)}
 .nav svg{width:24px;height:24px}
+.lockb{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px;border-radius:999px;border:1.5px solid var(--borde);background:transparent;color:var(--crema);font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap}.lockb svg{width:16px;height:16px}.lockb.abierto{background:var(--amarillo);border-color:var(--amarillo);color:var(--vino)}
+.hoja{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;padding:12px}.hoja .card{background:var(--vino);width:100%;max-width:440px;gap:12px;margin-bottom:env(safe-area-inset-bottom);box-shadow:0 12px 40px rgba(0,0,0,.45)}
+.logobox{display:flex;align-items:center;gap:14px;padding:12px;border:1.5px solid var(--borde);border-radius:16px;background:var(--vino2)}.logobox .pv{width:64px;height:64px;border-radius:12px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:22px;color:var(--amarillo)}.logobox .pv img{width:100%;height:100%;object-fit:contain}
+.qrgrande{background:#fff;border-radius:22px;padding:22px;display:flex;align-items:center;justify-content:center}.qrgrande svg{width:100%;max-width:300px;height:auto}
 .list{display:flex;flex-direction:column;gap:8px}
 .item{background:var(--vino2);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px}
 .item .t{font-weight:700}.item .s{font-size:12.5px;color:var(--crema)}
@@ -162,6 +166,9 @@ const icon = {
   scan:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/><rect x="7" y="7" width="4" height="4"/><rect x="13" y="7" width="4" height="4"/><rect x="7" y="13" width="4" height="4"/><path d="M13 13h4v4"/></svg>',
   wa:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.9 11.9 0 0 0 4.5 4c1.7.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.2c0-.1-.2-.2-.4-.3z"/></svg>',
   stats:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+  lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+  unlock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 7.6-1.7"/></svg>',
+  qr:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>',
   logout:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17l5-5-5-5M15 12H3M21 3v18"/></svg>'
 };
 
@@ -491,28 +498,64 @@ function render(){
   const n=panel.negocio; aplicarTema(n); document.title=n.nombre+' · YA! VOLVERÁS...';
   const sinPersonal = !panel.personal.length;
   if(sinPersonal && panel.es_admin && tab!=='panel'){ tab='panel'; }
+  if(!libre() && !['registrar','canjear','qr'].includes(tab)) tab='registrar';
+  if(libre() && tab==='qr') tab='registrar';
   app.innerHTML = `<div class="screen">
     ${panel.es_superadmin?`<div class="msg ok" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px"><span style="font-size:13px">Estás dentro de <b>${esc(n.nombre)}</b> como administrador</span><button class="btn sm" id="volverM" style="height:34px;padding:0 12px;font-size:13px;flex-shrink:0">Panel maestro</button></div>`:''}
     <div class="top">
       <div><span class="eyebrow">${esc(n.nombre)}</span><h1 id="titulo"></h1></div>
-      <div class="row">${n.logo_url?`<img src="${esc(n.logo_url)}" alt="" style="height:40px;border-radius:8px">`:''}</div>
+      <div class="row">${puedeBloquear()?`<button class="lockb ${libre()?'abierto':''}" id="lockb">${libre()?icon.unlock+'Bloquear':icon.lock+'Dueño'}</button>`:''}</div>
     </div>
     <div id="vista"></div>
   </div>
   <nav class="nav"><div class="in">
     <button data-t="registrar">${icon.plus}Registrar</button>
     <button data-t="canjear">${icon.gift}Canjear</button>
-    <button data-t="historial">${icon.clock}Historial</button>
+    ${libre()?`<button data-t="historial">${icon.clock}Historial</button>
     ${panel.es_admin?`<button data-t="stats">${icon.stats}Estadísticas</button>`:''}
-    <button data-t="panel">${icon.panel}Panel</button>
+    <button data-t="panel">${icon.panel}Panel</button>`:`<button data-t="qr">${icon.qr}QR clientes</button>`}
   </div></nav>`;
   document.querySelectorAll('.nav button').forEach(b=>{ b.classList.toggle('on', b.dataset.t===tab); b.onclick=()=>{ tab=b.dataset.t; render(); }; });
   if($('#volverM')) $('#volverM').onclick=async()=>{ try{ await rpc('admin_salir_negocio'); }catch{} vistaForzada='maestro'; await cargarPanel(); };
   if(tab==='stats' && !panel.es_admin) tab='registrar';
-  ({registrar:vRegistrar, canjear:vCanjear, historial:vHistorial, stats:vEstadisticas, panel:vPanel})[tab]();
+  if($('#lockb')) $('#lockb').onclick=()=>{ if(libre()){ bloquear(); } else pedirDesbloqueo(); };
+  ({registrar:vRegistrar, canjear:vCanjear, historial:vHistorial, stats:vEstadisticas, panel:vPanel, qr:vQR})[tab]();
+  if(!sinPersonal && tab==='panel' && panel.es_admin && !panel.es_superadmin && !adminsLocal().length){ $('#vista').insertAdjacentHTML('afterbegin', `<div class="msg ok" style="margin-bottom:12px">Agrega a alguien con rol Caja o Encargado para activar el modo empleado (los demás solo verán Registrar, Canjear y QR).</div>`); }
   if(sinPersonal && tab==='panel'){ $('#vista').insertAdjacentHTML('afterbegin', `<div class="msg ok" style="margin-bottom:12px">Primero agrega a las personas que van a registrar (caja, mesero, encargado), cada una con su PIN.</div>`); }
 }
 
+// ----- Modo empleado / modo dueño -----
+// El equipo del local abre siempre en modo empleado (Registrar, Canjear, QR). Caja o Encargado lo desbloquean con su PIN; se vuelve a bloquear tras 5 min sin uso.
+const BLOQ_MIN=5; let desbloq={hasta:0,nombre:''};
+const adminsLocal = () => panel ? panel.personal.filter(p=>p.activo && (p.rol==='caja'||p.rol==='encargado')) : [];
+const puedeBloquear = () => panel && panel.es_admin && !panel.es_superadmin && adminsLocal().length>0;
+const libre = () => !puedeBloquear() || Date.now()<desbloq.hasta;
+function bloquear(aviso){ desbloq={hasta:0,nombre:''}; olvidarPin(); render(); if(aviso) alertMsg(aviso); }
+['pointerdown','keydown'].forEach(e=>document.addEventListener(e,()=>{ if(desbloq.hasta>Date.now()) desbloq.hasta=Date.now()+BLOQ_MIN*60000; },{passive:true}));
+setInterval(()=>{ if(desbloq.hasta && Date.now()>=desbloq.hasta && panel && !document.querySelector('.hoja')) bloquear('Se activó el modo empleado.'); },10000);
+function pedirDesbloqueo(){
+  const ad=adminsLocal(), ult=store.get('jf_admin');
+  const ov=document.createElement('div'); ov.className='hoja';
+  ov.innerHTML=`<form class="card" id="fd"><div class="row" style="justify-content:space-between"><h3>Modo dueño</h3><button type="button" class="btn sm danger" id="dx" style="height:34px;width:auto;padding:0 12px;font-size:13px">Cancelar</button></div>
+    <p class="hint" style="color:var(--crema)">Solo Caja o Encargado. Da acceso a Historial, Estadísticas y Panel; se bloquea solo tras ${BLOQ_MIN} minutos sin uso.</p>
+    <div class="row"><div class="field grow"><label>¿Quién eres?</label><select id="dq">${ad.map(p=>`<option value="${p.id}" ${p.id===ult?'selected':''}>${esc(p.nombre)} · ${p.rol}</option>`).join('')}</select></div>
+    <div class="field" style="width:120px"><label for="dp">PIN</label><input id="dp" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••" required></div></div>
+    <div id="dm" class="msg err hidden"></div><button class="btn" type="submit">${icon.unlock.replace('<svg','<svg style="width:20px;height:20px"')}Desbloquear</button></form>`;
+  document.body.appendChild(ov); const cerrar=()=>ov.remove();
+  ov.onclick=e=>{ if(e.target===ov) cerrar(); }; $('#dx').onclick=cerrar; setTimeout(()=>$('#dp').focus(),50);
+  $('#fd').onsubmit=async ev=>{ ev.preventDefault(); const b=ov.querySelector('button[type=submit]'); b.disabled=true;
+    try{ const r=await rpc('desbloquear_admin',{p_personal_id:$('#dq').value,p_pin:$('#dp').value}); store.set('jf_admin',$('#dq').value);
+      desbloq={hasta:Date.now()+BLOQ_MIN*60000,nombre:r.nombre}; cerrar(); render(); alertMsg(`Modo dueño activo: ${r.nombre}.`);
+    }catch(e){ const m=$('#dm'); m.textContent=/PIN/.test(e.message)?'PIN incorrecto.':e.message; m.classList.remove('hidden'); $('#dp').value=''; $('#dp').focus(); b.disabled=false; } };
+}
+function vQR(){
+  $('#titulo').textContent='QR clientes'; const n=panel.negocio, url=linkInscripcion(n.slug);
+  $('#vista').innerHTML=`<div style="display:flex;flex-direction:column;gap:14px">
+    <div class="card outline" style="gap:4px"><span class="eyebrow" style="text-transform:none;letter-spacing:.02em">Muéstrale esta pantalla al cliente</span><span class="display" style="font-size:19px">Escanea con la cámara y guarda tu tarjeta de ${esc(n.nombre)}</span></div>
+    <div class="qrgrande">${qrSVG(url)}</div>
+    <p class="hint center" style="color:var(--crema)">Pone su nombre y celular, y la tarjeta queda en su Apple Wallet o Google Wallet. Junta ${n.meta_sellos} sellos y gana: ${esc(n.premio)}.</p>
+  </div>`;
+}
 let pinCache={id:null,pin:'',t:0}; const PIN_MIN=15;
 function pinVigente(id){ return pinCache.id===id && pinCache.pin && (Date.now()-pinCache.t) < PIN_MIN*60000 ? pinCache.pin : ''; }
 function selectorPersonal(){
@@ -737,7 +780,7 @@ function vPanel(){
     <div class="card outline"><div class="row" style="justify-content:space-between;gap:12px"><div class="grow"><h3>QR para tus clientes</h3><p class="hint" style="color:var(--crema);margin-top:4px">Imprímelo y ponlo en el mostrador: el cliente se registra solo y guarda su tarjeta en el Wallet.</p></div><button class="btn sm" id="qrmat">Ver QR</button></div></div>
     <div class="card"><div class="row" style="justify-content:space-between"><h3>Personal</h3><button class="btn sm ghost" id="addp">Agregar</button></div>
       <div class="list" id="pl">${panel.personal.map(p=>`<div class="item"><div class="avatar" style="${p.activo?'':'opacity:.4'}">${ini(p.nombre)}</div><div class="grow"><div class="t">${esc(p.nombre)}</div><div class="s">${p.rol}${p.activo?'':' · inactivo'}</div></div><button class="btn sm danger" data-id="${p.id}" data-act="${p.activo}" style="height:36px;padding:0 10px;font-size:13px">${p.activo?'Desactivar':'Activar'}</button></div>`).join('')||'<p class="hint">Aún no hay personal.</p>'}</div>
-      <form id="fp" class="hidden" style="display:flex;flex-direction:column;gap:10px"><div class="field"><label>Nombre</label><input id="pn" required placeholder="Juan"></div><div class="row"><div class="field grow"><label>Rol</label><select id="pr"><option value="caja">Caja</option><option value="mesero">Mesero</option><option value="encargado">Encargado</option></select></div><div class="field" style="width:130px"><label>PIN (4–8 dígitos)</label><input id="pp" type="password" inputmode="numeric" minlength="4" maxlength="8" required></div></div><div id="mp" class="msg err hidden"></div><button class="btn sm" type="submit">Guardar</button></form>
+      <form id="fp" class="hidden" style="display:flex;flex-direction:column;gap:10px"><div class="field"><label>Nombre</label><input id="pn" required placeholder="Juan"></div><div class="row"><div class="field grow"><label>Rol</label><select id="pr"><option value="caja">Caja</option><option value="mesero">Mesero</option><option value="encargado">Encargado</option></select></div><div class="field" style="width:130px"><label>PIN (4–8 dígitos)</label><input id="pp" type="password" inputmode="numeric" minlength="4" maxlength="8" required></div></div><p class="hint" style="color:var(--crema)">Mesero: registra ventas, clientes y canjes. Caja y Encargado: además abren el modo dueño con su PIN.</p><div id="mp" class="msg err hidden"></div><button class="btn sm" type="submit">Guardar</button></form>
     </div>
     <div class="card"><h3>Clientes</h3><input id="cq" placeholder="Buscar por nombre o celular"><div class="list" id="cl"></div></div>
     <div class="card"><h3>Configuración</h3>
@@ -746,8 +789,7 @@ function vPanel(){
         <div class="field"><label>Premio</label><input id="c_premio" value="${esc(n.premio)}"></div>
         <div class="row"><div class="field grow"><label>Monto mínimo (S/)</label><input id="c_min" type="number" step="0.5" value="${n.monto_minimo}"></div><div class="field grow"><label>Meta de sellos</label><input id="c_meta" type="number" min="2" max="20" value="${n.meta_sellos}"></div><div class="field grow"><label>Premio vence (días)</label><input id="c_vig" type="number" min="1" value="${n.premio_vigencia_dias}"></div></div>
         <div class="row"><div class="field grow"><label>WhatsApp</label><input id="c_wa" value="${esc(n.whatsapp||'')}"></div><div class="field grow"><label>Dirección</label><input id="c_dir" value="${esc(n.direccion||'')}"></div></div>
-        <div class="row"><div class="field grow"><label>Color principal</label><input id="c_col1" type="color" value="${n.color_primario||'#460E0D'}" style="padding:4px;height:50px"></div><div class="field grow"><label>Color de acento</label><input id="c_col2" type="color" value="${n.color_acento||'#F9B40F'}" style="padding:4px;height:50px"></div></div>
-        <div class="field"><label>Logo (PNG o JPG; se ajusta solo)</label><input id="c_logo" type="file" accept="image/*" style="padding:10px"></div>
+        <div class="field"><label>Logo</label><div class="logobox"><div class="pv" id="c_pv">${n.logo_url?`<img src="${esc(n.logo_url)}" alt="">`:ini(n.nombre)}</div><div class="grow"><div class="t" style="font-weight:700;font-size:14px" id="c_lt">${n.logo_url?'Logo actual':'Sin logo'}</div><div class="hint" style="color:var(--crema)">Sale en la tarjeta del cliente y en el Wallet.</div></div><label class="btn sm ghost" for="c_logo" style="height:38px;width:auto;padding:0 14px;margin:0;color:var(--amarillo);cursor:pointer">${n.logo_url?'Cambiar':'Subir'}</label></div><input id="c_logo" type="file" accept="image/png,image/jpeg,image/webp" hidden></div>
         <div id="mc" class="msg hidden"></div><button class="btn sm" type="submit">Guardar cambios</button></form></div>
     ${panel.es_superadmin?'<button class="btn ghost" id="maestro">Panel maestro YA! VOLVERÁS...</button>':`<form id="fcl" class="card" style="gap:10px"><h3>Cambiar contraseña</h3><div class="row"><input id="cl_pw" type="password" autocomplete="new-password" minlength="6" required placeholder="Nueva contraseña" class="grow"><button class="btn sm" type="submit">Guardar</button></div><div id="cl_m" class="msg hidden"></div></form>`}
     <button class="btn danger" id="out">Cerrar sesión</button>
@@ -757,12 +799,13 @@ function vPanel(){
   if($('#maestro')) $('#maestro').onclick=async()=>{ try{ await rpc('admin_salir_negocio'); }catch{} vistaForzada='maestro'; await cargarPanel(); };
   rpc('resumen_negocio').then(r=>{ $('#k').innerHTML=[['Clientes',r.clientes],['Compras (30 d)',r.compras],['Ventas (30 d)',soles(r.ventas)],['Sellos (30 d)',r.sellos],['Premios ganados',r.premios_otorgados],['Premios canjeados',r.premios_canjeados]].map(([l,v])=>`<div class="kpi"><div class="n">${v}</div><div class="l">${l}</div></div>`).join(''); }).catch(()=>{});
   $('#qrmat').onclick=()=>materialQR(n.slug);
+  $('#c_logo').onchange=()=>{ const f=$('#c_logo').files[0]; if(!f) return; const u=URL.createObjectURL(f); $('#c_pv').innerHTML=`<img src="${u}" alt="">`; $('#c_lt').textContent='Logo nuevo (toca Guardar cambios)'; };
   $('#addp').onclick=()=>$('#fp').classList.toggle('hidden');
-  $('#fp').onsubmit=async ev=>{ev.preventDefault(); try{ await rpc('guardar_personal',{p_nombre:$('#pn').value.trim(),p_rol:$('#pr').value,p_pin:$('#pp').value}); await cargarPanel(); }catch(e){ const m=$('#mp'); m.textContent=e.message; m.classList.remove('hidden'); }};
+  $('#fp').onsubmit=async ev=>{ev.preventDefault(); try{ const rol=$('#pr').value, nom=$('#pn').value.trim(); await rpc('guardar_personal',{p_nombre:nom,p_rol:rol,p_pin:$('#pp').value}); if(rol!=='mesero' && !(desbloq.hasta>Date.now())) desbloq={hasta:Date.now()+BLOQ_MIN*60000,nombre:nom}; await cargarPanel(); }catch(e){ const m=$('#mp'); m.textContent=e.message; m.classList.remove('hidden'); }};
   $('#pl').querySelectorAll('button[data-id]').forEach(b=>b.onclick=async()=>{ try{ await rpc('desactivar_personal',{p_id:b.dataset.id,p_activo:b.dataset.act!=='true'}); await cargarPanel(); }catch(e){ alertMsg(e.message);} });
   let t; $('#cq').oninput=()=>{clearTimeout(t);t=setTimeout(async()=>{ const l=await rpc('buscar_clientes',{p_q:$('#cq').value}); $('#cl').innerHTML=l.map(c=>{const link=`${BASE_URL}?t=${c.token}`; return `<div class="item"><div class="avatar">${ini(c.nombre)}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">${c.celular}</div></div><a class="btn sm ghost" style="text-decoration:none;height:36px;padding:0 10px" href="https://wa.me/51${c.celular}?text=${encodeURIComponent(msgTarjeta(c.nombre, n.nombre, link))}" target="_blank" rel="noopener"><span style="width:18px;height:18px">${icon.wa}</span></a></div>`}).join('')||'<p class="hint">Sin resultados.</p>'; },300)};
   $('#fc').onsubmit=async ev=>{ev.preventDefault(); const m=$('#mc'); m.className='msg hidden'; try{ let logo=null; const f=$('#c_logo').files[0]; if(f){ if(f.size>3*1024*1024) throw new Error('El logo pesa más de 3 MB; usa una imagen más liviana.'); logo=await logoPNG(f); }
-    await rpc('actualizar_negocio',{p_nombre:$('#c_nombre').value,p_premio:$('#c_premio').value,p_monto_minimo:parseFloat($('#c_min').value),p_meta:parseInt($('#c_meta').value),p_vigencia:parseInt($('#c_vig').value),p_whatsapp:$('#c_wa').value,p_direccion:$('#c_dir').value,p_logo_url:logo,p_color_primario:$('#c_col1').value,p_color_acento:$('#c_col2').value});
+    await rpc('actualizar_negocio',{p_nombre:$('#c_nombre').value,p_premio:$('#c_premio').value,p_monto_minimo:parseFloat($('#c_min').value),p_meta:parseInt($('#c_meta').value),p_vigencia:parseInt($('#c_vig').value),p_whatsapp:$('#c_wa').value,p_direccion:$('#c_dir').value,p_logo_url:logo,p_color_primario:n.color_primario||null,p_color_acento:n.color_acento||null});
     await cargarPanel(); }catch(e){ m.className='msg err'; m.textContent=e.message; }};
   $('#out').onclick=salir;
 }
