@@ -574,6 +574,23 @@ function bloqueCliente(c, est){
   return `<div class="item"><div class="avatar">${ini(c.nombre)}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">${esc(c.celular)}${est&&est.ultima_compra?` · última compra ${fecha(est.ultima_compra.fecha)} · ${soles(est.ultima_compra.monto)}`:''}</div></div>${est?`<span class="display" style="font-size:18px;color:var(--amarillo)">${est.sellos} de ${est.meta}</span>`:''}</div>`;
 }
 
+const waTarjeta = c => `https://wa.me/51${String(c.celular).replace(/\D/g,'').slice(-9)}?text=${encodeURIComponent(msgTarjeta(c.nombre, panel.negocio.nombre, `${BASE_URL}?t=${c.token}`))}`;
+const btnReenviar = c => `<a class="btn sm ghost" style="text-decoration:none;height:40px" href="${waTarjeta(c)}" target="_blank" rel="noopener"><span style="width:18px;height:18px">${icon.wa}</span>Reenviar su tarjeta por WhatsApp</a>`;
+function dobleToque(btn, fn){ let arm=false, t; const o=btn.innerHTML; btn.onclick=()=>{ if(!arm){ arm=true; btn.textContent='¿Seguro? Toca otra vez'; t=setTimeout(()=>{ arm=false; btn.innerHTML=o; },3500); return; } clearTimeout(t); arm=false; fn(); }; }
+let canjePendiente=null;
+async function anularMio(compraId){ const per=leerPersonal(); await rpc('anular_compra',{p_compra_id:compraId, p_motivo:'Error al registrar (deshecho por quien lo registró)', ...per}); recordarPin(per); }
+async function cargarHoy(){
+  const box=$('#hoy'), q=$('#quien'); if(!box||!q||!q.value) return;
+  const nom=(panel.personal.find(p=>p.id===q.value)||{}).nombre||'';
+  try{ const r=await rpc('mis_registros_hoy',{p_personal_id:q.value}); if($('#quien')?.value!==q.value) return;
+    const hora=t=>new Date(t).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});
+    box.innerHTML=`<div class="card outline" style="gap:10px"><div class="row" style="justify-content:space-between"><h3>Hoy · ${esc(nom)}</h3><span class="hint" style="color:var(--crema)">Solo tus registros</span></div>
+      <div class="kpis" style="grid-template-columns:repeat(3,minmax(0,1fr))">${[['Ventas',r.ventas],['Sellos',r.sellos],['Premios entregados',r.canjes]].map(([l,v])=>`<div class="kpi"><div class="n">${v}</div><div class="l">${l}</div></div>`).join('')}</div>
+      ${r.ultimos.length?`<div class="list">${r.ultimos.map(u=>`<div class="item" style="padding:10px 12px"><div class="grow"><div class="t" style="${u.anulada?'text-decoration:line-through;opacity:.6':''}">${esc(u.cliente)}</div><div class="s">${hora(u.creado_en)} · ${soles(u.monto)}</div></div>${u.anulada?'<span class="chip">Anulada</span>':u.anulable?`<button class="btn sm danger" data-anular="${u.id}" style="height:34px;width:auto;padding:0 12px;font-size:13px">Anular</button>`:''}</div>`).join('')}</div><p class="hint" style="color:var(--crema)">Puedes anular un registro tuyo hasta 10 minutos después. Luego, solo el encargado.</p>`:`<p class="hint" style="color:var(--crema)">Aún no registras ventas hoy.</p>`}</div>`;
+    box.querySelectorAll('[data-anular]').forEach(b=>dobleToque(b, async()=>{ b.disabled=true; try{ await anularMio(b.dataset.anular); alertMsg('Registro anulado. Se quitó el sello.'); cargarHoy(); }catch(e){ if(/PIN/.test(e.message)){ olvidarPin(); $('#pin').value=''; } alertMsg(e.message); b.disabled=false; } }));
+  }catch{ box.innerHTML=''; }
+}
+
 // ----- Registrar compra -----
 let clienteSel=null;
 function vRegistrar(){
@@ -590,8 +607,9 @@ function vRegistrar(){
     <div id="m" class="msg err hidden"></div>
     <button class="btn" id="go">Registrar compra y sumar sello</button>
     <div id="out"></div>
+    <div id="hoy"></div>
   </div>`;
-  enlazarPin(); const cel=$('#cel'), res=$('#res'), nuevo=$('#nuevo'), cli=$('#cli'), m=$('#m'), out=$('#out');
+  enlazarPin(); if($('#quien')) $('#quien').addEventListener('change', cargarHoy); cargarHoy(); const cel=$('#cel'), res=$('#res'), nuevo=$('#nuevo'), cli=$('#cli'), m=$('#m'), out=$('#out');
   const err = t => { m.textContent=t; m.classList.remove('hidden'); };
   let timer; clienteSel=null;
   const buscar = async () => { const q=cel.value.replace(/\D/g,''); res.innerHTML=''; nuevo.classList.add('hidden'); cli.innerHTML=''; clienteSel=null; if(q.length<3) return;
@@ -602,7 +620,11 @@ function vRegistrar(){
     }catch(e){ err(e.message); } };
   cel.oninput = () => { clearTimeout(timer); timer=setTimeout(buscar,300); };
   async function elegir(c){ clienteSel=c; res.innerHTML=''; nuevo.classList.add('hidden'); cli.innerHTML=`<div class="skeleton"></div>`;
-    try{ estadoActual = await rpc('estado_tarjeta',{p_cliente_id:c.id}); cli.innerHTML = bloqueCliente(c, estadoActual); }catch(e){ cli.innerHTML=''; err(e.message); } $('#monto').focus(); }
+    try{ estadoActual = await rpc('estado_tarjeta',{p_cliente_id:c.id}); const pd=estadoActual.premio_disponible;
+      cli.innerHTML = `<div style="display:flex;flex-direction:column;gap:8px">${bloqueCliente(c, estadoActual)}
+        ${pd?`<div class="card yellow premio-in" style="gap:6px"><span class="display" style="font-size:18px">Tiene un premio por entregar</span><span style="font-weight:700">${esc(pd.descripcion)}</span><span style="font-size:12.5px;font-weight:700">Vence el ${fecha(pd.vence_en)}. Ofréceselo ahora.</span><button class="btn sm" id="irCanje" style="background:var(--vino);color:var(--amarillo)">Entregar premio</button></div>`:''}
+        ${btnReenviar({...c, ...estadoActual.cliente})}</div>`;
+      if($('#irCanje')) $('#irCanje').onclick=()=>{ canjePendiente=c.id; tab='canjear'; render(); }; }catch(e){ cli.innerHTML=''; err(e.message); } $('#monto').focus(); }
   $('#scan').onclick = () => escanear(t => { const tok = (t.match(/[?&]t=([a-f0-9]+)/)||[])[1]; if(!tok) return err('Ese código no es de una tarjeta.'); buscarPorToken(tok); });
   async function buscarPorToken(tok){ try{ const e = await rpc('tarjeta_por_token',{p_token:tok}); const lista = await rpc('buscar_clientes',{p_q:e.cliente.nombre}); const c = lista.find(x=>x.token===tok); if(!c) return err('Esa tarjeta no es de este negocio.'); cel.value=c.celular; elegir(c); }catch(e){ err(e.message); } }
   $('#go').onclick = async () => { m.classList.add('hidden'); out.innerHTML=''; const b=$('#go'); b.disabled=true;
@@ -616,7 +638,10 @@ function vRegistrar(){
         ${r.premio_nuevo?`<div style="font-weight:700">Premio disponible: ${esc(panel.negocio.premio)} (vence en ${panel.negocio.premio_vigencia_dias} días). Su tarjeta vuelve a empezar en 0 de ${r.meta}.</div>`:''}
         <div class="stamps">${r.premio_nuevo?stampsHTML(r.meta,r.meta,r.meta):stampsHTML(r.sellos,r.meta,r.sumo_sello?r.sellos:0)}</div>
         <a class="btn sm ${r.premio_nuevo?'':'ghost'}" style="text-decoration:none;${r.premio_nuevo?'background:var(--vino);color:var(--amarillo)':''}" href="${wa}" target="_blank" rel="noopener"><span style="width:20px;height:20px">${icon.wa}</span>Enviar tarjeta por WhatsApp</a>
+        <button class="btn sm danger" id="undo" style="height:38px">Me equivoqué: deshacer este registro</button>
       </div>`;
+      const compraId=r.compra_id; dobleToque($('#undo'), async()=>{ $('#undo').disabled=true; try{ await anularMio(compraId); out.innerHTML=`<div class="msg ok">Registro deshecho. No se sumó el sello; vuelve a registrarlo bien.</div>`; cargarHoy(); }catch(e){ if(/PIN/.test(e.message)){ olvidarPin(); $('#pin').value=''; } err(e.message); $('#undo').disabled=false; } });
+      cargarHoy();
       cel.value=''; $('#monto').value=''; clienteSel=null; cli.innerHTML=''; nuevo.classList.add('hidden'); cel.focus();
     }catch(e){ if(/PIN incorrecto/.test(e.message)){ olvidarPin(); $('#pin').value=''; } err(e.message); } b.disabled=false; };
 }
@@ -634,12 +659,13 @@ function vCanjear(){
   async function detalle(id){ res.innerHTML=''; m.classList.add('hidden'); det.innerHTML='<div class="skeleton"></div>';
     try{ const e=await rpc('estado_tarjeta',{p_cliente_id:id}); const p=e.premio_disponible;
       det.innerHTML = `${bloqueCliente(e.cliente,e)}
-        <div class="card" style="margin-top:8px"><div class="stamps">${stampsHTML(e.sellos,e.meta)}</div><p class="sub">${mensajeSellos(e.sellos,e.meta,!!p)}</p></div>
+        <div class="card" style="margin-top:8px"><div class="stamps">${stampsHTML(e.sellos,e.meta)}</div><p class="sub">${mensajeSellos(e.sellos,e.meta,!!p)}</p>${e.cliente.token?btnReenviar(e.cliente):''}</div>
         ${p?`<div class="card yellow" style="margin-top:8px"><span class="display" style="font-size:18px">Premio disponible</span><span style="font-weight:600">${esc(p.descripcion)}</span><span style="font-size:12.5px;font-weight:700">Otorgado el ${fecha(p.otorgado_en)} · vence el ${fecha(p.vence_en)}</span>
              <button class="btn hold" id="canje" style="background:var(--vino);color:var(--amarillo);margin-top:6px"><div class="bar"></div><span style="position:relative">Mantén presionado para canjear</span></button></div>`
           :`<div class="msg ok" style="margin-top:8px">Este cliente no tiene premio disponible todavía.</div>`}`;
       if(p){ holdToConfirm($('#canje'), async()=>{ try{ const per=leerPersonal(); const r=await rpc('canjear_premio',{p_premio_id:p.id, ...per}); recordarPin(per); det.innerHTML=`<div class="card outline"><div class="row"><span style="width:26px;height:26px">${icon.check}</span><div class="display" style="font-size:17px">Premio entregado a ${esc(r.cliente.nombre.split(' ')[0])}</div></div><p class="sub">${esc(p.descripcion)} · ${fechaHora(new Date())}. Su tarjeta sigue en ${r.sellos} de ${r.meta}.</p></div>`; }catch(e){ if(/PIN incorrecto/.test(e.message)){ olvidarPin(); $('#pin').value=''; } err(e.message); } }); }
     }catch(e){ det.innerHTML=''; err(e.message); } }
+  if(canjePendiente){ const id=canjePendiente; canjePendiente=null; detalle(id); }
 }
 function holdToConfirm(btn, fn){ let t; const start=()=>{ btn.classList.add('holding'); t=setTimeout(()=>{ btn.classList.remove('holding'); fn(); },1500); }; const stop=()=>{ btn.classList.remove('holding'); clearTimeout(t); };
   btn.addEventListener('pointerdown',start); ['pointerup','pointerleave','pointercancel'].forEach(ev=>btn.addEventListener(ev,stop)); btn.addEventListener('contextmenu',e=>e.preventDefault()); }
