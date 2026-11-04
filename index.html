@@ -218,9 +218,11 @@ async function vistaInscripcion(slug){
   if(!n){ modoLobby(); app.innerHTML=`<div class="screen center" style="justify-content:center"><h1>Negocio no encontrado</h1><p class="sub">Revisa el código QR o pide tu tarjeta en caja.</p></div>`; return; }
   aplicarTema(n); document.title = `Tarjeta de sellos · ${n.nombre}`;
   const guardado = store.get('yv_t_'+n.slug);
+  const refInv = (new URLSearchParams(location.search).get('r')||'').replace(/[^A-Za-z0-9]/g,'').slice(0,12);
   app.innerHTML = `<div class="screen" style="padding-bottom:28px">
     <div class="center">${n.logo_url?`<img class="logo" src="${esc(n.logo_url)}" alt="${esc(n.nombre)}">`:`<h2>${esc(n.nombre)}</h2>`}</div>
     <div><h1>Tu tarjeta de sellos</h1><p class="sub">Regístrate en 10 segundos y guárdala en tu Apple Wallet o Google Wallet.</p></div>
+    ${guardado?'':`<div class="card yellow" style="gap:4px;padding:14px 16px"><span class="display" style="font-size:17px">${refInv?'Un amigo te invitó: ':''}¡Regístrate y empieza con 1 sello de regalo!</span></div>`}
     ${guardado?`<div class="card yellow" style="gap:8px"><span class="display" style="font-size:18px">Ya tienes tu tarjeta en este celular</span><a class="btn" style="background:var(--vino);color:var(--amarillo);text-decoration:none" href="?t=${encodeURIComponent(guardado)}">Ver mi tarjeta</a></div>`:''}
     <div class="card outline" style="gap:4px"><span class="eyebrow" style="text-transform:none;letter-spacing:.02em">Junta ${n.meta_sellos} sellos y llévate</span><span class="display" style="font-size:19px">${esc(n.premio)}</span><span class="hint" style="color:var(--crema)">1 sello al día con compra desde ${soles(n.monto_minimo)}. El premio vence a los ${n.premio_vigencia_dias} días.</span></div>
     ${n.activo?`<form id="fi" class="card" style="gap:12px">
@@ -235,7 +237,7 @@ async function vistaInscripcion(slug){
   </div>`;
   const f=$('#fi'); if(!f) return;
   f.onsubmit = async ev => { ev.preventDefault(); const m=$('#in_m'), b=f.querySelector('button'); m.classList.add('hidden'); b.disabled=true; b.textContent='Creando tu tarjeta…';
-    try{ const r = await rpc('inscribirme',{p_slug:n.slug, p_nombre:$('#in_nom').value, p_celular:$('#in_cel').value});
+    try{ const r = await rpc('inscribirme',{p_slug:n.slug, p_nombre:$('#in_nom').value, p_celular:$('#in_cel').value, p_ref:refInv||null});
       if(r.error) throw new Error(r.error);
       store.set('yv_t_'+n.slug, r.token);
       location.href = `?t=${encodeURIComponent(r.token)}&bienvenida=${r.nuevo?1:2}`;
@@ -336,7 +338,7 @@ function renderTarjeta(e, tok){
   <div class="screen" style="padding-bottom:24px">
     <div class="center">${n.logo_url?`<img class="logo" src="${esc(n.logo_url)}" alt="${esc(n.nombre)}">`:`<h2>${esc(n.nombre)}</h2>`}</div>
     <div><h1>Hola, ${esc(e.cliente.nombre.split(' ')[0])}</h1><p class="sub">Tu tarjeta de sellos</p></div>
-    ${new URLSearchParams(location.search).get('bienvenida')?`<div class="card yellow premio-in" style="gap:10px"><span class="display" style="font-size:19px">${new URLSearchParams(location.search).get('bienvenida')==='1'?'¡Listo! Ya tienes tu tarjeta':'¡Aquí está tu tarjeta!'}</span><span style="font-weight:600;font-size:14px">${walletOn.apple||walletOn.google?'Guárdala en tu Wallet para tenerla siempre a mano:':'Muéstrala en caja en cada compra para sumar tus sellos.'}</span>${botonesWallet(tok)}</div>`:''}
+    ${new URLSearchParams(location.search).get('bienvenida')?`<div class="card yellow premio-in" style="gap:10px"><span class="display" style="font-size:19px">${new URLSearchParams(location.search).get('bienvenida')==='1'?'¡Listo! Ya tienes tu tarjeta y tu primer sello de regalo':'¡Aquí está tu tarjeta!'}</span><span style="font-weight:600;font-size:14px">${walletOn.apple||walletOn.google?'Guárdala en tu Wallet para tenerla siempre a mano:':'Muéstrala en caja en cada compra para sumar tus sellos.'}</span>${botonesWallet(tok)}</div>`:''}
     <div class="card">
       <div class="row" style="justify-content:space-between"><h3>Tus sellos</h3><span class="display" style="font-size:22px;color:var(--amarillo)">${e.sellos} de ${e.meta}</span></div>
       <div class="stamps">${stampsHTML(e.sellos,e.meta)}</div>
@@ -354,6 +356,8 @@ function renderTarjeta(e, tok){
       </div>
     </div>
     <div id="wbox">${botonesWallet(tok)}</div>
+    ${e.cliente.ref?(()=>{ const inv=`${BASE_URL}?n=${encodeURIComponent(n.slug)}&r=${e.cliente.ref}`; const txt=`¡Hola! Te invito a ${n.nombre}. Regístrate con este link y empiezas tu tarjeta con 1 sello de regalo: ${inv}`;
+      return `<div class="card outline" style="gap:8px"><h3>Invita a un amigo</h3><p class="sub">Si tu amigo se registra con tu link y hace su primera compra, <b>tú ganas 1 sello de regalo</b> (hasta 3 al mes). Él también empieza con 1 sello.</p><a class="btn sm" style="text-decoration:none;height:44px" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener"><span style="width:20px;height:20px">${icon.wa}</span>Invitar por WhatsApp</a></div>`; })():''}
     <div class="row" style="justify-content:space-between;padding:0 4px"><span class="hint">${esc(n.nombre)}${n.direccion?' · '+esc(n.direccion):''}</span><span style="color:var(--amarillo)">${PIE}</span></div>
     <p class="hint center">${walletOn.apple||walletOn.google?'Guárdala en tu Wallet o en la pantalla de inicio para tenerla a mano.':'Guarda esta página en tu pantalla de inicio para tenerla a mano.'}</p>
   </div>`;
@@ -642,6 +646,7 @@ function vRegistrar(){
         ${r.premio_nuevo?`<div style="font-weight:700">Premio disponible: ${esc(panel.negocio.premio)} (vence en ${panel.negocio.premio_vigencia_dias} días). Su tarjeta vuelve a empezar en 0 de ${r.meta}.</div>`:''}
         <div class="stamps">${r.premio_nuevo?stampsHTML(r.meta,r.meta,r.meta):stampsHTML(r.sellos,r.meta,r.sumo_sello?r.sellos:0)}</div>
         <a class="btn sm ${r.premio_nuevo?'':'ghost'}" style="text-decoration:none;${r.premio_nuevo?'background:var(--vino);color:var(--amarillo)':''}" href="${wa}" target="_blank" rel="noopener"><span style="width:20px;height:20px">${icon.wa}</span>Enviar tarjeta por WhatsApp</a>
+        ${r.referido?`<div style="font-weight:700;font-size:13.5px">${r.referido.premiado?`Regalo: ${esc(r.referido.nombre.split(' ')[0])} ganó 1 sello por invitar a ${esc(r.cliente.nombre.split(' ')[0])}.`:`${esc(r.referido.nombre.split(' ')[0])} lo invitó, pero ya usó sus 3 regalos de este mes.`}</div>`:''}
         <button class="btn sm danger" id="undo" style="height:38px">Me equivoqué: deshacer este registro</button>
       </div>`;
       const compraId=r.compra_id; dobleToque($('#undo'), async()=>{ $('#undo').disabled=true; try{ await anularMio(compraId); out.innerHTML=`<div class="msg ok">Registro deshecho. No se sumó el sello; vuelve a registrarlo bien.</div>`; cargarHoy(); }catch(e){ if(/PIN/.test(e.message)){ olvidarPin(); $('#pin').value=''; } err(e.message); $('#undo').disabled=false; } });
