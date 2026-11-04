@@ -59,7 +59,16 @@ type Estado = {
   negocio: { id: string; nombre: string; logo_url: string | null; color_primario: string; color_acento: string; monto_minimo: number; meta_sellos: number; premio: string; premio_vigencia_dias: number; direccion: string | null };
   sellos: number; meta: number; premio_disponible: { id: string; descripcion: string; vence_en: string } | null;
   mod: string; activo: boolean; whatsapp: string | null;
+  ubicacion?: { lat: number; lng: number } | null; aviso?: { texto: string; en: string } | null;
 };
+// Texto que el iPhone muestra en la pantalla bloqueada cuando el cliente pasa cerca del local
+function textoCercania(e: Estado) {
+  const n = e.negocio.nombre, p = e.premio_disponible, faltan = e.meta - e.sellos;
+  if (p) return `Tu premio te espera en ${n}: ${p.descripcion} 🎁`;
+  if (e.sellos > 0 && faltan > 0) return `¡Te faltan ${faltan} sello${faltan === 1 ? "" : "s"} para tu premio! Pasa por ${n}`;
+  return `Estás cerca de ${n} 🍗 Suma tu sello de hoy`;
+}
+const ubicaciones = (e: Estado) => e.ubicacion ? [{ latitude: e.ubicacion.lat, longitude: e.ubicacion.lng }] : undefined;
 const datos = (args: { p_token?: string; p_cliente_id?: string }) => rpc("wallet_datos", args) as Promise<Estado | null>;
 
 function imgSellosURL(e: Estado, w: number, h: number) {
@@ -119,6 +128,7 @@ async function gClase(c: Record<string, string>, e: Estado) {
     countryCode: "PE",
     reviewStatus: "UNDER_REVIEW",
     multipleDevicesAndHoldersAllowedStatus: "ONE_USER_ALL_DEVICES",
+    ...(ubicaciones(e) ? { merchantLocations: ubicaciones(e) } : {}),
   };
 }
 function gObjeto(c: Record<string, string>, e: Estado) {
@@ -132,11 +142,12 @@ function gObjeto(c: Record<string, string>, e: Estado) {
     textModulesData: [
       p ? { id: "premio", header: "¡Tu premio está listo!", body: `${p.descripcion} · vence el ${ddmm(p.vence_en)}. Muéstralo en caja.` }
         : { id: "premio", header: `Tu premio al completar ${e.meta} sellos`, body: n.premio },
-      { id: "reglas", header: "Cómo funciona", body: `1 sello por cada compra desde ${soles(n.monto_minimo)}. El premio vence a los ${n.premio_vigencia_dias} días.` },
+      { id: "reglas", header: "Cómo funciona", body: `1 sello al día con compra desde ${soles(n.monto_minimo)}. El premio vence a los ${n.premio_vigencia_dias} días.` },
     ],
     linksModuleData: { uris: [{ id: "web", uri: link, description: "Ver mi tarjeta" }] },
   };
   if (p) o.secondaryLoyaltyPoints = { label: "Premio", balance: { string: "¡Listo!" } };
+  if (ubicaciones(e)) o.merchantLocations = ubicaciones(e);
   if (!e.activo) o.state = "INACTIVE";
   return o;
 }
@@ -199,8 +210,9 @@ export async function armarPkpass(c: Record<string, string>, e: Estado, wwdr: st
       ],
       auxiliaryFields: p ? [{ key: "vence", label: "VENCE", value: ddmm(p.vence_en) }] : [],
       backFields: [
+        ...(e.aviso ? [{ key: "aviso", label: "Novedades", value: e.aviso.texto, changeMessage: "%@" }] : []),
         { key: "premio_d", label: p ? "Tu premio" : `Tu premio al completar ${e.meta} sellos`, value: p ? `${p.descripcion}\nVence el ${ddmm(p.vence_en)}. Muéstralo en caja.` : n.premio },
-        { key: "reglas", label: "Cómo funciona", value: `1 sello por cada compra desde ${soles(n.monto_minimo)}. Una compra = un sello. El premio vence a los ${n.premio_vigencia_dias} días.` },
+        { key: "reglas", label: "Cómo funciona", value: `1 sello al día con compra desde ${soles(n.monto_minimo)}. El premio vence a los ${n.premio_vigencia_dias} días.` },
         { key: "web", label: "Tu tarjeta en la web", value: link, attributedValue: `<a href='${link}'>Abrir mi tarjeta</a>` },
         ...(n.direccion ? [{ key: "dir", label: "Dirección", value: n.direccion }] : []),
         ...(e.whatsapp ? [{ key: "wa", label: "WhatsApp", value: e.whatsapp }] : []),
@@ -209,6 +221,7 @@ export async function armarPkpass(c: Record<string, string>, e: Estado, wwdr: st
     },
   };
   if (!logoPng) pass.logoText = n.nombre;
+  if (e.ubicacion) pass.locations = [{ latitude: e.ubicacion.lat, longitude: e.ubicacion.lng, relevantText: textoCercania(e) }];
   if (!e.activo) pass.voided = true;
 
   const archivos: Record<string, Uint8Array> = {
@@ -361,7 +374,7 @@ Deno.serve(async (req) => {
 
       case "sync": {
         if (req.method !== "POST" || req.headers.get("x-sync-secret") !== c.wallet_sync_secret) return txt("", 401);
-        const { cliente_id, negocio_id } = await req.json();
+        const { cliente_id, negocio_id, mensaje } = await req.json();
         const out: Record<string, unknown> = {};
         // Google: actualizar objeto(s) guardado(s)
         if (googleListo(c)) {
@@ -373,6 +386,14 @@ Deno.serve(async (req) => {
             if (negocio_id && primera) { await gGuardar(c, await gClase(c, e), "loyaltyClass"); primera = false; }
             const r = await gApi(c, "PATCH", `/loyaltyObject/${encodeURIComponent(gObjetoId(c, id))}`, gObjeto(c, e));
             if (r.ok) ok++;
+            // Aviso con notificación (Google permite 3 por tarjeta al día; si se pasa, queda como mensaje sin notificar)
+            if (r.ok && mensaje && cliente_id) {
+              const msj = (tipo: string) => ({ message: { id: `${mensaje.id}_${Date.now()}`, header: mensaje.header, body: mensaje.body, messageType: tipo } });
+              const ruta = `/loyaltyObject/${encodeURIComponent(gObjetoId(c, id))}/addMessage`;
+              let m = await gApi(c, "POST", ruta, msj("TEXT_AND_NOTIFY"));
+              if (!m.ok) m = await gApi(c, "POST", ruta, msj("TEXT"));
+              out.mensaje = m.ok;
+            }
           }
           out.google = ok;
         }
