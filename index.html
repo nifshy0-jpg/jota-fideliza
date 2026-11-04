@@ -374,46 +374,38 @@ async function iniciarStaff(){
 async function cargarPanel(){
   const {error:eu} = await sb.auth.getUser(); if(eu){ await sb.auth.signOut().catch(()=>{}); session=null; panel=null; return vistaLogin('Tu sesión ya no es válida. Vuelve a entrar.'); }
   try{ panel = await rpc('mi_panel'); }catch(err){ return vistaLogin(err.message); }
-  if(panel && panel.es_superadmin && (!panel.negocio || vistaForzada==='maestro')) return vistaMaestro();
+  if(panel && panel.es_superadmin && (!panel.negocio || vistaForzada!=='negocio')) return vistaMaestro();
   if(!panel || !panel.negocio) return vistaRegistrarNegocio();
   render();
 }
 let vistaForzada=null;
 
-function vistaLogin(msg='', crear=false){
+// Usuario de negocio -> cuenta interna (usuario@yavolveras.com). Si escriben un correo, se usa tal cual.
+const usuarioACorreo = u => { u=String(u||'').trim().toLowerCase(); return u.includes('@') ? u : `${u}@yavolveras.com`; };
+function vistaLogin(msg=''){
   modoLobby(); document.title='YA! VOLVERÁS...';
   app.innerHTML = `<div class="screen" style="justify-content:center;gap:26px;padding-bottom:40px">
-    <div style="display:flex;flex-direction:column;align-items:center;gap:18px">${LOGO()}<h1 style="font-size:28px">${crear?'Crea tu cuenta':'Ingresa a tu negocio'}</h1></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:18px">${LOGO()}<h1 style="font-size:28px">Ingresa a tu negocio</h1></div>
     <form id="f" style="display:flex;flex-direction:column;gap:10px">
-      <div class="field ${crear?'':'hidden'}" id="fcod"><input id="cod" autocomplete="off" placeholder="Código de acceso (YV-XXXXX)" style="text-transform:uppercase;letter-spacing:.12em;font-weight:800" value="${esc(store.get('yv_codigo')||'')}"></div>
-      <div class="field"><input id="em" type="email" autocomplete="username" required placeholder="Correo"></div>
-      <div class="field"><input id="pw" type="password" autocomplete="${crear?'new-password':'current-password'}" required minlength="6" placeholder="Contraseña"></div>
+      <div class="field"><input id="em" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required placeholder="Usuario" value="${esc(store.get('yv_usuario')||'')}"></div>
+      <div class="field"><input id="pw" type="password" autocomplete="current-password" required minlength="6" placeholder="Contraseña"></div>
       <div id="m" class="msg err ${msg?'':'hidden'}">${esc(msg)}</div>
-      <button class="btn" type="submit" style="margin-top:4px">${crear?'Crear cuenta':'Entrar'}</button>
+      <button class="btn" type="submit" style="margin-top:4px">Entrar</button>
     </form>
-    <p class="center" style="font-size:15px;color:var(--lb-ink2)">${crear?'¿Ya tienes cuenta? <a href="#" id="alt" style="font-weight:800;text-decoration:none">Entrar</a>':'¿Nuevo negocio? <a href="#" id="alt" style="font-weight:800;text-decoration:none">Crear cuenta</a>'}</p>
-    <p class="hint center" style="margin-top:auto">Cada negocio tiene su propia cuenta.${crear?' Pide tu código de acceso a YA! VOLVERÁS...':''}</p>
+    <p class="hint center" style="margin-top:auto">Tu usuario y contraseña te los entrega YA! VOLVERÁS...</p>
   </div>`;
   const f=$('#f'), m=$('#m');
   const showErr = t => { m.className='msg err'; m.textContent=t; };
-  $('#alt').onclick = ev => { ev.preventDefault(); vistaLogin('', !crear); };
   f.onsubmit = async ev => { ev.preventDefault(); m.classList.add('hidden'); const b=f.querySelector('.btn'); b.disabled=true;
-    const email=$('#em').value.trim(), pass=$('#pw').value;
+    const usuario=$('#em').value.trim(), pass=$('#pw').value;
     try{
-      if(crear){
-        const cod=$('#cod').value.trim().toUpperCase(); if(!/^YV-[A-Z0-9]{5}$/.test(cod)) throw new Error('Escribe tu código de acceso (ej. YV-7K2PM).');
-        store.set('yv_codigo', cod);
-        const {data,error} = await sb.auth.signUp({email, password:pass, options:{emailRedirectTo: BASE_URL}});
-        if(error) throw new Error(traduceAuth(error.message));
-        if(!data.session){ m.className='msg ok'; m.textContent='Cuenta creada. Revisa tu correo, confirma el enlace y luego entra con tu correo y contraseña.'; b.disabled=false; return; }
-        session=data.session; await cargarPanel(); return;
-      }
-      const {error} = await sb.auth.signInWithPassword({email, password:pass});
+      const {error} = await sb.auth.signInWithPassword({email:usuarioACorreo(usuario), password:pass});
       if(error) throw new Error(traduceAuth(error.message));
+      if(!usuario.includes('@')) store.set('yv_usuario', usuario.toLowerCase());
       const {data:{session:s}} = await sb.auth.getSession(); session=s; await cargarPanel();
     }catch(e){ showErr(e.message); b.disabled=false; } };
 }
-function traduceAuth(m){ if(/Invalid login/i.test(m)) return 'Correo o contraseña incorrectos.'; if(/Email not confirmed/i.test(m)) return 'Confirma tu correo desde el enlace que te enviamos.'; if(/already registered/i.test(m)) return 'Ese correo ya tiene cuenta. Pulsa Entrar.'; if(/rate limit/i.test(m)) return 'Demasiados intentos. Espera un momento.'; return m; }
+function traduceAuth(m){ if(/Invalid login/i.test(m)) return 'Usuario o contraseña incorrectos.'; if(/Email not confirmed/i.test(m)) return 'Confirma tu correo desde el enlace que te enviamos.'; if(/already registered/i.test(m)) return 'Ese correo ya tiene cuenta. Pulsa Entrar.'; if(/rate limit/i.test(m)) return 'Demasiados intentos. Espera un momento.'; return m; }
 
 function vistaRegistrarNegocio(){
   modoLobby();
@@ -443,7 +435,16 @@ async function vistaMaestro(){
     <div class="top"><div style="display:flex;flex-direction:column;gap:8px">${LOGO('sm')}<h1 style="font-size:26px">Panel maestro</h1></div><button class="btn sm ghost" id="out">Salir</button></div>
     <div id="mm"></div>
     <div class="kpis" id="k"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
-    <div class="card white"><div class="row" style="justify-content:space-between"><h3>Códigos de acceso</h3><button class="btn sm" id="gen">Generar código</button></div><p class="hint">Cada código sirve para registrar un solo negocio. Envíalo por WhatsApp al dueño.</p><div class="list" id="cods"></div></div>
+    <div class="card white" style="gap:10px"><h3>Nuevo negocio</h3>
+      <form id="fn" style="display:flex;flex-direction:column;gap:10px">
+        <div class="field"><label>Nombre del negocio</label><input id="nn_nom" required placeholder="Pollería Don Pepe"></div>
+        <div class="row"><div class="field grow"><label>Usuario</label><input id="nn_usr" required autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="donpepe"></div><div class="field grow"><label>Contraseña</label><input id="nn_pw" required minlength="6" autocomplete="off"></div></div>
+        <div class="field"><label>Premio al completar 6 sellos</label><input id="nn_pre" placeholder="Ej. 1/4 de pollo + papas + gaseosa"></div>
+        <div class="row"><div class="field grow"><label>WhatsApp del dueño</label><input id="nn_wa" type="tel" inputmode="numeric" placeholder="987654321"></div><div class="field grow"><label>Dirección (opcional)</label><input id="nn_dir" placeholder="SJL"></div></div>
+        <button class="btn" type="submit">Crear negocio</button>
+      </form>
+      <div id="nn_ok"></div>
+    </div>
     <div class="card white"><h3>Negocios</h3><div class="list" id="negs"><div class="skeleton"></div></div></div>
     ${panel.negocio?`<button class="btn ghost" id="mio">Ir a mi negocio (${esc(panel.negocio.nombre)})</button>`:''}
   </div>`;
@@ -454,16 +455,34 @@ async function vistaMaestro(){
     try{ const d=await rpc('panel_maestro'); if(!d) throw new Error('No tienes permiso.');
       $('#k').innerHTML=[['Negocios activos',d.totales.activos],['Suspendidos',d.totales.suspendidos],['Clientes en total',d.totales.clientes],['Sellos este mes',d.totales.sellos_mes]].map(([l,v])=>`<div class="kpi"><div class="n">${v}</div><div class="l">${l}</div></div>`).join('');
       const libres=d.codigos.filter(c=>!c.usado&&c.activo), usados=d.codigos.filter(c=>c.usado);
-      $('#cods').innerHTML = (libres.map(c=>`<div class="item" style="flex-direction:column;align-items:stretch;gap:8px"><div><div class="t" style="letter-spacing:.14em;font-family:Anton,sans-serif;font-weight:400;font-size:22px;color:var(--lb-az);white-space:nowrap">${c.codigo}</div><div class="s">creado ${fecha(c.creado_en)}${c.nota?' · '+esc(c.nota):''}</div></div><div class="row" style="gap:6px"><button class="btn sm ghost" data-copy="${c.codigo}" style="height:36px;padding:0 12px;font-size:13px">Copiar</button><a class="btn sm ghost" style="height:36px;padding:0 12px;text-decoration:none;gap:6px" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(`Hola, este es tu código de acceso a YA! VOLVERÁS...: ${c.codigo}\nEntra a ${BASE_URL}, pulsa "Crear cuenta" y escribe el código.`)}"><span style="width:18px;height:18px">${icon.wa}</span>WhatsApp</a><button class="btn sm danger" data-anular="${c.codigo}" style="height:36px;padding:0 12px;font-size:13px;margin-left:auto">Anular</button></div></div>`).join('')
+      if($('#cods')) $('#cods').innerHTML = (libres.map(c=>`<div class="item" style="flex-direction:column;align-items:stretch;gap:8px"><div><div class="t" style="letter-spacing:.14em;font-family:Anton,sans-serif;font-weight:400;font-size:22px;color:var(--lb-az);white-space:nowrap">${c.codigo}</div><div class="s">creado ${fecha(c.creado_en)}${c.nota?' · '+esc(c.nota):''}</div></div><div class="row" style="gap:6px"><button class="btn sm ghost" data-copy="${c.codigo}" style="height:36px;padding:0 12px;font-size:13px">Copiar</button><a class="btn sm ghost" style="height:36px;padding:0 12px;text-decoration:none;gap:6px" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(`Hola, este es tu código de acceso a YA! VOLVERÁS...: ${c.codigo}\nEntra a ${BASE_URL}, pulsa "Crear cuenta" y escribe el código.`)}"><span style="width:18px;height:18px">${icon.wa}</span>WhatsApp</a><button class="btn sm danger" data-anular="${c.codigo}" style="height:36px;padding:0 12px;font-size:13px;margin-left:auto">Anular</button></div></div>`).join('')
         + usados.slice(0,5).map(c=>`<div class="item" style="opacity:.55"><div class="grow"><div class="t" style="letter-spacing:.12em">${c.codigo}</div><div class="s">usado por ${esc(c.negocio||'—')}</div></div><span class="chip">usado</span></div>`).join('')) || '<p class="hint">Aún no hay códigos. Genera uno.</p>';
-      $('#negs').innerHTML = d.negocios.length ? d.negocios.map(n=>`<div class="item" style="${n.activo?'':'opacity:.6'}">${n.logo_url?`<img src="${esc(n.logo_url)}" alt="" style="width:40px;height:40px;border-radius:10px;object-fit:cover">`:`<div class="avatar">${ini(n.nombre)}</div>`}<div class="grow"><div class="t">${esc(n.nombre)}</div><div class="s">${esc(n.correo||'')}${n.direccion?' · '+esc(n.direccion):''}</div><div class="s">${n.clientes} clientes · ${n.sellos_30d} sellos (30 d) · ${n.premios} premios · desde ${fecha(n.creado_en)}</div></div><div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><span class="chip ${n.activo?'y':''}"><span class="dot ${n.activo?'':'off'}" style="background:${n.activo?'#fff':'#C7C7CC'}"></span>${n.activo?'Activo':'Suspendido'}</span><button class="btn sm ghost" data-qr="${esc(n.slug)}" style="height:32px;padding:0 10px;font-size:12.5px">QR</button><button class="btn sm ${n.activo?'danger':''}" data-sus="${n.id}" data-act="${n.activo}" style="height:32px;padding:0 10px;font-size:12.5px">${n.activo?'Suspender':'Activar'}</button></div></div>`).join('') : '<p class="hint">Todavía no hay negocios registrados.</p>';
+      $('#negs').innerHTML = d.negocios.length ? d.negocios.map(n=>`<div class="item" style="${n.activo?'':'opacity:.6'}">${n.logo_url?`<img src="${esc(n.logo_url)}" alt="" style="width:40px;height:40px;border-radius:10px;object-fit:cover">`:`<div class="avatar">${ini(n.nombre)}</div>`}<div class="grow"><div class="t">${esc(n.nombre)}</div><div class="s">Usuario: <b>${esc(n.usuario||'—')}</b>${n.direccion?' · '+esc(n.direccion):''}</div><div class="s">${n.clientes} clientes · ${n.sellos_30d} sellos (30 d) · ${n.premios} premios · desde ${fecha(n.creado_en)}</div></div><div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><span class="chip ${n.activo?'y':''}"><span class="dot ${n.activo?'':'off'}" style="background:${n.activo?'#fff':'#C7C7CC'}"></span>${n.activo?'Activo':'Suspendido'}</span><button class="btn sm" data-entrar="${n.id}" style="height:32px;padding:0 12px;font-size:12.5px">Entrar</button><div class="row" style="gap:4px"><button class="btn sm ghost" data-qr="${esc(n.slug)}" style="height:32px;padding:0 10px;font-size:12.5px">QR</button><button class="btn sm ghost" data-clave="${n.id}" data-nom="${esc(n.nombre)}" data-wa="${esc(n.whatsapp||'')}" style="height:32px;padding:0 10px;font-size:12.5px">Clave</button></div><button class="btn sm ${n.activo?'danger':''}" data-sus="${n.id}" data-act="${n.activo}" style="height:32px;padding:0 10px;font-size:12.5px">${n.activo?'Suspender':'Activar'}</button></div></div>`).join('') : '<p class="hint">Todavía no hay negocios registrados.</p>';
       document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{ try{ await navigator.clipboard.writeText(b.dataset.copy); b.textContent='Copiado'; setTimeout(()=>b.textContent='Copiar',1500);}catch{ msg('Copia el código manualmente: '+b.dataset.copy,true);} });
       document.querySelectorAll('[data-anular]').forEach(b=>b.onclick=async()=>{ try{ await rpc('anular_codigo',{p_codigo:b.dataset.anular}); cargar(); }catch(e){ msg(e.message); } });
       document.querySelectorAll('[data-qr]').forEach(b=>b.onclick=()=>materialQR(b.dataset.qr));
+      document.querySelectorAll('[data-entrar]').forEach(b=>b.onclick=async()=>{ b.disabled=true; try{ await rpc('admin_entrar_negocio',{p_negocio_id:b.dataset.entrar}); vistaForzada='negocio'; tab='panel'; await cargarPanel(); }catch(e){ msg(e.message); b.disabled=false; } });
+      document.querySelectorAll('[data-clave]').forEach(b=>b.onclick=async()=>{ const pw=prompt(`Nueva contraseña para ${b.dataset.nom} (mínimo 6 caracteres):`, window.__clave()); if(!pw) return;
+        try{ const r=await rpc('admin_cambiar_clave',{p_negocio_id:b.dataset.clave,p_clave:pw}); $('#mm').innerHTML=window.__credenciales(b.dataset.nom, r.usuario, pw, b.dataset.wa); window.__enlazarCopiar($('#mm')); window.scrollTo({top:0,behavior:'smooth'}); }catch(e){ msg(e.message); } });
       document.querySelectorAll('[data-sus]').forEach(b=>b.onclick=async()=>{ const act=b.dataset.act==='true'; if(act && !confirm('¿Suspender este negocio? Su caja no podrá registrar ni canjear hasta que lo actives.')) return; try{ await rpc('suspender_negocio',{p_id:b.dataset.sus,p_activo:!act}); cargar(); }catch(e){ msg(e.message); } });
     }catch(e){ msg(e.message); }
   }
-  $('#gen').onclick=async()=>{ try{ const c=await rpc('generar_codigo'); msg('Código creado: '+c,true); cargar(); }catch(e){ msg(e.message); } };
+  const clave = () => { const a='abcdefghjkmnpqrstuvwxyz23456789'; let c=''; const r=crypto.getRandomValues(new Uint32Array(8)); for(const x of r) c+=a[x%a.length]; return c; };
+  const slugUsr = t => String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/^(el|la|los|las)\s+/,'').replace(/[^a-z0-9]+/g,'').slice(0,30);
+  $('#nn_pw').value = clave();
+  let usrTocado=false; $('#nn_usr').oninput=()=>{ usrTocado=true; };
+  $('#nn_nom').oninput=()=>{ if(!usrTocado) $('#nn_usr').value=slugUsr($('#nn_nom').value); };
+  const credenciales = (nombre, usuario, pw, wa) => { const txt=`Hola, ya está listo el sistema de tarjeta de sellos de ${nombre} en YA! VOLVERÁS...\n\nEntra a ${BASE_URL}\nUsuario: ${usuario}\nContraseña: ${pw}\n\nGuarda estos datos.`;
+    return `<div class="msg ok" style="display:flex;flex-direction:column;gap:8px;margin-top:6px"><b>${esc(nombre)}</b><span>Usuario: <b>${esc(usuario)}</b> · Contraseña: <b>${esc(pw)}</b></span>
+      <div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn sm ghost" type="button" data-cp="${esc(txt)}" style="height:36px">Copiar datos</button>${wa?`<a class="btn sm" style="height:36px;text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/51${esc(String(wa).replace(/\D/g,'').slice(-9))}?text=${encodeURIComponent(txt)}">Enviar por WhatsApp</a>`:''}</div></div>`; };
+  const enlazarCopiar = cont => cont.querySelectorAll('[data-cp]').forEach(b=>b.onclick=async()=>{ try{ await navigator.clipboard.writeText(b.dataset.cp); b.textContent='Copiado'; }catch{ b.textContent='Cópialo a mano'; } });
+  $('#fn').onsubmit=async ev=>{ ev.preventDefault(); const b=$('#fn button'); b.disabled=true; $('#mm').innerHTML='';
+    const nombre=$('#nn_nom').value.trim(), usuario=$('#nn_usr').value.trim().toLowerCase(), pw=$('#nn_pw').value, wa=$('#nn_wa').value.trim();
+    try{ const r=await rpc('admin_crear_negocio',{p_nombre:nombre,p_usuario:usuario,p_clave:pw,p_premio:$('#nn_pre').value||null,p_whatsapp:wa||null,p_direccion:$('#nn_dir').value||null});
+      $('#nn_ok').innerHTML=credenciales(nombre, r.usuario, pw, wa); enlazarCopiar($('#nn_ok'));
+      $('#fn').reset(); usrTocado=false; $('#nn_pw').value=clave(); cargar();
+    }catch(e){ msg(e.message); } b.disabled=false; };
+  window.__credenciales = credenciales; window.__enlazarCopiar = enlazarCopiar; window.__clave = clave;
   cargar();
 }
 
@@ -473,6 +492,7 @@ function render(){
   const sinPersonal = !panel.personal.length;
   if(sinPersonal && panel.es_admin && tab!=='panel'){ tab='panel'; }
   app.innerHTML = `<div class="screen">
+    ${panel.es_superadmin?`<div class="msg ok" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px"><span style="font-size:13px">Estás dentro de <b>${esc(n.nombre)}</b> como administrador</span><button class="btn sm" id="volverM" style="height:34px;padding:0 12px;font-size:13px;flex-shrink:0">Panel maestro</button></div>`:''}
     <div class="top">
       <div><span class="eyebrow">${esc(n.nombre)}</span><h1 id="titulo"></h1></div>
       <div class="row">${n.logo_url?`<img src="${esc(n.logo_url)}" alt="" style="height:40px;border-radius:8px">`:''}</div>
@@ -487,6 +507,7 @@ function render(){
     <button data-t="panel">${icon.panel}Panel</button>
   </div></nav>`;
   document.querySelectorAll('.nav button').forEach(b=>{ b.classList.toggle('on', b.dataset.t===tab); b.onclick=()=>{ tab=b.dataset.t; render(); }; });
+  if($('#volverM')) $('#volverM').onclick=async()=>{ try{ await rpc('admin_salir_negocio'); }catch{} vistaForzada='maestro'; await cargarPanel(); };
   if(tab==='stats' && !panel.es_admin) tab='registrar';
   ({registrar:vRegistrar, canjear:vCanjear, historial:vHistorial, stats:vEstadisticas, panel:vPanel})[tab]();
   if(sinPersonal && tab==='panel'){ $('#vista').insertAdjacentHTML('afterbegin', `<div class="msg ok" style="margin-bottom:12px">Primero agrega a las personas que van a registrar (caja, mesero, encargado), cada una con su PIN.</div>`); }
@@ -728,11 +749,12 @@ function vPanel(){
         <div class="row"><div class="field grow"><label>Color principal</label><input id="c_col1" type="color" value="${n.color_primario||'#460E0D'}" style="padding:4px;height:50px"></div><div class="field grow"><label>Color de acento</label><input id="c_col2" type="color" value="${n.color_acento||'#F9B40F'}" style="padding:4px;height:50px"></div></div>
         <div class="field"><label>Logo (PNG o JPG; se ajusta solo)</label><input id="c_logo" type="file" accept="image/*" style="padding:10px"></div>
         <div id="mc" class="msg hidden"></div><button class="btn sm" type="submit">Guardar cambios</button></form></div>
-    ${panel.es_superadmin?'<button class="btn ghost" id="maestro">Panel maestro YA! VOLVERÁS...</button>':''}
+    ${panel.es_superadmin?'<button class="btn ghost" id="maestro">Panel maestro YA! VOLVERÁS...</button>':`<form id="fcl" class="card" style="gap:10px"><h3>Cambiar contraseña</h3><div class="row"><input id="cl_pw" type="password" autocomplete="new-password" minlength="6" required placeholder="Nueva contraseña" class="grow"><button class="btn sm" type="submit">Guardar</button></div><div id="cl_m" class="msg hidden"></div></form>`}
     <button class="btn danger" id="out">Cerrar sesión</button>
     <p class="hint center" style="opacity:.8">Sistema de fidelización por ${PIE}</p>
   </div>`;
-  if($('#maestro')) $('#maestro').onclick=()=>{ vistaForzada='maestro'; vistaMaestro(); };
+  if($('#fcl')) $('#fcl').onsubmit=async ev=>{ ev.preventDefault(); const m=$('#cl_m'); const {error}=await sb.auth.updateUser({password:$('#cl_pw').value}); m.className='msg '+(error?'err':'ok'); m.textContent=error?traduceAuth(error.message):'Contraseña cambiada. Úsala la próxima vez que entres.'; if(!error) $('#cl_pw').value=''; };
+  if($('#maestro')) $('#maestro').onclick=async()=>{ try{ await rpc('admin_salir_negocio'); }catch{} vistaForzada='maestro'; await cargarPanel(); };
   rpc('resumen_negocio').then(r=>{ $('#k').innerHTML=[['Clientes',r.clientes],['Compras (30 d)',r.compras],['Ventas (30 d)',soles(r.ventas)],['Sellos (30 d)',r.sellos],['Premios ganados',r.premios_otorgados],['Premios canjeados',r.premios_canjeados]].map(([l,v])=>`<div class="kpi"><div class="n">${v}</div><div class="l">${l}</div></div>`).join(''); }).catch(()=>{});
   $('#qrmat').onclick=()=>materialQR(n.slug);
   $('#addp').onclick=()=>$('#fp').classList.toggle('hidden');
