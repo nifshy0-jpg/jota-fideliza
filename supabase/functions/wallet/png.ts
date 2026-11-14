@@ -1,5 +1,6 @@
 // Dibujo y codificación PNG sin dependencias nativas (sirve en Deno y Node).
 import { zlibSync } from "npm:fflate@0.8.2";
+import { ancho, contornos, limpiar, partir } from "./texto.ts";
 
 type RGB = [number, number, number];
 
@@ -59,6 +60,43 @@ class Lienzo {
     this.linea(cx - r * 0.45, cy + r * 0.02, cx - r * 0.12, cy + r * 0.36, g, c);
     this.linea(cx - r * 0.12, cy + r * 0.36, cx + r * 0.5, cy - r * 0.32, g, c);
   }
+  // rellena polígonos (letras) con antialias: 5 sub-líneas por píxel y cobertura horizontal exacta
+  poligonos(cs: number[][][], c: RGB) {
+    if (!cs.length) return;
+    let y0 = Infinity, y1 = -Infinity;
+    for (const k of cs) for (const p of k) { if (p[1] < y0) y0 = p[1]; if (p[1] > y1) y1 = p[1]; }
+    const SS = 5, fila = new Float32Array(this.w);
+    for (let y = Math.max(0, Math.floor(y0)); y < Math.min(this.h, Math.ceil(y1)); y++) {
+      fila.fill(0);
+      for (let s = 0; s < SS; s++) {
+        const sy = y + (s + 0.5) / SS, xs: [number, number][] = [];
+        for (const k of cs) for (let i = 0; i < k.length; i++) {
+          const a = k[i], b = k[(i + 1) % k.length];
+          if ((a[1] <= sy && b[1] > sy) || (b[1] <= sy && a[1] > sy)) xs.push([a[0] + (sy - a[1]) * (b[0] - a[0]) / (b[1] - a[1]), b[1] > a[1] ? 1 : -1]);
+        }
+        xs.sort((p, q) => p[0] - q[0]);
+        let giro = 0, ini = 0;
+        for (const [x, d] of xs) {
+          if (giro === 0) ini = x;
+          giro += d;
+          if (giro === 0) {
+            const xa = Math.max(0, ini), xb = Math.min(this.w, x);
+            for (let px = Math.floor(xa); px < xb; px++) fila[px] += (Math.min(xb, px + 1) - Math.max(xa, px)) / SS;
+          }
+        }
+      }
+      for (let x = 0; x < this.w; x++) if (fila[x] > 0) this.pon(x, y, c, Math.min(1, fila[x]));
+    }
+  }
+  // regalo (premio): caja, tapa, cinta y lazo
+  regalo(cx: number, cy0: number, r: number, c: RGB, fondo: RGB) {
+    const u = r, cy = cy0 + 0.05 * u;
+    this.cuadroRedondo(cx - 0.40 * u, cy - 0.05 * u, 0.80 * u, 0.50 * u, 0.07 * u, c);
+    this.cuadroRedondo(cx - 0.48 * u, cy - 0.27 * u, 0.96 * u, 0.24 * u, 0.07 * u, c);
+    this.linea(cx, cy - 0.27 * u, cx, cy + 0.45 * u, 0.13 * u, fondo);
+    this.aro(cx - 0.17 * u, cy - 0.40 * u, 0.15 * u, 0.07 * u, c);
+    this.aro(cx + 0.17 * u, cy - 0.40 * u, 0.15 * u, 0.07 * u, c);
+  }
   png(): Uint8Array {
     const raw = new Uint8Array((this.w * 4 + 1) * this.h);
     for (let y = 0; y < this.h; y++) {
@@ -85,24 +123,55 @@ function chunk(tipo: string, data: Uint8Array) {
   return out;
 }
 
-/** Franja de sellos: círculos llenos (con check) y vacíos. */
-export function franjaSellos(sellos: number, meta: number, primario: string, acento: string, w: number, h: number): Uint8Array {
+/** Texto opcional de la franja: título pequeño + premio (hasta 2 líneas), dibujados con la fuente de la marca. */
+// deno-lint-ignore no-explicit-any
+export type TextoFranja = { fuente: any; titulo: string; premio: string } | null;
+
+/** Franja de sellos: fondo del color de la tarjeta, premio escrito arriba, sellos ganados llenos y el último con un regalo. */
+export function franjaSellos(sellos: number, meta: number, primario: string, acento: string, w: number, h: number, txt: TextoFranja = null): Uint8Array {
   const P = hexRGB(primario), A = hexRGB(acento, [249, 180, 15]);
-  const fondo = mix(P, [255, 255, 255], 0.08);
-  const L = new Lienzo(w, h, fondo);
+  const L = new Lienzo(w, h, P);
   meta = Math.max(1, Math.min(20, meta));
+  const k = Math.min(w / 375, h / 144), anchoPt = w / k;            // todo se mide en «puntos» de una franja de 375 × 144
   const filas = meta > 10 ? 2 : 1, porFila = Math.ceil(meta / filas);
-  const margen = w * 0.06, hueco = w * 0.025;
-  let d = Math.min((w - 2 * margen - hueco * (porFila - 1)) / porFila, (h - h * 0.22 - (filas - 1) * hueco) / filas);
-  const r = d / 2;
+  const margen = 19, hueco = 8;
+  // texto
+  let titulo = "", lineas: string[] = [], tam = 17;
+  if (txt?.fuente) {
+    titulo = limpiar(txt.fuente, txt.titulo.toUpperCase());
+    const premio = limpiar(txt.fuente, txt.premio);
+    if (premio) {
+      const max = Math.min(anchoPt - 2 * margen, 420);
+      // 1 línea si cabe (18 → 15 pt); si no, 2 líneas a 15 pt; si aún no cabe, 2 líneas a 13 pt con «…»
+      tam = 18; while (tam > 15 && ancho(txt.fuente, premio, tam) > max) tam--;
+      if (ancho(txt.fuente, premio, tam) <= max) lineas = [premio];
+      else { tam = 15; lineas = partir(txt.fuente, premio, tam, max, 3); if (lineas.length > 2) { tam = 13; lineas = partir(txt.fuente, premio, tam, max, 2); } }
+    }
+  }
+  const altoTitulo = titulo ? 9 : 0, interlinea = tam * 1.12, altoTexto = lineas.length ? lineas.length * interlinea : 0;
+  const altoCabecera = (titulo ? altoTitulo + 8 : 0) + (lineas.length ? altoTexto + 6 : 0);
+  const dMax = (anchoPt - 2 * margen - hueco * (porFila - 1)) / porFila;
+  const d = Math.min(dMax, 50, (144 - 22 - altoCabecera - (filas - 1) * hueco) / filas), r = d / 2;
+  const altoSellos = filas * d + (filas - 1) * hueco;
+  let y = (144 - (altoCabecera + altoSellos)) / 2;
+  const tenue = mix(P, A, 0.62), relleno = mix(P, [255, 255, 255], 0.07);
+  if (titulo) {
+    const t = 10, esp = 0.09, an = ancho(txt!.fuente, titulo, t, esp);
+    L.poligonos(contornos(txt!.fuente, titulo, ((anchoPt - an) / 2) * k, (y + altoTitulo) * k, t * k, esp), A);
+    y += altoTitulo + 8;
+  }
+  for (const [i, ln] of lineas.entries()) {
+    const an = ancho(txt!.fuente, ln, tam);
+    L.poligonos(contornos(txt!.fuente, ln, ((anchoPt - an) / 2) * k, (y + i * interlinea + tam * 0.80) * k, tam * k), [255, 255, 255]);
+  }
+  if (lineas.length) y += altoTexto + 6;
   for (let i = 0; i < meta; i++) {
     const fila = Math.floor(i / porFila), col = i % porFila, enFila = Math.min(porFila, meta - fila * porFila);
     const anchoFila = enFila * d + (enFila - 1) * hueco;
-    const cx = (w - anchoFila) / 2 + col * (d + hueco) + r;
-    const altoTotal = filas * d + (filas - 1) * hueco;
-    const cy = (h - altoTotal) / 2 + fila * (d + hueco) + r;
-    if (i < sellos) { L.circulo(cx, cy, r, A); L.check(cx, cy, r, P); }
-    else { L.circulo(cx, cy, r, [255, 255, 255], 0.06); L.aro(cx, cy, r, Math.max(2, r * 0.12), A, 0.55); }
+    const cx = ((anchoPt - anchoFila) / 2 + col * (d + hueco) + r) * k, cy = (y + fila * (d + hueco) + r) * k, R = r * k;
+    const ultimo = i === meta - 1;
+    if (i < sellos) { L.circulo(cx, cy, R, A); if (ultimo) L.regalo(cx, cy, R, P, A); else L.check(cx, cy, R, P); }
+    else { L.circulo(cx, cy, R, relleno); L.aro(cx, cy, R, Math.max(2, R * 0.09), tenue); if (ultimo) L.regalo(cx, cy, R, tenue, relleno); }
   }
   return L.png();
 }

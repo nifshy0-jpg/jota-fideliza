@@ -11,7 +11,8 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import forge from "npm:node-forge@1.3.1";
 import { zipSync, strToU8 } from "npm:fflate@0.8.2";
-import { franjaSellos, icono, hexRGB } from "./png.ts";
+import { franjaSellos, icono, hexRGB, type TextoFranja } from "./png.ts";
+import { cargarFuente } from "./texto.ts";
 import { firmarRS256 } from "./jwt.ts";
 
 const SB_URL = Deno.env.get("SUPABASE_URL")!;
@@ -60,7 +61,21 @@ type Estado = {
   sellos: number; meta: number; premio_disponible: { id: string; descripcion: string; vence_en: string } | null;
   mod: string; activo: boolean; whatsapp: string | null;
   ubicacion?: { lat: number; lng: number } | null; aviso?: { texto: string; en: string } | null;
+  ultima_compra?: { monto: number; fecha: string } | null;
 };
+// Título de la franja de sellos: cambia según el avance del cliente
+function tituloFranja(sellos: number, meta: number, ganado: boolean) {
+  const faltan = meta - sellos;
+  if (ganado) return "¡Ganaste! Muéstralo en caja";
+  if (sellos <= 0) return `Junta ${meta} sellos y gana`;
+  if (faltan === 1) return "¡Solo te falta 1 sello para ganar!";
+  if (faltan <= 0) return `Junta ${meta} sellos y gana`;
+  return `Te faltan ${faltan} sellos para ganar`;
+}
+async function textoFranja(sellos: number, meta: number, ganado: boolean, premio: string): Promise<TextoFranja> {
+  const fuente = await cargarFuente();
+  return fuente ? { fuente, titulo: tituloFranja(sellos, meta, ganado), premio } : null;
+}
 // Texto que el iPhone muestra en la pantalla bloqueada cuando el cliente pasa cerca del local
 function textoCercania(e: Estado) {
   const n = e.negocio.nombre, p = e.premio_disponible, faltan = e.meta - e.sellos;
@@ -73,7 +88,8 @@ const datos = (args: { p_token?: string; p_cliente_id?: string }) => rpc("wallet
 
 function imgSellosURL(e: Estado, w: number, h: number) {
   const n = e.negocio;
-  return `${FN_URL}/img/sellos?s=${e.sellos}&m=${e.meta}&p=${sinHash(n.color_primario)}&a=${sinHash(n.color_acento)}&w=${w}&h=${h}`;
+  const p = e.premio_disponible;
+  return `${FN_URL}/img/sellos?s=${e.sellos}&m=${e.meta}&p=${sinHash(n.color_primario)}&a=${sinHash(n.color_acento)}&w=${w}&h=${h}&g=${p ? 1 : 0}&t=${encodeURIComponent((p ? p.descripcion : n.premio).slice(0, 140))}&v=3`;
 }
 function logoInfo(dataUrl: string | null): { mime: string; bytes: Uint8Array } | null {
   const m = /^data:(image\/[a-z+.-]+);base64,(.+)$/i.exec(dataUrl || "");
@@ -205,10 +221,9 @@ export async function armarPkpass(c: Record<string, string>, e: Estado, wwdr: st
       headerFields: [{ key: "sellos", label: "SELLOS", value: `${e.sellos}/${e.meta}`, changeMessage: "Llevas %@ sellos" }],
       secondaryFields: [
         { key: "cliente", label: "CLIENTE", value: e.cliente.nombre },
-        p ? { key: "premio", label: "PREMIO", value: "¡Listo para canjear!", changeMessage: "Tu premio está %@" }
-          : { key: "premio", label: "PREMIO", value: `Al completar ${e.meta}`, changeMessage: "Tu premio está %@" },
+        ...(p ? [{ key: "vence", label: "CANJÉALO HASTA EL", value: ddmm(p.vence_en), textAlignment: "PKTextAlignmentRight" }]
+          : e.ultima_compra ? [{ key: "visita", label: "ÚLTIMA VISITA", value: ddmm(e.ultima_compra.fecha), textAlignment: "PKTextAlignmentRight" }] : []),
       ],
-      auxiliaryFields: p ? [{ key: "vence", label: "VENCE", value: ddmm(p.vence_en) }] : [],
       backFields: [
         ...(e.aviso ? [{ key: "aviso", label: "Novedades", value: e.aviso.texto, changeMessage: "%@" }] : []),
         { key: "premio_d", label: p ? "Tu premio" : `Tu premio al completar ${e.meta} sellos`, value: p ? `${p.descripcion}\nVence el ${ddmm(p.vence_en)}. Muéstralo en caja.` : n.premio },
@@ -224,14 +239,15 @@ export async function armarPkpass(c: Record<string, string>, e: Estado, wwdr: st
   if (e.ubicacion) pass.locations = [{ latitude: e.ubicacion.lat, longitude: e.ubicacion.lng, relevantText: textoCercania(e) }];
   if (!e.activo) pass.voided = true;
 
+  const txt = await textoFranja(e.sellos, e.meta, !!p, p ? p.descripcion : n.premio);
   const archivos: Record<string, Uint8Array> = {
     "pass.json": strToU8(JSON.stringify(pass)),
     "icon.png": icono(n.color_primario, n.color_acento, 29),
     "icon@2x.png": icono(n.color_primario, n.color_acento, 58),
     "icon@3x.png": icono(n.color_primario, n.color_acento, 87),
-    "strip.png": franjaSellos(e.sellos, e.meta, n.color_primario, n.color_acento, 375, 123),
-    "strip@2x.png": franjaSellos(e.sellos, e.meta, n.color_primario, n.color_acento, 750, 246),
-    "strip@3x.png": franjaSellos(e.sellos, e.meta, n.color_primario, n.color_acento, 1125, 369),
+    "strip.png": franjaSellos(e.sellos, e.meta, n.color_primario, n.color_acento, 375, 144, txt),
+    "strip@2x.png": franjaSellos(e.sellos, e.meta, n.color_primario, n.color_acento, 750, 288, txt),
+    "strip@3x.png": franjaSellos(e.sellos, e.meta, n.color_primario, n.color_acento, 1125, 432, txt),
   };
   if (logoPng) { archivos["logo.png"] = logoPng; archivos["logo@2x.png"] = logoPng; }
   const manifest: Record<string, string> = {};
@@ -342,7 +358,10 @@ Deno.serve(async (req) => {
       case "img": {
         const q = url.searchParams, num = (k: string, d: number, max: number) => Math.max(1, Math.min(max, parseInt(q.get(k) || "") || d));
         let png: Uint8Array;
-        if (partes[1] === "sellos") png = franjaSellos(Math.max(0, Math.min(20, parseInt(q.get("s") || "0") || 0)), num("m", 6, 20),"#" + (q.get("p") || "460E0D"), "#" + (q.get("a") || "F9B40F"), num("w", 1032, 1200), num("h", 336, 600));
+        if (partes[1] === "sellos") {
+          const s = Math.max(0, Math.min(20, parseInt(q.get("s") || "0") || 0)), m = num("m", 6, 20), premio = (q.get("t") || "").slice(0, 140);
+          png = franjaSellos(s, m, "#" + (q.get("p") || "460E0D"), "#" + (q.get("a") || "F9B40F"), num("w", 1032, 1200), num("h", 336, 600), premio ? await textoFranja(s, m, q.get("g") === "1", premio) : null);
+        }
         else if (partes[1] === "icono") png = icono("#" + (q.get("p") || "460E0D"), "#" + (q.get("a") || "F9B40F"), num("l", 660, 800), q.get("r") === "1");
         else if (partes[1] === "logo" && partes[2]) {
           const l = logoInfo(await rpc("wallet_logo", { p_negocio_id: partes[2] }));
