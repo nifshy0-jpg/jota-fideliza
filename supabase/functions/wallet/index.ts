@@ -89,7 +89,7 @@ const datos = (args: { p_token?: string; p_cliente_id?: string }) => rpc("wallet
 function imgSellosURL(e: Estado, w: number, h: number) {
   const n = e.negocio;
   const p = e.premio_disponible;
-  return `${FN_URL}/img/sellos?s=${e.sellos}&m=${e.meta}&p=${sinHash(n.color_primario)}&a=${sinHash(n.color_acento)}&w=${w}&h=${h}&g=${p ? 1 : 0}&t=${encodeURIComponent((p ? p.descripcion : n.premio).slice(0, 140))}&v=3`;
+  return `${FN_URL}/img/sellos?s=${e.sellos}&m=${e.meta}&p=${sinHash(n.color_primario)}&a=${sinHash(n.color_acento)}&w=${w}&h=${h}&g=${p ? 1 : 0}&t=${encodeURIComponent((p ? p.descripcion : n.premio).slice(0, 140))}&v=4`;
 }
 function logoInfo(dataUrl: string | null): { mime: string; bytes: Uint8Array } | null {
   const m = /^data:(image\/[a-z+.-]+);base64,(.+)$/i.exec(dataUrl || "");
@@ -285,24 +285,6 @@ async function respuestaPkpass(c: Record<string, string>, e: Estado) {
   });
 }
 
-// Avisos push a los iPhone (HTTP/2 con el certificado del pase)
-async function applePush(c: Record<string, string>, tokens: string[]) {
-  if (!tokens.length) return { enviados: 0 };
-  const http2 = await import("node:http2");
-  const cliente = http2.connect(Deno.env.get("APNS_HOST") || "https://api.push.apple.com", { cert: c.wallet_apple_cert_pem, key: c.wallet_apple_key_pem });
-  const res: string[] = [];
-  await Promise.all(tokens.map((t) => new Promise<void>((ok) => {
-    const req = cliente.request({ ":method": "POST", ":path": `/3/device/${t}`, "apns-topic": c.wallet_apple_pass_type_id, "content-type": "application/json" });
-    req.on("response", (h: Record<string, unknown>) => { res.push(String(h[":status"])); });
-    req.on("error", (er: Error) => { res.push("error " + er.message); ok(); });
-    req.on("end", () => ok());
-    req.on("data", () => {});
-    req.end("{}");
-  })));
-  cliente.close();
-  return { enviados: tokens.length, estados: res };
-}
-
 async function appleWS(req: Request, partes: string[], c: Record<string, string>) {
   // partes: ["v1", ...]
   const [, tipo, a, , b, d] = partes;
@@ -416,11 +398,7 @@ Deno.serve(async (req) => {
           }
           out.google = ok;
         }
-        // Apple: aviso push a los iPhone registrados
-        if (appleListo(c)) {
-          const tokens: string[] = await rpc("wallet_apple_tokens", { p_cliente_id: cliente_id ?? null, p_negocio_id: negocio_id ?? null });
-          out.apple = await applePush(c, tokens);
-        }
+        // Apple: el aviso push a los iPhone lo envía la función «apns» (la base de datos la llama aparte)
         return json(out);
       }
     }

@@ -88,6 +88,45 @@ class Lienzo {
       for (let x = 0; x < this.w; x++) if (fila[x] > 0) this.pon(x, y, c, Math.min(1, fila[x]));
     }
   }
+  // sello metálico: cara con degradado diagonal, borde biselado y, si es el más reciente, banda de luz
+  selloMetal(cx: number, cy: number, R: number, A: RGB, reciente = false) {
+    const B: RGB = [255, 255, 255], N: RGB = [0, 0, 0];
+    const claro = mix(A, B, 0.55), luz = mix(A, B, reciente ? 0.9 : 0.5), oscuro = mix(A, N, 0.4), surco = mix(A, N, 0.55);
+    const cara: [number, RGB][] = [[0, claro], [0.3, A], [0.47, luz], [0.6, A], [1, oscuro]];
+    const rampa = (t: number): RGB => {
+      for (let i = 1; i < cara.length; i++) if (t <= cara[i][0]) return mix(cara[i - 1][1], cara[i][1], (t - cara[i - 1][0]) / (cara[i][0] - cara[i - 1][0]));
+      return oscuro;
+    };
+    const rc = R * 0.86, gs = Math.max(1, R * 0.035);
+    for (let y = Math.max(0, Math.floor(cy - R - 1)); y < Math.min(this.h, Math.ceil(cy + R + 1)); y++)
+      for (let x = Math.max(0, Math.floor(cx - R - 1)); x < Math.min(this.w, Math.ceil(cx + R + 1)); x++) {
+        const dx = x + 0.5 - cx, dy = y + 0.5 - cy, d = Math.hypot(dx, dy), cob = Math.max(0, Math.min(1, R - d + 0.5));
+        if (cob <= 0) continue;
+        const t = Math.max(0, Math.min(1, ((dx + dy) / (R * Math.SQRT2) + 1) / 2));
+        // borde: luz arriba-izquierda, sombra abajo-derecha (relieve); cara: degradado con banda clara
+        let c = d > rc ? mix(mix(A, B, 0.78), oscuro, t) : rampa(t);
+        const s = Math.max(0, 1 - Math.abs(d - rc) / gs);
+        if (s > 0) c = mix(c, surco, s * 0.55);
+        this.pon(x, y, c, cob);
+      }
+  }
+  // resplandor suave alrededor del sello más reciente
+  halo(cx: number, cy: number, R: number, c: RGB, alcance = 0.3, fuerza = 0.5) {
+    const Rm = R * (1 + alcance);
+    for (let y = Math.max(0, Math.floor(cy - Rm)); y < Math.min(this.h, Math.ceil(cy + Rm)); y++)
+      for (let x = Math.max(0, Math.floor(cx - Rm)); x < Math.min(this.w, Math.ceil(cx + Rm)); x++) {
+        const d = Math.hypot(x + 0.5 - cx, y + 0.5 - cy);
+        if (d < R - 1 || d > Rm) continue;
+        const f = 1 - Math.max(0, d - R) / (Rm - R);
+        this.pon(x, y, c, f * f * fuerza);
+      }
+  }
+  // destello de 4 puntas
+  destello(cx: number, cy: number, r: number, c: RGB) {
+    const pts: number[][] = [];
+    for (let i = 0; i < 8; i++) { const a = (i * Math.PI) / 4, q = i % 2 ? r * 0.2 : r; pts.push([cx + Math.sin(a) * q, cy - Math.cos(a) * q]); }
+    this.poligonos([pts], c);
+  }
   // regalo (premio): caja, tapa, cinta y lazo
   regalo(cx: number, cy0: number, r: number, c: RGB, fondo: RGB) {
     const u = r, cy = cy0 + 0.05 * u;
@@ -127,7 +166,7 @@ function chunk(tipo: string, data: Uint8Array) {
 // deno-lint-ignore no-explicit-any
 export type TextoFranja = { fuente: any; titulo: string; premio: string } | null;
 
-/** Franja de sellos: fondo del color de la tarjeta, premio escrito arriba, sellos ganados llenos y el último con un regalo. */
+/** Franja de sellos: fondo del color de la tarjeta, premio escrito arriba, sellos ganados con acabado metálico (el más reciente brilla) y el último con un regalo. */
 export function franjaSellos(sellos: number, meta: number, primario: string, acento: string, w: number, h: number, txt: TextoFranja = null): Uint8Array {
   const P = hexRGB(primario), A = hexRGB(acento, [249, 180, 15]);
   const L = new Lienzo(w, h, P);
@@ -170,7 +209,15 @@ export function franjaSellos(sellos: number, meta: number, primario: string, ace
     const anchoFila = enFila * d + (enFila - 1) * hueco;
     const cx = ((anchoPt - anchoFila) / 2 + col * (d + hueco) + r) * k, cy = (y + fila * (d + hueco) + r) * k, R = r * k;
     const ultimo = i === meta - 1;
-    if (i < sellos) { L.circulo(cx, cy, R, A); if (ultimo) L.regalo(cx, cy, R, P, A); else L.check(cx, cy, R, P); }
+    if (i < sellos) {
+      const reciente = i === sellos - 1, relieve = mix(A, [255, 255, 255], 0.6), dz = Math.max(1, R * 0.05);
+      if (reciente) L.halo(cx, cy, R, mix(A, [255, 255, 255], 0.35));
+      L.selloMetal(cx, cy, R, A, reciente);
+      // marca con relieve: primero su reflejo claro, corrido un poco hacia abajo, y encima la marca oscura
+      if (ultimo) L.regalo(cx, cy + dz, R * 0.86, relieve, relieve); else L.check(cx, cy + dz, R * 0.86, relieve);
+      if (ultimo) L.regalo(cx, cy, R * 0.86, P, mix(A, [255, 255, 255], 0.2)); else L.check(cx, cy, R * 0.86, P);
+      if (reciente) { L.destello(cx + R * 0.68, cy - R * 0.7, R * 0.4, [255, 255, 255]); L.destello(cx - R * 0.78, cy + R * 0.6, R * 0.22, [255, 255, 255]); }
+    }
     else { L.circulo(cx, cy, R, relleno); L.aro(cx, cy, R, Math.max(2, R * 0.09), tenue); if (ultimo) L.regalo(cx, cy, R, tenue, relleno); }
   }
   return L.png();
