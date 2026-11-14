@@ -239,15 +239,15 @@ export async function armarPkpass(c: Record<string, string>, e: Estado, wwdr: st
   if (e.ubicacion) pass.locations = [{ latitude: e.ubicacion.lat, longitude: e.ubicacion.lng, relevantText: textoCercania(e) }];
   if (!e.activo) pass.voided = true;
 
-  const txt = await textoFranja(e.sellos, e.meta, !!p, p ? p.descripcion : n.premio);
+  const leyenda = await textoFranja(e.sellos, e.meta, !!p, p ? p.descripcion : n.premio);
   const archivos: Record<string, Uint8Array> = {
     "pass.json": strToU8(JSON.stringify(pass)),
     "icon.png": icono(n.color_primario, n.color_acento, 29),
     "icon@2x.png": icono(n.color_primario, n.color_acento, 58),
     "icon@3x.png": icono(n.color_primario, n.color_acento, 87),
-    "strip.png": franjaSellos(e.sellos, e.meta, n.color_primario, n.color_acento, 375, 144, txt),
-    "strip@2x.png": franjaSellos(e.sellos, e.meta, n.color_primario, n.color_acento, 750, 288, txt),
-    "strip@3x.png": franjaSellos(e.sellos, e.meta, n.color_primario, n.color_acento, 1125, 432, txt),
+    "strip.png": franjaSellos(e.sellos, e.meta, n.color_primario, n.color_acento, 375, 144, leyenda),
+    "strip@2x.png": franjaSellos(e.sellos, e.meta, n.color_primario, n.color_acento, 750, 288, leyenda),
+    "strip@3x.png": franjaSellos(e.sellos, e.meta, n.color_primario, n.color_acento, 1125, 432, leyenda),
   };
   if (logoPng) { archivos["logo.png"] = logoPng; archivos["logo@2x.png"] = logoPng; }
   const manifest: Record<string, string> = {};
