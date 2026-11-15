@@ -127,6 +127,25 @@ class Lienzo {
     for (let i = 0; i < 8; i++) { const a = (i * Math.PI) / 4, q = i % 2 ? r * 0.2 : r; pts.push([cx + Math.sin(a) * q, cy - Math.cos(a) * q]); }
     this.poligonos([pts], c);
   }
+  // pega una imagen RGBA escalada (bilineal al agrandar, promedio por área al reducir) respetando su transparencia
+  imagen(src: Uint8Array, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number) {
+    const fx = sw / dw, fy = sh / dh, X = Math.round(dx), Y = Math.round(dy);
+    const px = (x: number, y: number) => (Math.max(0, Math.min(sh - 1, y)) * sw + Math.max(0, Math.min(sw - 1, x))) * 4;
+    for (let y = 0; y < dh; y++) for (let x = 0; x < dw; x++) {
+      let r = 0, g = 0, b = 0, a = 0, n = 0;
+      if (fx <= 1 && fy <= 1) {
+        const ux = (x + 0.5) * fx - 0.5, uy = (y + 0.5) * fy - 0.5, x0 = Math.floor(ux), y0 = Math.floor(uy), tx = ux - x0, ty = uy - y0;
+        for (const [xx, yy, w] of [[x0, y0, (1 - tx) * (1 - ty)], [x0 + 1, y0, tx * (1 - ty)], [x0, y0 + 1, (1 - tx) * ty], [x0 + 1, y0 + 1, tx * ty]]) {
+          const i = px(xx, yy), al = src[i + 3] * w; r += src[i] * al; g += src[i + 1] * al; b += src[i + 2] * al; a += al;
+        }
+        n = 1;
+      } else {
+        const x0 = Math.floor(x * fx), x1 = Math.max(x0 + 1, Math.floor((x + 1) * fx)), y0 = Math.floor(y * fy), y1 = Math.max(y0 + 1, Math.floor((y + 1) * fy));
+        for (let yy = y0; yy < y1 && yy < sh; yy++) for (let xx = x0; xx < x1 && xx < sw; xx++) { const i = (yy * sw + xx) * 4, al = src[i + 3]; r += src[i] * al; g += src[i + 1] * al; b += src[i + 2] * al; a += al; n++; }
+      }
+      if (a > 0 && n > 0) this.pon(X + x, Y + y, [Math.round(r / a), Math.round(g / a), Math.round(b / a)], a / n / 255);
+    }
+  }
   // regalo (premio): caja, tapa, cinta y lazo
   regalo(cx: number, cy0: number, r: number, c: RGB, fondo: RGB) {
     const u = r, cy = cy0 + 0.05 * u;
@@ -167,13 +186,16 @@ function chunk(tipo: string, data: Uint8Array) {
 export type TextoFranja = { fuente: any; titulo: string; premio: string } | null;
 
 /** Franja de sellos: fondo del color de la tarjeta, premio escrito arriba, sellos ganados con acabado metálico (el más reciente brilla) y el último con un regalo. */
-export function franjaSellos(sellos: number, meta: number, primario: string, acento: string, w: number, h: number, txt: TextoFranja = null): Uint8Array {
+/** `base` es el tamaño «en puntos» sobre el que se compone (iPhone: 375 × 144; Google usa uno más chico para que todo salga más grande). */
+export type OpFranja = { base?: [number, number]; margen?: number };
+export function franjaSellos(sellos: number, meta: number, primario: string, acento: string, w: number, h: number, txt: TextoFranja = null, op: OpFranja = {}): Uint8Array {
+  const [BW, BH] = op.base ?? [375, 144];
   const P = hexRGB(primario), A = hexRGB(acento, [249, 180, 15]);
   const L = new Lienzo(w, h, P);
   meta = Math.max(1, Math.min(20, meta));
-  const k = Math.min(w / 375, h / 144), anchoPt = w / k;            // todo se mide en «puntos» de una franja de 375 × 144
+  const k = Math.min(w / BW, h / BH), anchoPt = w / k;              // todo se mide en «puntos» de una franja de BW × BH
   const filas = meta > 10 ? 2 : 1, porFila = Math.ceil(meta / filas);
-  const margen = 19, hueco = 8;
+  const margen = op.margen ?? 19, hueco = 8;
   // texto
   let titulo = "", lineas: string[] = [], tam = 17;
   if (txt?.fuente) {
@@ -190,9 +212,9 @@ export function franjaSellos(sellos: number, meta: number, primario: string, ace
   const altoTitulo = titulo ? 9 : 0, interlinea = tam * 1.12, altoTexto = lineas.length ? lineas.length * interlinea : 0;
   const altoCabecera = (titulo ? altoTitulo + 8 : 0) + (lineas.length ? altoTexto + 6 : 0);
   const dMax = (anchoPt - 2 * margen - hueco * (porFila - 1)) / porFila;
-  const d = Math.min(dMax, 50, (144 - 22 - altoCabecera - (filas - 1) * hueco) / filas), r = d / 2;
+  const d = Math.min(dMax, 50, (BH - 22 - altoCabecera - (filas - 1) * hueco) / filas), r = d / 2;
   const altoSellos = filas * d + (filas - 1) * hueco;
-  let y = (144 - (altoCabecera + altoSellos)) / 2;
+  let y = (BH - (altoCabecera + altoSellos)) / 2;
   const tenue = mix(P, A, 0.62), relleno = mix(P, [255, 255, 255], 0.07);
   if (titulo) {
     const t = 10, esp = 0.09, an = ancho(txt!.fuente, titulo, t, esp);
@@ -231,6 +253,16 @@ export function icono(primario: string, acento: string, lado: number, redondo = 
   const r = lado * 0.3;
   L.circulo(lado / 2, lado / 2, r, A);
   L.check(lado / 2, lado / 2, r, P);
+  return L.png();
+}
+
+/** Logo del negocio sobre el color de su tarjeta (Google Wallet recorta el logo en círculo y pone fondo blanco a lo transparente). */
+export function marcaSobreFondo(rgba: Uint8Array, lw: number, lh: number, primario: string, ancho: boolean): Uint8Array {
+  const P = hexRGB(primario), W = ancho ? 960 : 660, H = ancho ? 300 : 660;
+  const L = new Lienzo(W, H, P);
+  const esc = ancho ? Math.min((H - 40) / lh, (W - 20) / lw) : Math.min((W * 0.74) / lw, (H * 0.74) / lh);
+  const dw = Math.round(lw * esc), dh = Math.round(lh * esc);
+  L.imagen(rgba, lw, lh, ancho ? 10 : (W - dw) / 2, (H - dh) / 2, dw, dh);
   return L.png();
 }
 

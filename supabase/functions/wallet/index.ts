@@ -11,7 +11,8 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import forge from "npm:node-forge@1.3.1";
 import { zipSync, strToU8 } from "npm:fflate@0.8.2";
-import { franjaSellos, icono, hexRGB, type TextoFranja } from "./png.ts";
+import { decode as leerPng } from "npm:fast-png@6.2.0";
+import { franjaSellos, icono, hexRGB, marcaSobreFondo, type TextoFranja } from "./png.ts";
 import { cargarFuente } from "./texto.ts";
 import { firmarRS256 } from "./jwt.ts";
 
@@ -86,10 +87,10 @@ function textoCercania(e: Estado) {
 const ubicaciones = (e: Estado) => e.ubicacion ? [{ latitude: e.ubicacion.lat, longitude: e.ubicacion.lng }] : undefined;
 const datos = (args: { p_token?: string; p_cliente_id?: string }) => rpc("wallet_datos", args) as Promise<Estado | null>;
 
-function imgSellosURL(e: Estado, w: number, h: number) {
+function imgSellosURL(e: Estado, w: number, h: number, google = false) {
   const n = e.negocio;
   const p = e.premio_disponible;
-  return `${FN_URL}/img/sellos?s=${e.sellos}&m=${e.meta}&p=${sinHash(n.color_primario)}&a=${sinHash(n.color_acento)}&w=${w}&h=${h}&g=${p ? 1 : 0}&t=${encodeURIComponent((p ? p.descripcion : n.premio).slice(0, 140))}&v=4`;
+  return `${FN_URL}/img/sellos?s=${e.sellos}&m=${e.meta}&p=${sinHash(n.color_primario)}&a=${sinHash(n.color_acento)}&w=${w}&h=${h}&g=${p ? 1 : 0}&t=${encodeURIComponent((p ? p.descripcion : n.premio).slice(0, 140))}&v=5${google ? "&b=g" : ""}`;
 }
 function logoInfo(dataUrl: string | null): { mime: string; bytes: Uint8Array } | null {
   const m = /^data:(image\/[a-z+.-]+);base64,(.+)$/i.exec(dataUrl || "");
@@ -132,7 +133,11 @@ const es = (v: string) => ({ defaultValue: { language: "es-PE", value: v } });
 
 async function gClase(c: Record<string, string>, e: Estado) {
   const n = e.negocio;
-  const logo = n.logo_url ? `${FN_URL}/img/logo/${n.id}?v=${await huellaLogo(n)}` : `${FN_URL}/img/icono?p=${sinHash(n.color_primario)}&a=${sinHash(n.color_acento)}&l=660&r=1`;
+  // Google recorta el logo en círculo y pone blanco donde es transparente: se le da el logo ya montado sobre el color del negocio
+  const png = !!n.logo_url && logoInfo(n.logo_url)?.mime === "image/png", huella = await huellaLogo(n);
+  const marca = (f: string) => `${FN_URL}/img/marca/${n.id}?f=${f}&p=${sinHash(n.color_primario)}&v=${huella}`;
+  const logo = png ? marca("c") : n.logo_url ? `${FN_URL}/img/logo/${n.id}?v=${huella}` : `${FN_URL}/img/icono?p=${sinHash(n.color_primario)}&a=${sinHash(n.color_acento)}&l=660&r=1`;
+  const campo = (...rutas: string[]) => ({ firstValue: { fields: rutas.map((fieldPath) => ({ fieldPath })) } });
   return {
     id: gClaseId(c, n.id),
     issuerName: n.nombre.slice(0, 20),
@@ -140,6 +145,10 @@ async function gClase(c: Record<string, string>, e: Estado) {
     programName: "Tarjeta de sellos",
     localizedProgramName: es("Tarjeta de sellos"),
     programLogo: { sourceUri: { uri: logo }, contentDescription: es(n.nombre) },
+    ...(png ? { wideProgramLogo: { sourceUri: { uri: marca("a") }, contentDescription: es(n.nombre) } } : {}),
+    accountNameLabel: "Cliente", localizedAccountNameLabel: es("Cliente"),
+    classTemplateInfo: { cardTemplateOverride: { cardRowTemplateInfos: [{ twoItems: {
+      startItem: campo("object.loyaltyPoints.label", "object.loyaltyPoints.balance"), endItem: campo("object.accountName") } }] } },
     hexBackgroundColor: n.color_primario,
     countryCode: "PE",
     reviewStatus: "UNDER_REVIEW",
@@ -149,12 +158,12 @@ async function gClase(c: Record<string, string>, e: Estado) {
 }
 function gObjeto(c: Record<string, string>, e: Estado) {
   const n = e.negocio, p = e.premio_disponible, link = linkWeb(e.cliente.token);
+  // Sin código QR: Google lo muestra enorme y antes de los sellos. En caja se busca al cliente por su celular.
   const o: Record<string, unknown> = {
     id: gObjetoId(c, e.cliente.id), classId: gClaseId(c, n.id), state: "ACTIVE",
     accountName: e.cliente.nombre, accountId: e.cliente.token.slice(0, 8).toUpperCase(),
     loyaltyPoints: { label: "Sellos", balance: { string: `${e.sellos} de ${e.meta}` } },
-    barcode: { type: "QR_CODE", value: link, alternateText: e.cliente.token.slice(0, 8).toUpperCase() },
-    heroImage: { sourceUri: { uri: imgSellosURL(e, 1032, 336) }, contentDescription: es(`${e.sellos} de ${e.meta} sellos`) },
+    heroImage: { sourceUri: { uri: imgSellosURL(e, 1032, 336, true) }, contentDescription: es(`${e.sellos} de ${e.meta} sellos`) },
     textModulesData: [
       p ? { id: "premio", header: "¡Tu premio está listo!", body: `${p.descripcion} · vence el ${ddmm(p.vence_en)}. Muéstralo en caja.` }
         : { id: "premio", header: `Tu premio al completar ${e.meta} sellos`, body: n.premio },
@@ -342,7 +351,20 @@ Deno.serve(async (req) => {
         let png: Uint8Array;
         if (partes[1] === "sellos") {
           const s = Math.max(0, Math.min(20, parseInt(q.get("s") || "0") || 0)), m = num("m", 6, 20), premio = (q.get("t") || "").slice(0, 140);
-          png = franjaSellos(s, m, "#" + (q.get("p") || "460E0D"), "#" + (q.get("a") || "F9B40F"), num("w", 1032, 1200), num("h", 336, 600), premio ? await textoFranja(s, m, q.get("g") === "1", premio) : null);
+          png = franjaSellos(s, m, "#" + (q.get("p") || "460E0D"), "#" + (q.get("a") || "F9B40F"), num("w", 1032, 1200), num("h", 336, 600), premio ? await textoFranja(s, m, q.get("g") === "1", premio) : null,
+            q.get("b") === "g" ? { base: [344, 112], margen: 8 } : {});
+        }
+        else if (partes[1] === "marca" && partes[2]) {
+          // logo del negocio montado sobre su color (cuadrado para el círculo de Google, o ancho)
+          const l = logoInfo(await rpc("wallet_logo", { p_negocio_id: partes[2] }));
+          if (!l || l.mime !== "image/png") return txt("", 404);
+          const im = leerPng(l.bytes), n = im.width * im.height, d = im.data as ArrayLike<number>, pal = (im as { palette?: number[][] }).palette, rgba = new Uint8Array(n * 4), m16 = im.depth === 16 ? 257 : 1;
+          for (let i = 0; i < n; i++) {
+            if (pal) { const k = pal[d[i]] || [0, 0, 0, 255]; rgba.set([k[0], k[1], k[2], k[3] ?? 255], i * 4); }
+            else if (im.channels >= 3) rgba.set([d[i * im.channels] / m16, d[i * im.channels + 1] / m16, d[i * im.channels + 2] / m16, im.channels === 4 ? d[i * 4 + 3] / m16 : 255], i * 4);
+            else rgba.set([d[i * im.channels] / m16, d[i * im.channels] / m16, d[i * im.channels] / m16, im.channels === 2 ? d[i * 2 + 1] / m16 : 255], i * 4);
+          }
+          png = marcaSobreFondo(rgba, im.width, im.height, "#" + (q.get("p") || "460E0D"), q.get("f") === "a");
         }
         else if (partes[1] === "icono") png = icono("#" + (q.get("p") || "460E0D"), "#" + (q.get("a") || "F9B40F"), num("l", 660, 800), q.get("r") === "1");
         else if (partes[1] === "logo" && partes[2]) {
@@ -385,7 +407,8 @@ Deno.serve(async (req) => {
             const e = await datos({ p_cliente_id: id });
             if (!e) continue;
             if (negocio_id && primera) { await gGuardar(c, await gClase(c, e), "loyaltyClass"); primera = false; }
-            const r = await gApi(c, "PATCH", `/loyaltyObject/${encodeURIComponent(gObjetoId(c, id))}`, gObjeto(c, e));
+            // PUT (no PATCH): reemplaza la tarjeta completa, así también se quita lo que ya no va (el código QR)
+            const r = await gApi(c, "PUT", `/loyaltyObject/${encodeURIComponent(gObjetoId(c, id))}`, gObjeto(c, e));
             if (r.ok) ok++;
             // Aviso con notificación (Google permite 3 por tarjeta al día; si se pasa, queda como mensaje sin notificar)
             if (r.ok && mensaje && cliente_id) {
