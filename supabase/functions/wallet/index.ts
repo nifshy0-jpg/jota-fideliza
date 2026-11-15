@@ -82,7 +82,7 @@ function textoCercania(e: Estado) {
   const n = e.negocio.nombre, p = e.premio_disponible, faltan = e.meta - e.sellos;
   if (p) return `Tu premio te espera en ${n}: ${p.descripcion} 🎁`;
   if (e.sellos > 0 && faltan > 0) return `¡Te faltan ${faltan} sello${faltan === 1 ? "" : "s"} para tu premio! Pasa por ${n}`;
-  return `Estás cerca de ${n} 🍗 Suma tu sello de hoy`;
+  return `Estás cerca de ${n} ${e.negocio.rubro === "barberia" ? "💈" : "🍗"} Suma tu sello de hoy`;
 }
 const ubicaciones = (e: Estado) => e.ubicacion ? [{ latitude: e.ubicacion.lat, longitude: e.ubicacion.lng }] : undefined;
 const datos = (args: { p_token?: string; p_cliente_id?: string }) => rpc("wallet_datos", args) as Promise<Estado | null>;
