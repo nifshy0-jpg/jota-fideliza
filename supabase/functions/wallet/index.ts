@@ -214,12 +214,23 @@ function appleDe(c: Record<string, string>, negocioId: string) {
     return { tipo: c["wallet_apple_pass_type_id" + s], cert: c["wallet_apple_cert_pem" + s], key: c["wallet_apple_key_pem" + s] };
   return { tipo: c.wallet_apple_pass_type_id, cert: c.wallet_apple_cert_pem, key: c.wallet_apple_key_pem };
 }
+// Certificado de un Pass Type ID concreto (el general o el de algún negocio). Sirve para atender tarjetas emitidas con un identificador anterior.
+type Apple = { tipo: string; cert: string; key: string };
+function applePorTipo(c: Record<string, string>, tipo: string): Apple | null {
+  if (tipo === c.wallet_apple_pass_type_id) return { tipo, cert: c.wallet_apple_cert_pem, key: c.wallet_apple_key_pem };
+  for (const k of Object.keys(c)) if (k.startsWith("wallet_apple_pass_type_id__") && c[k] === tipo) {
+    const s = k.slice("wallet_apple_pass_type_id".length);
+    if (c["wallet_apple_cert_pem" + s] && c["wallet_apple_key_pem" + s]) return { tipo, cert: c["wallet_apple_cert_pem" + s], key: c["wallet_apple_key_pem" + s] };
+  }
+  return null;
+}
 const palabra = (n: { rubro?: string }) => n.rubro === "barberia" ? "visita" : "compra";
 async function authToken(c: Record<string, string>, clienteId: string) { return await hmac(c.wallet_auth_secret, "apple:" + clienteId); }
 
-export async function armarPkpass(c: Record<string, string>, e: Estado, wwdr: string): Promise<Uint8Array> {
+// «viejo»: la tarjeta que tiene el iPhone se emitió con un identificador que el negocio ya no usa; se entrega vencida para que el Wallet la retire.
+export async function armarPkpass(c: Record<string, string>, e: Estado, wwdr: string, viejo: Apple | null = null): Promise<Uint8Array> {
   const n = e.negocio, p = e.premio_disponible, link = linkWeb(e.cliente.token);
-  const logo = logoInfo(n.logo_url), ap = appleDe(c, n.id);
+  const logo = logoInfo(n.logo_url), ap = viejo ?? appleDe(c, n.id);
   const logoPng = logo && logo.mime === "image/png" ? logo.bytes : null;
   const pass: Record<string, unknown> = {
     formatVersion: 1,
@@ -256,6 +267,11 @@ export async function armarPkpass(c: Record<string, string>, e: Estado, wwdr: st
   if (!logoPng) pass.logoText = n.nombre;
   if (e.ubicacion) pass.locations = [{ latitude: e.ubicacion.lat, longitude: e.ubicacion.lng, relevantText: textoCercania(e) }];
   if (!e.activo) pass.voided = true;
+  if (viejo) {
+    pass.voided = true; pass.expirationDate = "2026-01-01T00:00:00Z"; delete pass.locations;
+    (pass.storeCard as { backFields: unknown[] }).backFields.unshift({ key: "retirada", label: "Esta tarjeta fue reemplazada",
+      value: `Tu tarjeta de ${n.nombre} tiene una versión nueva y tus sellos no se pierden. Si todavía no la tienes, ábrela aquí y toca «Agregar a Apple Wallet»: ${link}\nEsta tarjeta antigua ya la puedes eliminar.` });
+  }
 
   const leyenda = await textoFranja(e.sellos, e.meta, !!p, p ? p.descripcion : n.premio);
   const archivos: Record<string, Uint8Array> = {
@@ -292,13 +308,13 @@ export async function armarPkpass(c: Record<string, string>, e: Estado, wwdr: st
   archivos["signature"] = forge.util.binary.raw.decode(forge.asn1.toDer(p7.toAsn1()).getBytes());
   return zipSync(archivos, { level: 6 });
 }
-async function respuestaPkpass(c: Record<string, string>, e: Estado) {
-  const bytes = await armarPkpass(c, e, await wwdrPem(c));
+async function respuestaPkpass(c: Record<string, string>, e: Estado, viejo: Apple | null = null) {
+  const bytes = await armarPkpass(c, e, await wwdrPem(c), viejo);
   return new Response(bytes, {
     headers: {
       ...CORS, "Content-Type": "application/vnd.apple.pkpass",
       "Content-Disposition": `attachment; filename="tarjeta-${e.negocio.nombre.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.pkpass"`,
-      "Last-Modified": new Date(e.mod).toUTCString(), "Cache-Control": "no-store",
+      "Last-Modified": (viejo ? new Date() : new Date(e.mod)).toUTCString(), "Cache-Control": "no-store",
     },
   });
 }
@@ -314,15 +330,15 @@ async function appleWS(req: Request, partes: string[], c: Record<string, string>
       if (auth !== await authToken(c, serial)) return txt("", 401);
       if (req.method === "POST") {
         const { pushToken } = await req.json();
-        const nuevo = await rpc("wallet_apple_registrar", { p_device: device, p_push: pushToken, p_cliente_id: serial });
+        const nuevo = await rpc("wallet_apple_registrar_tipo", { p_device: device, p_push: pushToken, p_cliente_id: serial, p_tipo: b });
         return txt("", nuevo ? 201 : 200);
       }
       if (req.method === "DELETE") { await rpc("wallet_apple_baja", { p_device: device, p_cliente_id: serial }); return txt("", 200); }
     } else if (req.method === "GET" && b) {
       const desde = new URL(req.url).searchParams.get("passesUpdatedSince");
       // Solo las tarjetas de este Pass Type ID (b): cada negocio puede tener el suyo
-      const todas: { serie: string; negocio_id: string; mod: string }[] = await rpc("wallet_apple_series_negocio", { p_device: device, p_desde: desde ? new Date(Number(desde)).toISOString() : null });
-      const mias = todas.filter((x) => appleDe(c, x.negocio_id).tipo === b);
+      const todas: { serie: string; negocio_id: string; mod: string; tipo?: string | null }[] = await rpc("wallet_apple_series_negocio", { p_device: device, p_desde: desde ? new Date(Number(desde)).toISOString() : null });
+      const mias = todas.filter((x) => (x.tipo || appleDe(c, x.negocio_id).tipo) === b);
       if (!mias.length) return txt("", 204);
       return json({ serialNumbers: mias.map((x) => x.serie), lastUpdated: String(Math.max(...mias.map((x) => new Date(x.mod).getTime()))) });
     }
@@ -333,6 +349,9 @@ async function appleWS(req: Request, partes: string[], c: Record<string, string>
     if (auth !== await authToken(c, serial)) return txt("", 401);
     const e = await datos({ p_cliente_id: serial });
     if (!e) return txt("", 404);
+    // El iPhone pide una tarjeta de un identificador que este negocio ya no usa: se le entrega vencida (el Wallet la pasa a «pases vencidos»)
+    const viejo = a && a !== appleDe(c, e.negocio.id).tipo ? applePorTipo(c, a) : null;
+    if (viejo) return respuestaPkpass(c, e, viejo);
     const ims = req.headers.get("If-Modified-Since");
     if (ims && Math.floor(new Date(e.mod).getTime() / 1000) <= Math.floor(new Date(ims).getTime() / 1000)) return txt("", 304);
     return respuestaPkpass(c, e);
