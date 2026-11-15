@@ -39,7 +39,7 @@ const TAMANOS = [
    precio null = sin precio en la carta (se confirma por WhatsApp) */
 const CARTA = [
   {
-    id: 'con-todo', nav: 'Con todo', titulo: ['Alitas', 'con todo'], foto: ['bbq', 362, 494, 'Alitas bañadas en salsa con limón'],
+    id: 'con-todo', nav: 'Con todo', titulo: ['Alitas', 'con todo'], foto: ['chaufialitas', 900, 1200, 'Chaufa con alitas en salsa, papas y ensalada'],
     nota: 'Seis alitas con su compañía. Dinos tu salsa en la nota del pedido.',
     items: [
       ['Salchialitas', '6 alitas, salchicha ahumada, papas nativas y ensalada.', 24],
@@ -48,7 +48,7 @@ const CARTA = [
     ],
   },
   {
-    id: 'hamburguesas', nav: 'Hamburguesas', titulo: 'Hamburguesas',
+    id: 'hamburguesas', nav: 'Hamburguesas', titulo: 'Hamburguesas', foto: ['hamburguesa', 900, 1200, 'Hamburguesa con plátano, chancho al cilindro, huevo y carne'],
     nota: 'Artesanales, armadas al momento y con sus papas.',
     items: [
       ['El Chacombo', 'Carne, huevo, chancho al cilindro, plátano, lechuga, tomate y papas nativas.', 24.5],
@@ -62,7 +62,7 @@ const CARTA = [
     ],
   },
   {
-    id: 'broaster', nav: 'Broaster', titulo: 'Broaster', foto: ['crispy', 552, 258, 'Pollo crispy sobre tabla de madera'],
+    id: 'broaster', nav: 'Broaster', titulo: 'Broaster', foto: ['broaster', 1000, 1000, 'Pollo broaster crocante con papas nativas'],
     nota: 'Crocante por fuera, jugoso por dentro. Con papas nativas y ensaladas.',
     items: [
       ['Mostrito', 'Pollo broaster, porción de chaufa, papas nativas y ensalada.', 20],
@@ -73,7 +73,7 @@ const CARTA = [
     ],
   },
   {
-    id: 'salchipapas', nav: 'Salchipapas', titulo: 'Salchipapas', foto: ['salchipapa', 536, 246, 'Salchipapa a lo pobre con huevo frito'],
+    id: 'salchipapas', nav: 'Salchipapas', titulo: 'Salchipapas', foto: ['salchipapa', 1000, 1000, 'Salchipapa con huevo frito y tres cremas'],
     nota: 'Siete formas de pedirla, de la clásica a la brava.',
     items: [
       ['Salchibrava', 'Salchicha ahumada, chorizo en finas hierbas, trozos de chancho al cilindro y pechuga crispy.', 31.5],
@@ -86,7 +86,7 @@ const CARTA = [
     ],
   },
   {
-    id: 'de-la-casa', nav: 'De la casa', titulo: 'De la casa',
+    id: 'de-la-casa', nav: 'De la casa', titulo: 'De la casa', foto: ['pollo-saltado', 1000, 1000, 'Pollo saltado con arroz y papas'],
     nota: 'Saltados, chaufas y caldo de gallina: lo que recomienda la cocina.',
     items: [
       ['Lomo saltado', '', 25],
@@ -100,7 +100,7 @@ const CARTA = [
     ],
   },
   {
-    id: 'bebidas', nav: 'Bebidas', titulo: 'Bebidas', foto: ['refrescantes', 290, 198, 'Tres vasos de bebidas de fruta'],
+    id: 'bebidas', nav: 'Bebidas', titulo: 'Bebidas', foto: ['jarra', 640, 1168, 'Jarra de bebida natural helada con una rodaja de limón'],
     nota: 'Fruta de verdad, bien heladas.',
     grupos: [
       ['Refrescantes', [

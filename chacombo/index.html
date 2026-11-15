@@ -63,7 +63,7 @@ button{font:inherit;color:inherit}
 .hero-a{display:flex;flex-wrap:wrap;align-items:center;gap:22px;margin-top:clamp(22px,2.6vw,38px)}
 .slot{aspect-ratio:1;border-radius:50%}
 .slot img,#plato img{width:100%;height:100%;border-radius:50%;box-shadow:0 0 0 clamp(5px,.7vw,10px) var(--am);will-change:transform}
-#slotA{width:min(46vw,80vh);justify-self:end;margin-right:calc(-1*var(--m) - 4vw)}
+#slotA{width:min(50vw,84vh);justify-self:end;margin-right:calc(-1*var(--m) - 5vw)}
 #plato{position:fixed;left:0;top:0;z-index:15;pointer-events:none;display:none;transform-origin:0 0;will-change:transform}
 html.mov #plato{display:block;visibility:hidden}
 html.mov .slot img{visibility:hidden}
@@ -123,10 +123,11 @@ html.mov[data-pl="a"] #slotA img,html.mov[data-pl="b"] #slotB img,html.mov[data-
 .cab h3{font-size:clamp(50px,5.6vw,96px)}
 .cab-n{margin-top:16px;max-width:24em;font-size:clamp(17px,1.25vw,19px)}
 .foto{margin-top:clamp(22px,3vw,44px);perspective:800px}
-.foto img{width:100%;height:auto;border-radius:999px;box-shadow:0 0 0 clamp(4px,.5vw,7px) var(--am);will-change:transform}
+.foto img{width:100%;height:auto;background:var(--vino2);border-radius:999px;box-shadow:0 0 0 clamp(4px,.5vw,7px) var(--am);will-change:transform}
 html.mov .foto{animation:flota 7s ease-in-out infinite}
 @keyframes flota{50%{transform:translateY(-12px) rotate(1.4deg)}}
-.cat-con-todo .foto{max-width:320px}.cat-broaster .foto{max-width:520px}.cat-salchipapas .foto{max-width:500px}.cat-bebidas .foto{max-width:290px}.cat-cocteles .foto{max-width:190px}
+.cat-con-todo .foto,.cat-hamburguesas .foto{max-width:330px}.cat-broaster .foto,.cat-salchipapas .foto,.cat-de-la-casa .foto{max-width:420px}.cat-bebidas .foto{max-width:230px}.cat-cocteles .foto{max-width:190px}
+.donde .foto{max-width:420px;margin:0 0 clamp(26px,3vw,44px)}
 .its{list-style:none;padding:0}
 .it{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 20px;align-items:center;padding:clamp(14px,1.5vw,20px) 0}
 .it h4{font-size:clamp(21px,1.9vw,28px);font-weight:800;line-height:1.15}
@@ -147,7 +148,7 @@ html.mov .foto{animation:flota 7s ease-in-out infinite}
 .cat-bebidas,.cat-cocteles{background:var(--vino2)}
 .cat-de-la-casa .it h4{font-size:clamp(26px,3vw,44px);font-weight:900;font-stretch:75%;text-transform:uppercase;line-height:1}
 .cat-adicionales .its{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));column-gap:clamp(24px,4vw,60px)}
-@media (min-width:901px) and (min-height:760px){.cab{position:sticky;top:150px}}
+@media (min-width:901px) and (min-height:820px){.cab{position:sticky;top:140px}}
 
 /* Tarjeta de sellos */
 .tarjeta{background:var(--am);color:var(--vino);padding:clamp(84px,11vw,170px) var(--m);display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(34px,6vw,110px);align-items:center}
@@ -263,7 +264,8 @@ html.mov.listo #slotA{opacity:1;transform:none;transition:opacity 500ms var(--e-
   .cab h3{font-size:clamp(50px,14.5vw,120px)}
   .cab{margin-bottom:18px}
   .foto{margin-left:auto;margin-right:auto}
-  .cat-con-todo .foto{max-width:230px}.cat-bebidas .foto{max-width:250px}.cat-cocteles .foto{max-width:150px}
+  .cat-con-todo .foto,.cat-hamburguesas .foto{max-width:270px}.cat-broaster .foto,.cat-salchipapas .foto,.cat-de-la-casa .foto{max-width:310px}.cat-bebidas .foto{max-width:180px}.cat-cocteles .foto{max-width:150px}
+  .donde .foto{max-width:300px;margin-left:auto;margin-right:auto}
   .tarjeta,.donde{grid-template-columns:minmax(0,1fr)}
   .tarjeta h2{font-size:clamp(52px,15.4vw,140px)}
   .donde h2{font-size:clamp(60px,19vw,160px)}
@@ -297,7 +299,7 @@ html.mov.listo #slotA{opacity:1;transform:none;transition:opacity 500ms var(--e-
         <a class="lnk" href="#carta">Ver la carta completa</a>
       </div>
     </div>
-    <div class="slot" id="slotA"><img src="img/plato.webp" width="528" height="528" alt="Plato de alitas bañadas en salsa" fetchpriority="high"></div>
+    <div class="slot" id="slotA"><img src="img/plato.webp" width="1200" height="1200" alt="Alitas bañadas en salsa con ajonjolí" fetchpriority="high"></div>
   </section>
 
   <div class="cinta"><div class="tira" aria-hidden="true"><div><span>BBQ<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Chimichurri<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Maracuyá<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Crispy<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Teriyaki<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Acevichada<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Chalaca<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Búfalo<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Diabla<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span></div><div><span>BBQ<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Chimichurri<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Maracuyá<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Crispy<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Teriyaki<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Acevichada<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Chalaca<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Búfalo<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Diabla<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span></div><div><span>BBQ<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Chimichurri<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Maracuyá<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Crispy<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Teriyaki<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Acevichada<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Chalaca<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Búfalo<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span><span>Diabla<svg class="aji" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 6.6c3.7.5 6.1 3.3 5.7 7-.5 4.6-5 8-11 8.4-2.3.2-4.6-.3-6.6-1.4 5.2-.4 8.2-3.4 8.8-7.6.4-2.8 1-4.9 3.1-6.4z"/><path d="M14.2 6.8c.2-1.9 1.2-3.2 2.9-4l1 1.7c-1.1.5-1.7 1.3-1.9 2.4z"/></svg></span></div></div></div>
@@ -320,7 +322,7 @@ html.mov.listo #slotA{opacity:1;transform:none;transition:opacity 500ms var(--e-
     </div>
     <div class="lado">
       <div class="pega">
-        <div class="slot" id="slotB"><img src="img/plato.webp" width="528" height="528" alt="" loading="lazy"></div>
+        <div class="slot" id="slotB"><img src="img/plato.webp" width="1200" height="1200" alt="" loading="lazy"></div>
         <div class="voz" aria-live="polite">
           <p class="d voz-n" id="voz-n">Tu salsa</p>
           <p class="voz-d" id="voz-d">Toca una salsa y pruébala aquí.</p>
@@ -360,7 +362,7 @@ html.mov.listo #slotA{opacity:1;transform:none;transition:opacity 500ms var(--e-
     <div class="cab">
       <h3 class="d" id="t-con-todo" data-t><span class="ln"><span>Alitas</span></span><span class="ln"><span>con todo</span></span></h3>
       <p class="cab-n" data-r>Seis alitas con su compañía. Dinos tu salsa en la nota del pedido.</p>
-      <div class="foto" data-foto><img src="img/bbq.webp" width="362" height="494" alt="Alitas bañadas en salsa con limón" loading="lazy" decoding="async"></div>
+      <div class="foto" data-foto><img src="img/chaufialitas.webp" width="900" height="1200" alt="Chaufa con alitas en salsa, papas y ensalada" loading="lazy" decoding="async"></div>
     </div>
     <div class="cuerpo">
       <ul class="its"><li class="it" data-r style="--i:0" data-id="con-todo/salchialitas" data-n="Salchialitas" data-p="24">
@@ -376,11 +378,11 @@ html.mov.listo #slotA{opacity:1;transform:none;transition:opacity 500ms var(--e-
     </div>
   </section>
 
-  <section class="cat cat-hamburguesas inv sin-foto" id="hamburguesas" aria-labelledby="t-hamburguesas">
+  <section class="cat cat-hamburguesas inv" id="hamburguesas" aria-labelledby="t-hamburguesas">
     <div class="cab">
       <h3 class="d" id="t-hamburguesas" data-t><span class="ln"><span>Hamburguesas</span></span></h3>
       <p class="cab-n" data-r>Artesanales, armadas al momento y con sus papas.</p>
-      
+      <div class="foto" data-foto><img src="img/hamburguesa.webp" width="900" height="1200" alt="Hamburguesa con plátano, chancho al cilindro, huevo y carne" loading="lazy" decoding="async"></div>
     </div>
     <div class="cuerpo">
       <ul class="its"><li class="it" data-r style="--i:0" data-id="hamburguesas/el-chacombo" data-n="El Chacombo" data-p="24.5">
@@ -415,7 +417,7 @@ html.mov.listo #slotA{opacity:1;transform:none;transition:opacity 500ms var(--e-
     <div class="cab">
       <h3 class="d" id="t-broaster" data-t><span class="ln"><span>Broaster</span></span></h3>
       <p class="cab-n" data-r>Crocante por fuera, jugoso por dentro. Con papas nativas y ensaladas.</p>
-      <div class="foto" data-foto><img src="img/crispy.webp" width="552" height="258" alt="Pollo crispy sobre tabla de madera" loading="lazy" decoding="async"></div>
+      <div class="foto" data-foto><img src="img/broaster.webp" width="1000" height="1000" alt="Pollo broaster crocante con papas nativas" loading="lazy" decoding="async"></div>
     </div>
     <div class="cuerpo">
       <ul class="its"><li class="it" data-r style="--i:0" data-id="broaster/mostrito" data-n="Mostrito" data-p="20">
@@ -441,7 +443,7 @@ html.mov.listo #slotA{opacity:1;transform:none;transition:opacity 500ms var(--e-
     <div class="cab">
       <h3 class="d" id="t-salchipapas" data-t><span class="ln"><span>Salchipapas</span></span></h3>
       <p class="cab-n" data-r>Siete formas de pedirla, de la clásica a la brava.</p>
-      <div class="foto" data-foto><img src="img/salchipapa.webp" width="536" height="246" alt="Salchipapa a lo pobre con huevo frito" loading="lazy" decoding="async"></div>
+      <div class="foto" data-foto><img src="img/salchipapa.webp" width="1000" height="1000" alt="Salchipapa con huevo frito y tres cremas" loading="lazy" decoding="async"></div>
     </div>
     <div class="cuerpo">
       <ul class="its"><li class="it" data-r style="--i:0" data-id="salchipapas/salchibrava" data-n="Salchibrava" data-p="31.5">
@@ -469,11 +471,11 @@ html.mov.listo #slotA{opacity:1;transform:none;transition:opacity 500ms var(--e-
     </div>
   </section>
 
-  <section class="cat cat-de-la-casa sin-foto" id="de-la-casa" aria-labelledby="t-de-la-casa">
+  <section class="cat cat-de-la-casa" id="de-la-casa" aria-labelledby="t-de-la-casa">
     <div class="cab">
       <h3 class="d" id="t-de-la-casa" data-t><span class="ln"><span>De la casa</span></span></h3>
       <p class="cab-n" data-r>Saltados, chaufas y caldo de gallina: lo que recomienda la cocina.</p>
-      
+      <div class="foto" data-foto><img src="img/pollo-saltado.webp" width="1000" height="1000" alt="Pollo saltado con arroz y papas" loading="lazy" decoding="async"></div>
     </div>
     <div class="cuerpo">
       <ul class="its"><li class="it" data-r style="--i:0" data-id="de-la-casa/lomo-saltado" data-n="Lomo saltado" data-p="25">
@@ -508,7 +510,7 @@ html.mov.listo #slotA{opacity:1;transform:none;transition:opacity 500ms var(--e-
     <div class="cab">
       <h3 class="d" id="t-bebidas" data-t><span class="ln"><span>Bebidas</span></span></h3>
       <p class="cab-n" data-r>Fruta de verdad, bien heladas.</p>
-      <div class="foto" data-foto><img src="img/refrescantes.webp" width="290" height="198" alt="Tres vasos de bebidas de fruta" loading="lazy" decoding="async"></div>
+      <div class="foto" data-foto><img src="img/jarra.webp" width="640" height="1168" alt="Jarra de bebida natural helada con una rodaja de limón" loading="lazy" decoding="async"></div>
     </div>
     <div class="cuerpo">
       <div class="grupo"><p class="sub" data-r>Refrescantes</p><ul class="its"><li class="it it-v" data-r style="--i:0" data-id="bebidas/refrescante" data-n="Refrescante">
@@ -611,11 +613,14 @@ html.mov.listo #slotA{opacity:1;transform:none;transition:opacity 500ms var(--e-
       <a class="btn cla" href="https://wa.me/51934517954?text=Hola%20El%20Chacombo%2C%20tengo%20una%20consulta." target="_blank" rel="noopener">Escribir por WhatsApp</a>
     </div>
   </div>
+  <div>
+  <div class="foto" data-foto><img src="img/local.webp" width="1000" height="1000" alt="Salón de El Chacombo: mesas de madera, asientos amarillos y el logo en la pared" loading="lazy" decoding="async"></div>
   <dl class="datos">
     <div data-r><dt>Pedidos</dt><dd>Por WhatsApp al 934 517 954. Lo recoges en el local o te lo llevamos, según tu zona.</dd></div>
     <div data-r style="--i:1"><dt>Horario y delivery</dt><dd>El horario del día, las zonas y el costo del delivery te los confirmamos por WhatsApp al pedir.</dd></div>
     <div data-r style="--i:2"><dt>Síguenos</dt><dd><a class="lnk" href="https://www.tiktok.com/@el_chacombo" target="_blank" rel="noopener">TikTok @el_chacombo</a><br>Facebook: El Chacombo</dd></div>
   </dl>
+  </div>
 </section>
 </main>
 
@@ -627,7 +632,7 @@ html.mov.listo #slotA{opacity:1;transform:none;transition:opacity 500ms var(--e-
   </div>
 </footer>
 
-<div id="plato" aria-hidden="true"><img src="img/plato.webp" width="528" height="528" alt=""></div>
+<div id="plato" aria-hidden="true"><img src="img/plato.webp" width="1200" height="1200" alt=""></div>
 
 <button id="barra" type="button" inert><span class="b-i"><span id="b-n">0 productos</span> · <span id="b-t">S/ 0.00</span></span><span class="b-v">Ver y enviar</span></button>
 
