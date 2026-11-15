@@ -58,7 +58,7 @@ const linkWeb = (tok: string) => `${BASE_WEB}?t=${tok}`;
 
 type Estado = {
   cliente: { id: string; nombre: string; token: string };
-  negocio: { id: string; nombre: string; logo_url: string | null; color_primario: string; color_acento: string; monto_minimo: number; meta_sellos: number; premio: string; premio_vigencia_dias: number; direccion: string | null };
+  negocio: { id: string; nombre: string; rubro?: string; logo_url: string | null; color_primario: string; color_acento: string; monto_minimo: number; meta_sellos: number; premio: string; premio_vigencia_dias: number; direccion: string | null };
   sellos: number; meta: number; premio_disponible: { id: string; descripcion: string; vence_en: string } | null;
   mod: string; activo: boolean; whatsapp: string | null;
   ubicacion?: { lat: number; lng: number } | null; aviso?: { texto: string; en: string } | null;
@@ -167,7 +167,7 @@ function gObjeto(c: Record<string, string>, e: Estado) {
     textModulesData: [
       p ? { id: "premio", header: "¡Tu premio está listo!", body: `${p.descripcion} · vence el ${ddmm(p.vence_en)}. Muéstralo en caja.` }
         : { id: "premio", header: `Tu premio al completar ${e.meta} sellos`, body: n.premio },
-      { id: "reglas", header: "Cómo funciona", body: `1 sello al día con compra desde ${soles(n.monto_minimo)}. El premio vence a los ${n.premio_vigencia_dias} días.` },
+      { id: "reglas", header: "Cómo funciona", body: `1 sello al día con ${palabra(n)} desde ${soles(n.monto_minimo)}. El premio vence a los ${n.premio_vigencia_dias} días.` },
     ],
     linksModuleData: { uris: [{ id: "web", uri: link, description: "Ver mi tarjeta" }] },
   };
@@ -206,15 +206,24 @@ async function wwdrPem(c: Record<string, string>) {
   _wwdr = forge.pki.certificateToPem(cert);
   return _wwdr!;
 }
+// Cada negocio puede tener su propio Pass Type ID de Apple (secretos «…__<id del negocio>»): así su tarjeta sale sola en el Wallet,
+// sin agruparse con las de otros negocios. Si no lo tiene, usa el general de la plataforma.
+function appleDe(c: Record<string, string>, negocioId: string) {
+  const s = "__" + negocioId;
+  if (c["wallet_apple_pass_type_id" + s] && c["wallet_apple_cert_pem" + s] && c["wallet_apple_key_pem" + s])
+    return { tipo: c["wallet_apple_pass_type_id" + s], cert: c["wallet_apple_cert_pem" + s], key: c["wallet_apple_key_pem" + s] };
+  return { tipo: c.wallet_apple_pass_type_id, cert: c.wallet_apple_cert_pem, key: c.wallet_apple_key_pem };
+}
+const palabra = (n: { rubro?: string }) => n.rubro === "barberia" ? "visita" : "compra";
 async function authToken(c: Record<string, string>, clienteId: string) { return await hmac(c.wallet_auth_secret, "apple:" + clienteId); }
 
 export async function armarPkpass(c: Record<string, string>, e: Estado, wwdr: string): Promise<Uint8Array> {
   const n = e.negocio, p = e.premio_disponible, link = linkWeb(e.cliente.token);
-  const logo = logoInfo(n.logo_url);
+  const logo = logoInfo(n.logo_url), ap = appleDe(c, n.id);
   const logoPng = logo && logo.mime === "image/png" ? logo.bytes : null;
   const pass: Record<string, unknown> = {
     formatVersion: 1,
-    passTypeIdentifier: c.wallet_apple_pass_type_id,
+    passTypeIdentifier: ap.tipo,
     teamIdentifier: c.wallet_apple_team_id,
     serialNumber: e.cliente.id,
     authenticationToken: await authToken(c, e.cliente.id),
@@ -236,7 +245,7 @@ export async function armarPkpass(c: Record<string, string>, e: Estado, wwdr: st
       backFields: [
         ...(e.aviso ? [{ key: "aviso", label: "Novedades", value: e.aviso.texto, changeMessage: "%@" }] : []),
         { key: "premio_d", label: p ? "Tu premio" : `Tu premio al completar ${e.meta} sellos`, value: p ? `${p.descripcion}\nVence el ${ddmm(p.vence_en)}. Muéstralo en caja.` : n.premio },
-        { key: "reglas", label: "Cómo funciona", value: `1 sello al día con compra desde ${soles(n.monto_minimo)}. El premio vence a los ${n.premio_vigencia_dias} días.` },
+        { key: "reglas", label: "Cómo funciona", value: `1 sello al día con ${palabra(n)} desde ${soles(n.monto_minimo)}. El premio vence a los ${n.premio_vigencia_dias} días.` },
         { key: "web", label: "Tu tarjeta en la web", value: link, attributedValue: `<a href='${link}'>Abrir mi tarjeta</a>` },
         ...(n.direccion ? [{ key: "dir", label: "Dirección", value: n.direccion }] : []),
         ...(e.whatsapp ? [{ key: "wa", label: "WhatsApp", value: e.whatsapp }] : []),
@@ -265,8 +274,8 @@ export async function armarPkpass(c: Record<string, string>, e: Estado, wwdr: st
   archivos["manifest.json"] = strToU8(manifestStr);
 
   // firma PKCS#7 separada con el certificado del Pass Type ID + intermedio WWDR
-  const cert = forge.pki.certificateFromPem(c.wallet_apple_cert_pem);
-  const key = forge.pki.privateKeyFromPem(c.wallet_apple_key_pem);
+  const cert = forge.pki.certificateFromPem(ap.cert);
+  const key = forge.pki.privateKeyFromPem(ap.key);
   const p7 = forge.pkcs7.createSignedData();
   p7.content = forge.util.createBuffer(manifestStr, "utf8");
   p7.addCertificate(cert);
@@ -311,9 +320,11 @@ async function appleWS(req: Request, partes: string[], c: Record<string, string>
       if (req.method === "DELETE") { await rpc("wallet_apple_baja", { p_device: device, p_cliente_id: serial }); return txt("", 200); }
     } else if (req.method === "GET" && b) {
       const desde = new URL(req.url).searchParams.get("passesUpdatedSince");
-      const r = await rpc("wallet_apple_series", { p_device: device, p_desde: desde ? new Date(Number(desde)).toISOString() : null });
-      if (!r.series.length) return txt("", 204);
-      return json({ serialNumbers: r.series, lastUpdated: String(new Date(r.ultimo).getTime()) });
+      // Solo las tarjetas de este Pass Type ID (b): cada negocio puede tener el suyo
+      const todas: { serie: string; negocio_id: string; mod: string }[] = await rpc("wallet_apple_series_negocio", { p_device: device, p_desde: desde ? new Date(Number(desde)).toISOString() : null });
+      const mias = todas.filter((x) => appleDe(c, x.negocio_id).tipo === b);
+      if (!mias.length) return txt("", 204);
+      return json({ serialNumbers: mias.map((x) => x.serie), lastUpdated: String(Math.max(...mias.map((x) => new Date(x.mod).getTime()))) });
     }
   }
   if (tipo === "passes" && req.method === "GET") {
