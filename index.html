@@ -170,6 +170,12 @@ const app = document.getElementById('app');
 const $ = (s, r=document) => r.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const soles = n => 'S/ ' + Number(n||0).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
+// ----- Rubros: cada negocio pertenece a uno y la app habla en sus palabras (restaurante: «compra»; barbería: «visita») -----
+const RUBROS = {restaurante:'Restaurantes', barberia:'Barberías', otro:'Otros negocios'};
+const RUBRO_UNO = {restaurante:'Restaurante', barberia:'Barbería', otro:'Otro'};
+let RUBRO_ACTUAL = 'restaurante';
+const pal = n => ((n&&n.rubro)||RUBRO_ACTUAL)==='barberia' ? 'visita' : 'compra';
+const Pal = n => { const w=pal(n); return w[0].toUpperCase()+w.slice(1); };
 const fecha = d => new Date(d).toLocaleDateString('es-PE',{day:'2-digit',month:'short'});
 const fechaHora = d => new Date(d).toLocaleString('es-PE',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hour12:false}).replace(',','');
 const ini = n => (n||'?').trim().charAt(0).toUpperCase();
@@ -198,6 +204,7 @@ const LOGO = (cls='') => `<span class="yv ${cls}" aria-label="YA! VOLVERÁS...">
 const PIE = `<span class="yv-foot">YA! VOLVERÁS...</span>`;
 function hexMix(a, b, t){ const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)); const A=p(a),B=p(b); return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join(''); }
 function aplicarTema(n){
+  RUBRO_ACTUAL = (n&&n.rubro)||'restaurante';
   const p=(n&&n.color_primario)||'#460E0D', a=(n&&n.color_acento)||'#F9B40F';
   const r=document.documentElement.style;
   r.setProperty('--vino',p); r.setProperty('--vino2',hexMix(p,'#ffffff',.1)); r.setProperty('--vino3',hexMix(p,'#ffffff',.18));
@@ -244,7 +251,7 @@ async function vistaInscripcion(slug){
     <div><h1>Tu tarjeta de sellos</h1><p class="sub">Regístrate en 10 segundos y guárdala en tu Apple Wallet o Google Wallet.</p></div>
     ${guardado?'':`<div class="card yellow" style="gap:4px;padding:14px 16px"><span class="display" style="font-size:17px">${refInv?'Un amigo te invitó: ':''}¡Regístrate y empieza con 1 sello de regalo!</span></div>`}
     ${guardado?`<div class="card yellow" style="gap:8px"><span class="display" style="font-size:18px">Ya tienes tu tarjeta en este celular</span><a class="btn" style="background:var(--vino);color:var(--amarillo);text-decoration:none" href="?t=${encodeURIComponent(guardado)}">Ver mi tarjeta</a></div>`:''}
-    <div class="card outline" style="gap:4px"><span class="eyebrow" style="text-transform:none;letter-spacing:.02em">Junta ${n.meta_sellos} sellos y llévate</span><span class="display" style="font-size:19px">${esc(n.premio)}</span><span class="hint" style="color:var(--crema)">1 sello al día con compra desde ${soles(n.monto_minimo)}. El premio vence a los ${n.premio_vigencia_dias} días.</span></div>
+    <div class="card outline" style="gap:4px"><span class="eyebrow" style="text-transform:none;letter-spacing:.02em">Junta ${n.meta_sellos} sellos y llévate</span><span class="display" style="font-size:19px">${esc(n.premio)}</span><span class="hint" style="color:var(--crema)">1 sello al día con ${pal(n)} desde ${soles(n.monto_minimo)}. El premio vence a los ${n.premio_vigencia_dias} días.</span></div>
     ${n.activo?`<form id="fi" class="card" style="gap:12px">
       <div class="field"><label for="in_nom">Tu nombre</label><input id="in_nom" autocomplete="name" maxlength="60" required placeholder="Nombre y apellido"></div>
       <div class="field"><label for="in_cel">Tu celular</label><input id="in_cel" type="tel" inputmode="numeric" autocomplete="tel" maxlength="15" required placeholder="987 654 321"></div>
@@ -295,7 +302,7 @@ async function lienzoMaterial(n, tipo){
     const lado=Math.min(980, H-y-560); ctx.fillStyle='#fff'; redondo(ctx,(W-lado)/2-40,y,lado+80,lado+80,60); ctx.fill(); dibujarQR(ctx,url,(W-lado)/2,y+40,lado); y+=lado+80+70;
     y=textoCentrado(ctx, `Junta ${n.meta_sellos} sellos y llévate`, W/2, y, W-240, 60, 700, N, T2, 1);
     y=textoCentrado(ctx, n.premio, W/2, y+10, W-220, 92, 800, B, A, 2, 1.05)+30;
-    textoCentrado(ctx, `1 sello al día con compra desde ${soles(n.monto_minimo)}`, W/2, y, W-240, 48, 700, N, T2, 1);
+    textoCentrado(ctx, `1 sello al día con ${pal(n)} desde ${soles(n.monto_minimo)}`, W/2, y, W-240, 48, 700, N, T2, 1);
     ctx.globalAlpha=.6; textoCentrado(ctx, 'YA! VOLVERÁS...', W/2, H-110, W, 44, 400, 'Anton, sans-serif', T, 1); ctx.globalAlpha=1;
   } else {
     y=60;
@@ -371,7 +378,7 @@ function enlazarBrillo(){ activarBrillo(); const c=$('#misSellos'); if(!c || !gi
 const vistoKey = tok => 'yv_visto_'+tok;
 function leerVisto(tok){ try{ const v=JSON.parse(localStorage.getItem(vistoKey(tok))||'null'); return v&&typeof v.s==='number'?v:null; }catch{ return null; } }
 function guardarVisto(tok, e){ try{ localStorage.setItem(vistoKey(tok), JSON.stringify({s:e.sellos, p:e.premio_disponible?e.premio_disponible.id||e.premio_disponible.vence_en:null})); }catch{} }
-function mensajeSellos(s, meta, premio){ const f=meta-s; if(premio && s===0) return 'Completaste tu tarjeta: tu premio está listo. Tu próxima compra inicia una nueva.'; if(s===0) return 'Tu primera compra suma tu primer sello.'; if(f===1) return 'Te falta 1 sello para tu premio.'; if(f<=0) return 'Completaste la tarjeta.'; return `Te faltan ${f} sellos para tu premio.`; }
+function mensajeSellos(s, meta, premio, w='compra'){ const f=meta-s; if(premio && s===0) return `Completaste tu tarjeta: tu premio está listo. Tu próxima ${w} inicia una nueva.`; if(s===0) return `Tu primera ${w} suma tu primer sello.`; if(f===1) return 'Te falta 1 sello para tu premio.'; if(f<=0) return 'Completaste la tarjeta.'; return `Te faltan ${f} sellos para tu premio.`; }
 
 async function vistaTarjeta(tok){
   document.title = 'Mi tarjeta';
@@ -409,11 +416,11 @@ function renderTarjeta(e, tok, mostrados){
   <div class="screen" style="padding-bottom:24px">
     <div class="center">${n.logo_url?`<img class="logo" src="${esc(n.logo_url)}" alt="${esc(n.nombre)}">`:`<h2>${esc(n.nombre)}</h2>`}</div>
     <div><h1>Hola, ${esc(e.cliente.nombre.split(' ')[0])}</h1><p class="sub">Tu tarjeta de sellos</p></div>
-    ${new URLSearchParams(location.search).get('bienvenida')?`<div class="card yellow premio-in" style="gap:10px"><span class="display" style="font-size:19px">${new URLSearchParams(location.search).get('bienvenida')==='1'?'¡Listo! Ya tienes tu tarjeta y tu primer sello de regalo':'¡Aquí está tu tarjeta!'}</span><span style="font-weight:600;font-size:14px">${walletOn.apple||walletOn.google?'Guárdala en tu Wallet para tenerla siempre a mano:':'Muéstrala en caja en cada compra para sumar tus sellos.'}</span>${botonesWallet(tok)}</div>`:''}
+    ${new URLSearchParams(location.search).get('bienvenida')?`<div class="card yellow premio-in" style="gap:10px"><span class="display" style="font-size:19px">${new URLSearchParams(location.search).get('bienvenida')==='1'?'¡Listo! Ya tienes tu tarjeta y tu primer sello de regalo':'¡Aquí está tu tarjeta!'}</span><span style="font-weight:600;font-size:14px">${walletOn.apple||walletOn.google?'Guárdala en tu Wallet para tenerla siempre a mano:':`Muéstrala en caja en cada ${pal()} para sumar tus sellos.`}</span>${botonesWallet(tok)}</div>`:''}
     <div class="card">
       <div class="row" style="justify-content:space-between"><h3>Tus sellos</h3><span class="display" id="cuenta" style="font-size:22px;color:var(--amarillo)">${mostrados} de ${e.meta}</span></div>
       <div class="stamps" id="misSellos">${stampsHTML(mostrados,e.meta)}</div>
-      <p class="sub">${mensajeSellos(e.sellos,e.meta,!!premio)}</p>
+      <p class="sub">${mensajeSellos(e.sellos,e.meta,!!premio,pal(e.negocio))}</p>
       ${e.sellos>0?tipBrillo():''}
     </div>
     ${premio?`<div class="card yellow premio-in" id="premioListo"><span class="display" style="font-size:19px">Tienes un premio listo</span><span style="font-weight:600">${esc(premio.descripcion)}</span><span style="font-size:12.5px;font-weight:700">Vence el ${fecha(premio.vence_en)} · muéstralo en caja</span></div>`
@@ -424,13 +431,13 @@ function renderTarjeta(e, tok, mostrados){
       <div class="qr">${qrSVG(link)}</div>
       <div style="display:flex;flex-direction:column;gap:6px">
         <span class="display" style="font-size:17px">Muestra este código en caja</span>
-        <span style="font-size:13px;line-height:1.35;color:var(--vino3)">1 sello al día con compra desde ${soles(n.monto_minimo)}. El premio vence a los ${n.premio_vigencia_dias} días.</span>
+        <span style="font-size:13px;line-height:1.35;color:var(--vino3)">1 sello al día con ${pal(n)} desde ${soles(n.monto_minimo)}. El premio vence a los ${n.premio_vigencia_dias} días.</span>
         <span style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--borde)">${esc(tok.slice(0,8).toUpperCase())}</span>
       </div>
     </div>
     <div id="wbox">${botonesWallet(tok)}</div>
     ${e.cliente.ref?(()=>{ const inv=`${BASE_URL}?n=${encodeURIComponent(n.slug)}&r=${e.cliente.ref}`; const txt=`¡Hola! Te invito a ${n.nombre}. Regístrate con este link y empiezas tu tarjeta con 1 sello de regalo: ${inv}`;
-      return `<div class="card outline" style="gap:8px"><h3>Invita a un amigo</h3><p class="sub">Si tu amigo se registra con tu link y hace su primera compra, <b>tú ganas 1 sello de regalo</b> (hasta 3 al mes). Él también empieza con 1 sello.</p><a class="btn sm" style="text-decoration:none;height:44px" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener"><span style="width:20px;height:20px">${icon.wa}</span>Invitar por WhatsApp</a></div>`; })():''}
+      return `<div class="card outline" style="gap:8px"><h3>Invita a un amigo</h3><p class="sub">Si tu amigo se registra con tu link y hace su primera ${pal()}, <b>tú ganas 1 sello de regalo</b> (hasta 3 al mes). Él también empieza con 1 sello.</p><a class="btn sm" style="text-decoration:none;height:44px" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener"><span style="width:20px;height:20px">${icon.wa}</span>Invitar por WhatsApp</a></div>`; })():''}
     <div class="row" style="justify-content:space-between;padding:0 4px"><span class="hint">${esc(n.nombre)}${n.direccion?' · '+esc(n.direccion):''}</span><span style="color:var(--amarillo)">${PIE}</span></div>
     <p class="hint center">${walletOn.apple||walletOn.google?'Guárdala en tu Wallet o en la pantalla de inicio para tenerla a mano.':'Guarda esta página en tu pantalla de inicio para tenerla a mano.'}</p>
   </div>`;
@@ -445,7 +452,7 @@ function bloqueRanking(e){
     <span class="eyebrow" style="text-transform:none;letter-spacing:.02em">Cliente del mes · ${mesLima()}</span>
     ${rk.puesto?`<div class="row" style="align-items:baseline;gap:8px"><span class="display" style="font-size:34px;color:var(--amarillo)">#${rk.puesto}</span><span class="sub">de ${rk.participantes} cliente${rk.participantes==1?'':'s'} · ${v} visita${v==1?'':'s'} este mes</span></div>
       <p class="sub" style="font-weight:700">${rk.puesto==1?'¡Vas primero! Sigue así para ganar.':'Cada visita te acerca al primer puesto.'}</p>`
-      :`<p class="sub" style="font-weight:700">Aún no tienes visitas este mes. Tu próxima compra te pone en carrera.</p>`}
+      :`<p class="sub" style="font-weight:700">Aún no tienes visitas este mes. Tu próxima ${pal()} te pone en carrera.</p>`}
     <p class="hint" style="color:var(--crema)">El cliente con más visitas del mes gana: <b style="color:var(--amarillo)">${esc(pm)}</b></p>
   </div>`;
 }
@@ -534,6 +541,7 @@ async function vistaMaestro(){
       <form id="fn" style="display:flex;flex-direction:column;gap:10px">
         <div class="field"><label>Nombre del negocio</label><input id="nn_nom" required placeholder="Pollería Don Pepe"></div>
         <div class="row"><div class="field grow"><label>Usuario</label><input id="nn_usr" required autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="donpepe"></div><div class="field grow"><label>Contraseña</label><input id="nn_pw" required minlength="6" autocomplete="off"></div></div>
+        <div class="field"><label>Rubro</label><select id="nn_rub">${Object.keys(RUBRO_UNO).map(r=>`<option value="${r}">${RUBRO_UNO[r]}</option>`).join('')}</select></div>
         <div class="field"><label>Premio al completar 6 sellos</label><input id="nn_pre" placeholder="Ej. 1/4 de pollo + papas + gaseosa"></div>
         <div class="row"><div class="field grow"><label>WhatsApp del dueño</label><input id="nn_wa" type="tel" inputmode="numeric" placeholder="987654321"></div><div class="field grow"><label>Dirección (opcional)</label><input id="nn_dir" placeholder="SJL"></div></div>
         <button class="btn" type="submit">Crear negocio</button>
@@ -577,7 +585,11 @@ async function vistaMaestro(){
       if($('#cods')) $('#cods').innerHTML = (libres.map(c=>`<div class="item" style="flex-direction:column;align-items:stretch;gap:8px"><div><div class="t" style="letter-spacing:.14em;font-family:Anton,sans-serif;font-weight:400;font-size:22px;color:var(--lb-az);white-space:nowrap">${c.codigo}</div><div class="s">creado ${fecha(c.creado_en)}${c.nota?' · '+esc(c.nota):''}</div></div><div class="row" style="gap:6px"><button class="btn sm ghost" data-copy="${c.codigo}" style="height:36px;padding:0 12px;font-size:13px">Copiar</button><a class="btn sm ghost" style="height:36px;padding:0 12px;text-decoration:none;gap:6px" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(`Hola, este es tu código de acceso a YA! VOLVERÁS...: ${c.codigo}\nEntra a ${BASE_URL}, pulsa "Crear cuenta" y escribe el código.`)}"><span style="width:18px;height:18px">${icon.wa}</span>WhatsApp</a><button class="btn sm danger" data-anular="${c.codigo}" style="height:36px;padding:0 12px;font-size:13px;margin-left:auto">Anular</button></div></div>`).join('')
         + usados.slice(0,5).map(c=>`<div class="item" style="opacity:.55"><div class="grow"><div class="t" style="letter-spacing:.12em">${c.codigo}</div><div class="s">usado por ${esc(c.negocio||'—')}</div></div><span class="chip">usado</span></div>`).join('')) || '<p class="hint">Aún no hay códigos. Genera uno.</p>';
       negMap={}; d.negocios.forEach(n=>negMap[n.id]=n);
-      $('#negs').innerHTML = d.negocios.length ? d.negocios.map(n=>`<div class="item" style="${n.activo?'':'opacity:.6'}">${n.logo_url?`<img src="${esc(n.logo_url)}" alt="" style="width:40px;height:40px;border-radius:10px;object-fit:cover">`:`<div class="avatar">${ini(n.nombre)}</div>`}<div class="grow"><div class="t">${esc(n.nombre)}</div><div class="s">Usuario: <b>${esc(n.usuario||'—')}</b>${n.direccion?' · '+esc(n.direccion):''}</div><div class="s">${n.clientes} clientes · ${n.sellos_30d} sellos (30 d) · ${n.premios} premios · desde ${fecha(n.creado_en)}</div><div class="s">${cobroTxt(n)}</div></div><div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><span class="chip ${n.activo?'y':''}"><span class="dot ${n.activo?'':'off'}" style="background:${n.activo?'#fff':'#C7C7CC'}"></span>${n.activo?'Activo':'Suspendido'}</span><button class="btn sm" data-entrar="${n.id}" style="height:32px;padding:0 12px;font-size:12.5px">Entrar</button><div class="row" style="gap:4px"><button class="btn sm ghost" data-qr="${esc(n.slug)}" style="height:32px;padding:0 10px;font-size:12.5px">QR</button><button class="btn sm ghost" data-clave="${n.id}" data-nom="${esc(n.nombre)}" data-wa="${esc(n.whatsapp||'')}" style="height:32px;padding:0 10px;font-size:12.5px">Clave</button></div><button class="btn sm ${n.activo?'danger':''}" data-sus="${n.id}" data-act="${n.activo}" style="height:32px;padding:0 10px;font-size:12.5px">${n.activo?'Suspender':'Activar'}</button><button class="btn sm danger" data-del="${n.id}" data-nom="${esc(n.nombre)}" style="height:32px;padding:0 10px;font-size:12.5px">Eliminar</button><button class="btn sm ghost" data-cobro="${n.id}" style="height:32px;padding:0 10px;font-size:12.5px">Cobro</button><button class="btn sm ghost" data-res="${n.id}" style="height:32px;padding:0 10px;font-size:12.5px">Resumen del mes</button></div></div>`).join('') : '<p class="hint">Todavía no hay negocios registrados.</p>';
+      const fila = n=>`<div class="item" style="${n.activo?'':'opacity:.6'}">${n.logo_url?`<img src="${esc(n.logo_url)}" alt="" style="width:40px;height:40px;border-radius:10px;object-fit:cover">`:`<div class="avatar">${ini(n.nombre)}</div>`}<div class="grow"><div class="t">${esc(n.nombre)}</div><div class="s">Usuario: <b>${esc(n.usuario||'—')}</b>${n.direccion?' · '+esc(n.direccion):''}</div><div class="s">${n.clientes} clientes · ${n.sellos_30d} sellos (30 d) · ${n.premios} premios · desde ${fecha(n.creado_en)}</div><div class="s">${cobroTxt(n)}</div></div><div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><span class="chip ${n.activo?'y':''}"><span class="dot ${n.activo?'':'off'}" style="background:${n.activo?'#fff':'#C7C7CC'}"></span>${n.activo?'Activo':'Suspendido'}</span><button class="btn sm" data-entrar="${n.id}" style="height:32px;padding:0 12px;font-size:12.5px">Entrar</button><div class="row" style="gap:4px"><button class="btn sm ghost" data-qr="${esc(n.slug)}" style="height:32px;padding:0 10px;font-size:12.5px">QR</button><button class="btn sm ghost" data-clave="${n.id}" data-nom="${esc(n.nombre)}" data-wa="${esc(n.whatsapp||'')}" style="height:32px;padding:0 10px;font-size:12.5px">Clave</button></div><button class="btn sm ${n.activo?'danger':''}" data-sus="${n.id}" data-act="${n.activo}" style="height:32px;padding:0 10px;font-size:12.5px">${n.activo?'Suspender':'Activar'}</button><button class="btn sm danger" data-del="${n.id}" data-nom="${esc(n.nombre)}" style="height:32px;padding:0 10px;font-size:12.5px">Eliminar</button><button class="btn sm ghost" data-cobro="${n.id}" style="height:32px;padding:0 10px;font-size:12.5px">Cobro</button><button class="btn sm ghost" data-res="${n.id}" style="height:32px;padding:0 10px;font-size:12.5px">Resumen del mes</button><select data-rub="${n.id}" aria-label="Rubro de ${esc(n.nombre)}" style="width:auto;height:32px;border-radius:10px;font-size:12.5px;font-weight:600;padding:0 30px 0 10px;background-position:right 8px center">${Object.keys(RUBRO_UNO).map(r=>`<option value="${r}"${(n.rubro||'restaurante')===r?' selected':''}>${RUBRO_UNO[r]}</option>`).join('')}</select></div></div>`;
+      // Cada rubro en su propia sección: los restaurantes con los restaurantes y las barberías con las barberías
+      $('#negs').innerHTML = !d.negocios.length ? '<p class="hint">Todavía no hay negocios registrados.</p>' : Object.keys(RUBROS).map(r=>{ const l=d.negocios.filter(n=>(n.rubro||'restaurante')===r); if(!l.length && r==='otro') return '';
+        return `<section data-seccion="${r}" style="display:flex;flex-direction:column;gap:10px"><h4 style="display:flex;align-items:center;gap:8px;margin:8px 0 0;font-size:17px;font-weight:800">${RUBROS[r]}<span class="chip" style="font-size:12px">${l.length}</span></h4>${l.length ? l.map(fila).join('') : `<p class="hint">Todavía no hay ${r==='barberia'?'barberías registradas':'restaurantes registrados'}.</p>`}</section>`; }).join('');
+      document.querySelectorAll('[data-rub]').forEach(x=>x.onchange=async()=>{ try{ await rpc('admin_cambiar_rubro',{p_negocio_id:x.dataset.rub,p_rubro:x.value}); msg(`${negMap[x.dataset.rub].nombre} ahora está en ${RUBROS[x.value]}.`,true); }catch(e){ msg(e.message); } cargar(); });
       document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{ try{ await navigator.clipboard.writeText(b.dataset.copy); b.textContent='Copiado'; setTimeout(()=>b.textContent='Copiar',1500);}catch{ msg('Copia el código manualmente: '+b.dataset.copy,true);} });
       document.querySelectorAll('[data-anular]').forEach(b=>b.onclick=async()=>{ try{ await rpc('anular_codigo',{p_codigo:b.dataset.anular}); cargar(); }catch(e){ msg(e.message); } });
       document.querySelectorAll('[data-qr]').forEach(b=>b.onclick=()=>materialQR(b.dataset.qr));
@@ -606,6 +618,8 @@ async function vistaMaestro(){
   const clave = () => { const a='abcdefghjkmnpqrstuvwxyz23456789'; let c=''; const r=crypto.getRandomValues(new Uint32Array(8)); for(const x of r) c+=a[x%a.length]; return c; };
   const slugUsr = t => String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/^(el|la|los|las)\s+/,'').replace(/[^a-z0-9]+/g,'').slice(0,30);
   $('#nn_pw').value = clave();
+  const EJ_RUBRO = {restaurante:['Pollería Don Pepe','Ej. 1/4 de pollo + papas + gaseosa'], barberia:['Barbería El Patrón','Ej. 1 corte de cabello gratis'], otro:['Nombre del negocio','Ej. 1 servicio gratis']};
+  $('#nn_rub').onchange=()=>{ const e=EJ_RUBRO[$('#nn_rub').value]; $('#nn_nom').placeholder=e[0]; $('#nn_pre').placeholder=e[1]; };
   let usrTocado=false; $('#nn_usr').oninput=()=>{ usrTocado=true; };
   $('#nn_nom').oninput=()=>{ if(!usrTocado) $('#nn_usr').value=slugUsr($('#nn_nom').value); };
   const credenciales = (nombre, usuario, pw, wa) => { const txt=`Hola, ya está listo el sistema de tarjeta de sellos de ${nombre} en YA! VOLVERÁS...\n\nEntra a ${BASE_URL}\nUsuario: ${usuario}\nContraseña: ${pw}\n\nGuarda estos datos.`;
@@ -613,10 +627,12 @@ async function vistaMaestro(){
       <div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn sm ghost" type="button" data-cp="${esc(txt)}" style="height:36px">Copiar datos</button>${wa?`<a class="btn sm" style="height:36px;text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/51${esc(String(wa).replace(/\D/g,'').slice(-9))}?text=${encodeURIComponent(txt)}">Enviar por WhatsApp</a>`:''}</div></div>`; };
   const enlazarCopiar = cont => cont.querySelectorAll('[data-cp]').forEach(b=>b.onclick=async()=>{ try{ await navigator.clipboard.writeText(b.dataset.cp); b.textContent='Copiado'; }catch{ b.textContent='Cópialo a mano'; } });
   $('#fn').onsubmit=async ev=>{ ev.preventDefault(); const b=$('#fn button'); b.disabled=true; $('#mm').innerHTML='';
-    const nombre=$('#nn_nom').value.trim(), usuario=$('#nn_usr').value.trim().toLowerCase(), pw=$('#nn_pw').value, wa=$('#nn_wa').value.trim();
-    try{ const r=await rpc('admin_crear_negocio',{p_nombre:nombre,p_usuario:usuario,p_clave:pw,p_premio:$('#nn_pre').value||null,p_whatsapp:wa||null,p_direccion:$('#nn_dir').value||null});
+    const nombre=$('#nn_nom').value.trim(), usuario=$('#nn_usr').value.trim().toLowerCase(), pw=$('#nn_pw').value, wa=$('#nn_wa').value.trim(), rubro=$('#nn_rub').value;
+    const premio=$('#nn_pre').value.trim() || (rubro==='barberia' ? '1 corte de cabello gratis' : '');
+    try{ const r=await rpc('admin_crear_negocio',{p_nombre:nombre,p_usuario:usuario,p_clave:pw,p_premio:premio||null,p_whatsapp:wa||null,p_direccion:$('#nn_dir').value||null});
+      if(rubro!=='restaurante') await rpc('admin_cambiar_rubro',{p_negocio_id:r.negocio_id,p_rubro:rubro});
       $('#nn_ok').innerHTML=credenciales(nombre, r.usuario, pw, wa); enlazarCopiar($('#nn_ok'));
-      $('#fn').reset(); usrTocado=false; $('#nn_pw').value=clave(); cargar();
+      $('#fn').reset(); $('#nn_rub').onchange(); usrTocado=false; $('#nn_pw').value=clave(); cargar();
     }catch(e){ msg(e.message); } b.disabled=false; };
   window.__credenciales = credenciales; window.__enlazarCopiar = enlazarCopiar; window.__clave = clave;
   cargar();
@@ -718,7 +734,7 @@ function recordarPin(per){ pinCache={id:per.p_personal_id, pin:per.p_pin, t:Date
 function olvidarPin(){ pinCache={id:null,pin:'',t:0}; }
 
 function bloqueCliente(c, est){
-  return `<div class="item"><div class="avatar">${ini(c.nombre)}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">${esc(c.celular)}${est&&est.ultima_compra?` · última compra ${fecha(est.ultima_compra.fecha)} · ${soles(est.ultima_compra.monto)}`:''}</div></div>${est?`<span class="display" style="font-size:18px;color:var(--amarillo)">${est.sellos} de ${est.meta}</span>`:''}</div>`;
+  return `<div class="item"><div class="avatar">${ini(c.nombre)}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">${esc(c.celular)}${est&&est.ultima_compra?` · última ${pal()} ${fecha(est.ultima_compra.fecha)} · ${soles(est.ultima_compra.monto)}`:''}</div></div>${est?`<span class="display" style="font-size:18px;color:var(--amarillo)">${est.sellos} de ${est.meta}</span>`:''}</div>`;
 }
 
 const waTarjeta = c => `https://wa.me/51${String(c.celular).replace(/\D/g,'').slice(-9)}?text=${encodeURIComponent(msgTarjeta(c.nombre, panel.negocio.nombre, `${BASE_URL}?t=${c.token}`))}`;
@@ -749,10 +765,10 @@ function vRegistrar(){
     <div id="res" class="list"></div>
     <div id="nuevo" class="field hidden"><label for="nom">Cliente nuevo: nombre</label><input id="nom" placeholder="Nombre y apellido"></div>
     <div id="cli"></div>
-    <div class="field"><label for="monto">Monto de la compra</label><div class="money"><span>S/</span><input id="monto" type="text" inputmode="decimal" placeholder="0.00"></div>
+    <div class="field"><label for="monto">Monto de la ${pal()}</label><div class="money"><span>S/</span><input id="monto" type="text" inputmode="decimal" placeholder="0.00"></div>
       <span class="hint" style="margin-top:6px">Desde ${soles(panel.negocio.monto_minimo)} suma 1 sello. Máximo 1 sello por cliente al día.</span></div>
     <div id="m" class="msg err hidden"></div>
-    <button class="btn" id="go">Registrar compra y sumar sello</button>
+    <button class="btn" id="go">Registrar ${pal()} y sumar sello</button>
     <div id="out"></div>
     <div id="hoy"></div>
   </div>`;
@@ -777,11 +793,11 @@ function vRegistrar(){
   $('#go').onclick = async () => { m.classList.add('hidden'); out.innerHTML=''; const b=$('#go'); b.disabled=true;
     try{ const per = leerPersonal();
       if(!clienteSel){ const q=cel.value.replace(/\D/g,''); if(q.length!==9) throw new Error('Escribe los 9 dígitos del celular y elige al cliente.'); const c = await rpc('buscar_o_crear_cliente',{p_nombre:$('#nom').value, p_celular:q}); clienteSel={id:c.id,nombre:c.nombre,celular:c.celular,token:c.token_tarjeta}; }
-      const monto = parseFloat(String($('#monto').value).replace(',','.')); if(isNaN(monto)||monto<0) throw new Error('Escribe el monto de la compra.');
+      const monto = parseFloat(String($('#monto').value).replace(',','.')); if(isNaN(monto)||monto<0) throw new Error(`Escribe el monto de la ${pal()}.`);
       const r = await rpc('registrar_compra',{p_cliente_id:clienteSel.id, p_monto:monto, ...per}); recordarPin(per);
       const link=`${BASE_URL}?t=${r.cliente.token}`; const wa=`https://wa.me/51${r.cliente.celular}?text=${encodeURIComponent(msgTarjeta(r.cliente.nombre, panel.negocio.nombre, link))}`;
       out.innerHTML = `<div class="card ${r.premio_nuevo?'yellow premio-in':'outline'}" style="margin-top:4px">
-        <div class="row"><span style="width:26px;height:26px;flex-shrink:0">${icon.check}</span><div class="grow"><div class="display" style="font-size:16px">${r.premio_nuevo?`¡Tarjeta completa! ${esc(r.cliente.nombre.split(' ')[0])} llegó a ${r.meta} de ${r.meta}`:r.sumo_sello?`Sello sumado · ${esc(r.cliente.nombre.split(' ')[0])} tiene ${r.sellos} de ${r.meta}`:`${r.ya_sello_hoy?`Compra registrada · ${esc(r.cliente.nombre.split(' ')[0])} ya ganó su sello de hoy (máximo 1 al día)`:`Compra registrada (no suma sello: menor a ${soles(panel.negocio.monto_minimo)})`}`}</div><div class="s" style="font-size:12.5px">${soles(monto)} · ${fechaHora(new Date())}</div></div></div>
+        <div class="row"><span style="width:26px;height:26px;flex-shrink:0">${icon.check}</span><div class="grow"><div class="display" style="font-size:16px">${r.premio_nuevo?`¡Tarjeta completa! ${esc(r.cliente.nombre.split(' ')[0])} llegó a ${r.meta} de ${r.meta}`:r.sumo_sello?`Sello sumado · ${esc(r.cliente.nombre.split(' ')[0])} tiene ${r.sellos} de ${r.meta}`:`${r.ya_sello_hoy?`${Pal()} registrada · ${esc(r.cliente.nombre.split(' ')[0])} ya ganó su sello de hoy (máximo 1 al día)`:`${Pal()} registrada (no suma sello: menor a ${soles(panel.negocio.monto_minimo)})`}`}</div><div class="s" style="font-size:12.5px">${soles(monto)} · ${fechaHora(new Date())}</div></div></div>
         ${r.premio_nuevo?`<div style="font-weight:700">Premio disponible: ${esc(panel.negocio.premio)} (vence en ${panel.negocio.premio_vigencia_dias} días). Su tarjeta vuelve a empezar en 0 de ${r.meta}.</div>`:''}
         <div class="stamps">${r.premio_nuevo?stampsHTML(r.meta,r.meta,r.meta):stampsHTML(r.sellos,r.meta,r.sumo_sello?r.sellos:0)}</div>
         <a class="btn sm ${r.premio_nuevo?'':'ghost'}" style="text-decoration:none;${r.premio_nuevo?'background:var(--vino);color:var(--amarillo)':''}" href="${wa}" target="_blank" rel="noopener"><span style="width:20px;height:20px">${icon.wa}</span>Enviar tarjeta por WhatsApp</a>
@@ -807,7 +823,7 @@ function vCanjear(){
   async function detalle(id){ res.innerHTML=''; m.classList.add('hidden'); det.innerHTML='<div class="skeleton"></div>';
     try{ const e=await rpc('estado_tarjeta',{p_cliente_id:id}); const p=e.premio_disponible;
       det.innerHTML = `${bloqueCliente(e.cliente,e)}
-        <div class="card" style="margin-top:8px"><div class="stamps">${stampsHTML(e.sellos,e.meta)}</div><p class="sub">${mensajeSellos(e.sellos,e.meta,!!p)}</p>${e.cliente.token?btnReenviar(e.cliente):''}</div>
+        <div class="card" style="margin-top:8px"><div class="stamps">${stampsHTML(e.sellos,e.meta)}</div><p class="sub">${mensajeSellos(e.sellos,e.meta,!!p,pal(e.negocio))}</p>${e.cliente.token?btnReenviar(e.cliente):''}</div>
         ${p?`<div class="card yellow" style="margin-top:8px"><span class="display" style="font-size:18px">Premio disponible</span><span style="font-weight:600">${esc(p.descripcion)}</span><span style="font-size:12.5px;font-weight:700">Otorgado el ${fecha(p.otorgado_en)} · vence el ${fecha(p.vence_en)}</span>
              <button class="btn hold" id="canje" style="background:var(--vino);color:var(--amarillo);margin-top:6px"><div class="bar"></div><span style="position:relative">Mantén presionado para canjear</span></button></div>`
           :`<div class="msg ok" style="margin-top:8px">Este cliente no tiene premio disponible todavía.</div>`}`;
@@ -822,9 +838,9 @@ function holdToConfirm(btn, fn){ let t; const start=()=>{ btn.classList.add('hol
 function vHistorial(){
   $('#titulo').textContent='Historial';
   $('#vista').innerHTML=`<div class="list" id="h"><div class="skeleton"></div><div class="skeleton"></div></div>`;
-  rpc('historial',{p_limite:60}).then(l=>{ $('#h').innerHTML = l.length? l.map(c=>`<div class="item" style="${c.anulada?'opacity:.5':''};align-items:flex-start"><div class="avatar">${ini(c.cliente)}</div><div class="grow"><div class="row" style="justify-content:space-between;align-items:baseline"><span class="t">${esc(c.cliente)}</span><span class="display" style="font-size:17px;color:var(--amarillo);white-space:nowrap">${soles(c.monto)}</span></div><div class="s">${fechaHora(c.creado_en)} · ${esc(c.por)}${c.anulada?' · ANULADA':''}</div><div class="row" style="margin-top:6px;gap:6px">${c.suma_sello&&!c.anulada?'<span class="chip y">+1 sello</span>':'<span class="chip">sin sello</span>'}${panel.es_admin&&!c.anulada?`<button class="btn sm danger" data-id="${c.id}" style="height:30px;padding:0 10px;font-size:12.5px">Anular</button>`:''}</div></div></div>`).join('') : '<p class="hint">Todavía no hay compras registradas.</p>';
+  rpc('historial',{p_limite:60}).then(l=>{ $('#h').innerHTML = l.length? l.map(c=>`<div class="item" style="${c.anulada?'opacity:.5':''};align-items:flex-start"><div class="avatar">${ini(c.cliente)}</div><div class="grow"><div class="row" style="justify-content:space-between;align-items:baseline"><span class="t">${esc(c.cliente)}</span><span class="display" style="font-size:17px;color:var(--amarillo);white-space:nowrap">${soles(c.monto)}</span></div><div class="s">${fechaHora(c.creado_en)} · ${esc(c.por)}${c.anulada?' · ANULADA':''}</div><div class="row" style="margin-top:6px;gap:6px">${c.suma_sello&&!c.anulada?'<span class="chip y">+1 sello</span>':'<span class="chip">sin sello</span>'}${panel.es_admin&&!c.anulada?`<button class="btn sm danger" data-id="${c.id}" style="height:30px;padding:0 10px;font-size:12.5px">Anular</button>`:''}</div></div></div>`).join('') : `<p class="hint">Todavía no hay ${pal()}s registradas.</p>`;
     $('#h').querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>anular(b.dataset.id)); }).catch(e=>{ $('#h').innerHTML=`<div class="msg err">${esc(e.message)}</div>`; });
-  function anular(id){ const v=$('#vista'); v.insertAdjacentHTML('afterbegin',`<div class="card" id="an" style="margin-bottom:12px"><h3>Anular compra</h3>${selectorPersonal()}<div class="field"><label>Motivo</label><input id="mot" placeholder="Ej. se registró dos veces"></div><div id="m2" class="msg err hidden"></div><div class="row"><button class="btn sm" id="ok">Anular</button><button class="btn sm ghost" id="no">Cancelar</button></div></div>`);
+  function anular(id){ const v=$('#vista'); v.insertAdjacentHTML('afterbegin',`<div class="card" id="an" style="margin-bottom:12px"><h3>Anular ${pal()}</h3>${selectorPersonal()}<div class="field"><label>Motivo</label><input id="mot" placeholder="Ej. se registró dos veces"></div><div id="m2" class="msg err hidden"></div><div class="row"><button class="btn sm" id="ok">Anular</button><button class="btn sm ghost" id="no">Cancelar</button></div></div>`);
     enlazarPin(); $('#no').onclick=()=>$('#an').remove(); $('#ok').onclick=async()=>{ try{ const per=leerPersonal(); if(!$('#mot').value.trim()) throw new Error('Escribe el motivo.'); await rpc('anular_compra',{p_compra_id:id,p_motivo:$('#mot').value.trim(),...per}); vHistorial(); }catch(e){ const m=$('#m2'); m.textContent=e.message; m.classList.remove('hidden'); } }; }
 }
 
@@ -864,7 +880,7 @@ function pintarStats(d){
     ${vacio?'':conclusiones(d)}
     <div class="kpis">
       ${kpi('Ventas',soles(k.ventas),delta(k.ventas,k.ventas_prev,dias))}
-      ${kpi('Visitas (compras)',k.compras,delta(k.compras,k.compras_prev,dias))}
+      ${kpi(pal()==='compra'?'Visitas (compras)':'Visitas',k.compras,delta(k.compras,k.compras_prev,dias))}
       ${kpi('Clientes que vinieron',k.clientes,delta(k.clientes,k.clientes_prev,dias))}
       ${kpi('Ticket promedio',soles(k.ticket),delta(k.ticket,k.ticket_prev,dias))}
       ${kpi('Clientes nuevos',k.nuevos,delta(k.nuevos,k.nuevos_prev,dias))}
