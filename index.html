@@ -183,6 +183,7 @@ const store = { get:k=>{try{return localStorage.getItem(k)}catch{return null}}, 
 const rpc = async (fn, args={}) => { const {data,error} = await sb.rpc(fn, args); if (error) throw new Error(limpiaError(error.message)); return data; };
 const limpiaError = m => (m||'Error').replace(/^.*?:\s*/,'').replace(/\(SQLSTATE.*\)/,'').trim();
 const icon = {
+  carta:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/></svg>',
   applew:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="3"/><path d="M3 9h18M16 14h2"/><path d="M6 5l9-3 2 3"/></svg>',
   googlew:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="3"/><path d="M3 9h18M16 14h2"/><path d="M6 5l9-3 2 3"/></svg>',
   plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>',
@@ -652,9 +653,13 @@ function render(){
   if(rol!=='dueno' && panel.yo && !panel.turno) return vistaTurno();
   if(tab==='panel') tab='ajustes'; if(tab==='stats') tab='resultados';
   const T={registrar:[icon.plus,'Registrar',vRegistrar], canjear:[icon.gift,'Canjear',vCanjear], historial:[icon.clock,'Historial',vHistorial],
-    resultados:[icon.stats,'Resultados',vResultados], ajustes:[icon.panel,'Ajustes',vPanel], qr:[icon.qr,'QR clientes',vQR], cuadre:[icon.stats,'Cuadre',vCuadre]};
+    resultados:[icon.stats,'Resultados',vResultados], ajustes:[icon.panel,'Ajustes',vPanel], qr:[icon.qr,'QR clientes',vQR], cuadre:[icon.stats,'Cuadre',vCuadre], pedidos:[icon.carta,'Pedidos',vPedidos]};
   const tabs = rol==='dueno' ? ['registrar','canjear','historial','resultados','ajustes'] : rol==='caja' ? ['registrar','canjear','qr','cuadre'] : ['registrar','canjear','qr'];
-  if(!tabs.includes(tab)) tab='registrar';
+  // Plan con pedidos: el mozo y la caja empiezan por ahí
+  if(n.pedidos_activo){ if(rol==='dueno') tabs.splice(1,0,'pedidos'); else tabs.unshift('pedidos'); }
+  clearInterval(pedTimer);
+  if(n.pedidos_activo && rol!=='dueno' && !ped.arranco){ ped.arranco=true; tab='pedidos'; }
+  if(!tabs.includes(tab)) tab = n.pedidos_activo && rol!=='dueno' ? 'pedidos' : 'registrar';
   const quien = panel.yo ? `Atiende: ${esc(panel.yo.nombre)}${panel.turno?` · desde ${horaCorta(panel.turno.inicio)}`:''}` : '';
   app.innerHTML = `<div class="screen">
     ${panel.es_superadmin?`<div class="msg ok" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px"><span style="font-size:13px">Estás dentro de <b>${esc(n.nombre)}</b> como administrador</span><button class="btn sm" id="volverM" style="height:34px;padding:0 12px;font-size:13px;flex-shrink:0">Panel maestro</button></div>`:''}
@@ -757,6 +762,196 @@ async function cargarHoy(){
       ${r.ultimos.length?`<div class="list">${r.ultimos.map(u=>`<div class="item" style="padding:10px 12px"><div class="grow"><div class="t" style="${u.anulada?'text-decoration:line-through;opacity:.6':''}">${esc(u.cliente)}</div><div class="s">${hora(u.creado_en)} · ${soles(u.monto)}</div></div>${u.anulada?'<span class="chip">Anulada</span>':u.anulable?`<button class="btn sm danger" data-anular="${u.id}" style="height:34px;width:auto;padding:0 12px;font-size:13px">Anular</button>`:''}</div>`).join('')}</div><p class="hint" style="color:var(--crema)">Puedes anular un registro tuyo hasta 10 minutos después. Luego, solo el encargado.</p>`:`<p class="hint" style="color:var(--crema)">Aún no registras ventas hoy.</p>`}</div>`;
     box.querySelectorAll('[data-anular]').forEach(b=>dobleToque(b, async()=>{ b.disabled=true; try{ await anularMio(b.dataset.anular); alertMsg('Registro anulado. Se quitó el sello.'); cargarHoy(); }catch(e){ if(/PIN/.test(e.message)){ olvidarPin(); if($('#pin')) $('#pin').value=''; } alertMsg(e.message); b.disabled=false; } }));
   }catch{ box.innerHTML=''; }
+}
+
+// ----- Pedidos del mozo (Plan Intermedio): carta, cuentas por mesa, ticket de cocina y cierre con sello -----
+// Es control interno del negocio: el ticket es para cocina y no reemplaza la boleta.
+let ped = {vista:'mesas', modo:'mesas', mesa:'', carrito:[], alergia:'', cat:null, carta:null, sel:null, enviado:false}, pedTimer=null;
+const rolActual = () => panel.rol || (panel.es_admin?'dueno':'mesero');
+const totalCarrito = () => ped.carrito.reduce((t,l)=>t+l.precio*l.cantidad,0);
+const nPlatos = n => `${n} plato${n===1?'':'s'}`;
+// Confirmación en dos toques para botones chicos
+function tocaDos(btn, texto, fn){ let arm=false, t; const o=btn.innerHTML, w=btn.style.width; btn.onclick=()=>{ if(!arm){ arm=true; btn.textContent=texto; btn.style.width='auto'; btn.style.padding='0 10px'; t=setTimeout(()=>{ arm=false; btn.innerHTML=o; btn.style.width=w; btn.style.padding='0'; },3500); return; } clearTimeout(t); fn(); }; }
+function vPedidos(){
+  $('#titulo').textContent='Pedidos'; clearInterval(pedTimer);
+  if(rolActual()==='dueno' && ped.modo==='carta') return vCartaEditar();
+  if(ped.vista==='tomar') return vPedidoTomar();
+  if(ped.vista==='cuenta' && ped.sel) return vPedidoCuenta();
+  return vPedidoMesas();
+}
+function segPedidos(){ return rolActual()==='dueno' ? `<div class="seg" id="pSeg"><button data-m="mesas" class="${ped.modo==='carta'?'':'on'}">Mesas</button><button data-m="carta" class="${ped.modo==='carta'?'on':''}">Carta</button></div>` : ''; }
+function enlazarSeg(){ if($('#pSeg')) $('#pSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{ ped.modo=b.dataset.m; ped.vista='mesas'; vPedidos(); }); }
+function vPedidoMesas(){
+  $('#vista').innerHTML = `<div style="display:flex;flex-direction:column;gap:14px">
+    ${segPedidos()}
+    <button class="btn" id="pNuevo"><span style="width:22px;height:22px">${icon.plus}</span>Nuevo pedido</button>
+    <div class="row" style="justify-content:space-between"><span style="font-weight:800">Cuentas abiertas</span><button class="btn sm ghost" id="pAct" style="width:auto;height:36px;padding:0 14px;font-size:13px">Actualizar</button></div>
+    <div id="pLista" class="list"><div class="skeleton"></div></div>
+  </div>`;
+  enlazarSeg();
+  $('#pNuevo').onclick=()=>{ ped.vista='tomar'; ped.mesa=''; ped.carrito=[]; ped.alergia=''; vPedidos(); };
+  const pinta = async()=>{ if(!$('#pLista')) return clearInterval(pedTimer);
+    try{ const l=await rpc('pedidos_abiertos'); if(!$('#pLista')) return;
+      $('#pLista').innerHTML = l.length ? l.map(p=>`<button class="item" data-id="${p.id}" style="border:0;text-align:left;width:100%;cursor:pointer">
+          <div class="avatar">${esc(String(p.mesa).slice(0,3))}</div>
+          <div class="grow"><div class="t">Mesa ${esc(p.mesa)} · ${soles(p.total)}</div><div class="s">${nPlatos(p.items.reduce((t,i)=>t+i.cantidad,0))} · ${esc(p.mozo||'')} · ${horaCorta(p.creado_en)}${p.alergia?' · con aviso':''}</div></div>
+          ${p.por_imprimir>0?`<span class="chip y">Por imprimir</span>`:''}</button>`).join('')
+        : `<p class="hint" style="color:var(--crema)">No hay cuentas abiertas. Toca «Nuevo pedido» para empezar.</p>`;
+      $('#pLista').querySelectorAll('button').forEach(b=>b.onclick=()=>{ ped.sel=l.find(x=>x.id===b.dataset.id); ped.vista='cuenta'; vPedidos(); });
+    }catch(e){ if($('#pLista')) $('#pLista').innerHTML=`<div class="msg err">${esc(e.message)}</div>`; } };
+  $('#pAct').onclick=pinta; pinta(); pedTimer=setInterval(pinta, 15000);
+}
+async function vPedidoTomar(){
+  const v=$('#vista'); v.innerHTML=`<div class="skeleton"></div>`;
+  try{ if(!ped.carta) ped.carta = await rpc('carta_ver',{p_todo:false}); }catch(e){ v.innerHTML=`<div class="msg err">${esc(e.message)}</div>`; return; }
+  const prods=ped.carta.productos, cats=[...new Set(prods.map(p=>p.categoria))]; if(!cats.includes(ped.cat)) ped.cat=cats[0];
+  v.innerHTML = `<div style="display:flex;flex-direction:column;gap:14px">
+    <button class="btn sm ghost" id="pVolver" style="width:auto;align-self:flex-start;height:38px;padding:0 14px;font-size:14px">Volver a las cuentas</button>
+    ${selectorPersonal()}
+    <div class="field"><label for="pMesa">Mesa</label><input id="pMesa" inputmode="numeric" maxlength="12" placeholder="Número de mesa" value="${esc(ped.mesa)}"></div>
+    <div id="pCats" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px"></div>
+    <div id="pProds" class="list"></div>
+    <div id="pCar"></div>
+  </div>`;
+  enlazarPin();
+  $('#pVolver').onclick=()=>{ ped.vista=ped.sel?'cuenta':'mesas'; vPedidos(); };
+  $('#pMesa').oninput=ev=>{ ped.mesa=ev.target.value; };
+  const lineaSimple = id => ped.carrito.find(l=>l.producto_id===id && !l.conSalsas);
+  const pintaCats = ()=>{ $('#pCats').innerHTML = cats.map(c=>`<button class="chip ${c===ped.cat?'y':''}" data-c="${esc(c)}" style="border:0;cursor:pointer;height:38px;padding:0 14px;font-size:13.5px;flex-shrink:0">${esc(c)}</button>`).join('');
+    $('#pCats').querySelectorAll('button').forEach(b=>b.onclick=()=>{ ped.cat=b.dataset.c; pintaCats(); pintaProds(); }); };
+  const pintaProds = ()=>{ $('#pProds').innerHTML = prods.filter(p=>p.categoria===ped.cat).map(p=>{ const q=(lineaSimple(p.id)||{}).cantidad||0;
+      return `<div class="item" style="flex-wrap:wrap"><div class="grow"><div class="t">${esc(p.nombre)}</div><div class="s">${soles(p.precio)}${p.salsas_max?` · hasta ${p.salsas_max} salsa${p.salsas_max>1?'s':''}`:''}</div></div>
+        ${p.salsas_max ? `<button class="btn sm" data-sal="${p.id}" style="width:auto;height:42px;padding:0 16px;font-size:15px">Agregar</button>`
+          : `<div class="row" style="gap:6px"><button class="btn sm ghost" data-menos="${p.id}" style="width:42px;height:42px;padding:0" aria-label="Quitar uno"${q?'':' disabled'}>−</button><b style="min-width:24px;text-align:center;font-size:17px">${q}</b><button class="btn sm" data-mas="${p.id}" style="width:42px;height:42px;padding:0" aria-label="Agregar uno">+</button></div>`}
+        <div data-panel="${p.id}" class="hidden" style="flex-basis:100%;display:none;flex-direction:column;gap:10px;margin-top:6px"></div></div>`; }).join('');
+    const de = id => prods.find(p=>p.id===id);
+    $('#pProds').querySelectorAll('[data-mas]').forEach(b=>b.onclick=()=>{ const p=de(b.dataset.mas), l=lineaSimple(p.id); if(l) l.cantidad=Math.min(99,l.cantidad+1); else ped.carrito.push({producto_id:p.id,nombre:p.nombre,precio:Number(p.precio),cantidad:1,salsas:[],nota:''}); pintaProds(); pintaCarrito(); });
+    $('#pProds').querySelectorAll('[data-menos]').forEach(b=>b.onclick=()=>{ const l=lineaSimple(b.dataset.menos); if(!l) return; l.cantidad--; if(l.cantidad<=0) ped.carrito.splice(ped.carrito.indexOf(l),1); pintaProds(); pintaCarrito(); });
+    $('#pProds').querySelectorAll('[data-sal]').forEach(b=>b.onclick=()=>{ const p=de(b.dataset.sal), box=$('#pProds').querySelector(`[data-panel="${p.id}"]`), sel=new Set();
+      box.style.display='flex'; box.classList.remove('hidden');
+      const pintaS=()=>{ box.innerHTML=`<span class="hint" style="color:var(--crema)">Elige hasta ${p.salsas_max} salsa${p.salsas_max>1?'s':''} (${sel.size} de ${p.salsas_max})</span>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">${(ped.carta.salsas||[]).map(s=>`<button class="chip ${sel.has(s)?'y':''}" data-s="${esc(s)}" style="border:0;cursor:pointer;height:38px;padding:0 14px;font-size:13.5px">${esc(s)}</button>`).join('')}</div>
+          <div class="row"><button class="btn sm" data-ok style="height:44px">Agregar al pedido</button><button class="btn sm ghost" data-no style="height:44px;width:auto;padding:0 16px">Cancelar</button></div>`;
+        box.querySelectorAll('[data-s]').forEach(c=>c.onclick=()=>{ const s=c.dataset.s; if(sel.has(s)) sel.delete(s); else if(sel.size<p.salsas_max) sel.add(s); pintaS(); });
+        box.querySelector('[data-no]').onclick=()=>{ box.style.display='none'; box.innerHTML=''; };
+        box.querySelector('[data-ok]').onclick=()=>{ ped.carrito.push({producto_id:p.id,nombre:p.nombre,precio:Number(p.precio),cantidad:1,salsas:[...sel],nota:'',conSalsas:true}); box.style.display='none'; box.innerHTML=''; pintaCarrito(); }; };
+      pintaS(); }); };
+  const pintaCarrito = ()=>{ const c=$('#pCar'); if(!c) return;
+    if(!ped.carrito.length){ c.innerHTML=`<p class="hint" style="color:var(--crema)">Toca los platos para armar el pedido.</p>`; return; }
+    c.innerHTML=`<div class="card" style="gap:12px"><span class="display" style="font-size:18px">Pedido de la mesa</span>
+      ${ped.carrito.map((l,i)=>`<div style="display:flex;flex-direction:column;gap:6px"><div class="row" style="align-items:flex-start"><div class="grow"><b>${l.cantidad} × ${esc(l.nombre)}</b>${l.salsas.length?`<div class="hint" style="color:var(--crema)">Salsas: ${esc(l.salsas.join(', '))}</div>`:''}</div><b style="white-space:nowrap">${soles(l.precio*l.cantidad)}</b><button class="btn sm ghost" data-x="${i}" style="width:36px;height:36px;padding:0;flex-shrink:0" aria-label="Quitar del pedido">×</button></div>
+        <input data-nota="${i}" maxlength="140" placeholder="Nota para cocina (ej. sin ají)" value="${esc(l.nota||'')}" style="height:42px;font-size:14.5px"></div>`).join('')}
+      <div class="field"><label for="pAle" style="color:#FFD0CA">Alergia o aviso importante (opcional)</label><input id="pAle" maxlength="200" placeholder="Ej. alérgico a mariscos" value="${esc(ped.alergia)}" style="border-color:#B3473A"></div>
+      <div id="pErr" class="msg err hidden"></div>
+      <button class="btn" id="pEnviar">Enviar pedido · ${soles(totalCarrito())}</button></div>`;
+    c.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{ ped.carrito.splice(+b.dataset.x,1); pintaProds(); pintaCarrito(); });
+    c.querySelectorAll('[data-nota]').forEach(n=>n.oninput=()=>{ ped.carrito[+n.dataset.nota].nota=n.value; });
+    $('#pAle').oninput=ev=>{ ped.alergia=ev.target.value; };
+    $('#pEnviar').onclick=async()=>{ const b=$('#pEnviar'), er=$('#pErr'); er.classList.add('hidden'); b.disabled=true;
+      try{ if(!ped.mesa.trim()) throw new Error('Escribe el número de mesa.'); const per=leerPersonal();
+        const r=await rpc('pedido_enviar',{p_mesa:ped.mesa.trim(), p_items:ped.carrito.map(l=>({producto_id:l.producto_id,cantidad:l.cantidad,salsas:l.salsas,nota:(l.nota||'').trim()||null})), p_alergia:ped.alergia.trim()||null, ...per}); recordarPin(per);
+        ped.carrito=[]; ped.alergia=''; ped.sel=r; ped.enviado=true; ped.vista='cuenta'; vPedidos();
+      }catch(e){ if(/PIN incorrecto/.test(e.message)){ olvidarPin(); if($('#pin')) $('#pin').value=''; } er.textContent=e.message; er.classList.remove('hidden'); b.disabled=false; } }; };
+  pintaCats(); pintaProds(); pintaCarrito();
+}
+function imprimirComanda(p, items, titulo){
+  let t=$('#ticket');
+  if(!t){ t=document.createElement('div'); t.id='ticket'; document.body.appendChild(t); const st=document.createElement('style');
+    st.textContent='#ticket{display:none}@media print{body>*:not(#ticket){display:none!important}#ticket{display:block!important;color:#000;background:#fff;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.3;width:100%;max-width:76mm;margin:0;padding:0}body{background:#fff!important}@page{margin:3mm}}'; document.head.appendChild(st); }
+  t.innerHTML = `<div style="text-align:center;font-weight:800;font-size:15px">${esc(panel.negocio.nombre)}</div>
+    <div style="text-align:center;font-weight:900;font-size:24px;margin:4px 0">MESA ${esc(p.mesa)}</div>
+    <div style="text-align:center">${esc(titulo)} · ${fechaHora(new Date())}</div><div>Mozo: ${esc((items[0]&&items[0].mozo)||p.mozo||'')}</div><hr>
+    ${p.alergia?`<div style="border:3px solid #000;padding:6px;font-weight:900;font-size:17px;text-align:center;margin:6px 0">AVISO: ${esc(String(p.alergia).toUpperCase())}</div>`:''}
+    ${items.map(i=>`<div style="font-size:16px;font-weight:800;margin-top:7px">${i.cantidad} x ${esc(i.nombre)}</div>${i.salsas&&i.salsas.length?`<div>Salsas: ${esc(i.salsas.join(', '))}</div>`:''}${i.nota?`<div style="font-weight:800">** ${esc(i.nota)} **</div>`:''}`).join('')}
+    <hr><div style="text-align:center;font-size:11px">Comanda de cocina · no es comprobante de pago</div>`;
+  window.print();
+}
+function vPedidoCuenta(){
+  const p=ped.sel, rol=rolActual(), caja=rol!=='mesero', rondas=[...new Set(p.items.map(i=>i.ronda))], recien=ped.enviado; ped.enviado=false;
+  const refrescar = async()=>{ const l=await rpc('pedidos_abiertos'); const n=l.find(x=>x.id===p.id); if(n){ ped.sel=n; } else { ped.sel=null; ped.vista='mesas'; } vPedidos(); };
+  $('#vista').innerHTML = `<div style="display:flex;flex-direction:column;gap:14px">
+    <button class="btn sm ghost" id="pVolver" style="width:auto;align-self:flex-start;height:38px;padding:0 14px;font-size:14px">Volver a las cuentas</button>
+    ${recien?`<div class="msg ok">Pedido enviado. ${caja?'Imprímelo para cocina.':'Caja ya lo ve para imprimirlo.'}</div>`:''}
+    <div><div class="display" style="font-size:26px">Mesa ${esc(p.mesa)}</div><div class="hint" style="color:var(--crema)">Cuenta ${p.numero} · abierta a las ${horaCorta(p.creado_en)} · ${esc(p.mozo||'')}</div></div>
+    ${p.alergia?`<div class="msg err" style="font-size:16px;font-weight:800">AVISO: ${esc(p.alergia)}</div>`:''}
+    ${selectorPersonal()}
+    ${rondas.map(r=>{ const its=p.items.filter(i=>i.ronda===r); return `<div class="card" style="gap:10px"><div class="row" style="justify-content:space-between"><b>Pedido ${r} · ${horaCorta(its[0].creado_en)} · ${esc(its[0].mozo||'')}</b><span class="chip ${its.some(i=>!i.impreso)?'y':''}">${its.some(i=>!i.impreso)?'Por imprimir':'Impreso'}</span></div>
+      ${its.map(i=>`<div class="row" style="align-items:flex-start"><div class="grow"><b>${i.cantidad} × ${esc(i.nombre)}</b>${i.salsas.length?`<div class="hint" style="color:var(--crema)">Salsas: ${esc(i.salsas.join(', '))}</div>`:''}${i.nota?`<div style="font-size:13.5px;font-weight:700;color:var(--amarillo)">Nota: ${esc(i.nota)}</div>`:''}</div><span style="white-space:nowrap">${soles(i.precio*i.cantidad)}</span><button class="btn sm ghost" data-q="${i.id}" style="width:36px;height:36px;padding:0;flex-shrink:0" aria-label="Quitar este plato">×</button></div>`).join('')}</div>`; }).join('')}
+    ${p.items.length?'':`<p class="hint" style="color:var(--crema)">Esta cuenta ya no tiene platos.</p>`}
+    <div class="row" style="justify-content:space-between"><span class="display" style="font-size:20px">Total</span><span class="display" style="font-size:24px">${soles(p.total)}</span></div>
+    <div id="pMsg" class="msg err hidden"></div>
+    <button class="btn sm ghost" id="pMas">Agregar platos a esta mesa</button>
+    ${caja?`<button class="btn sm" id="pImp" style="background:var(--blanco);color:var(--vino)">${p.por_imprimir>0?`Imprimir para cocina (${nPlatos(p.items.filter(i=>!i.impreso).reduce((t,i)=>t+i.cantidad,0))})`:'Volver a imprimir todo'}</button>`:''}
+    <button class="btn" id="pCerrar">Cerrar cuenta</button>
+    <div id="pCierre"></div>
+    ${caja?`<button class="btn sm danger" id="pAnular" style="height:40px">Anular esta cuenta</button><div id="pAnu"></div>`:''}
+  </div>`;
+  enlazarPin(); const msg=$('#pMsg'), err=t=>{ msg.textContent=t; msg.classList.remove('hidden'); };
+  const fallo = e => { if(/PIN incorrecto/.test(e.message)){ olvidarPin(); if($('#pin')) $('#pin').value=''; } err(e.message); };
+  $('#pVolver').onclick=()=>{ ped.sel=null; ped.vista='mesas'; vPedidos(); };
+  $('#pMas').onclick=()=>{ ped.vista='tomar'; ped.mesa=p.mesa; ped.carrito=[]; ped.alergia=p.alergia||''; vPedidos(); };
+  $('#vista').querySelectorAll('[data-q]').forEach(b=>tocaDos(b, 'Quitar', async()=>{ try{ const per=leerPersonal(); ped.sel=await rpc('pedido_quitar_item',{p_item_id:b.dataset.q, ...per}); recordarPin(per); vPedidos(); }catch(e){ fallo(e); } }));
+  if($('#pImp')) $('#pImp').onclick=async()=>{ try{ const pend=p.items.filter(i=>!i.impreso); if(!p.items.length) throw new Error('No hay platos para imprimir.');
+      imprimirComanda(p, pend.length?pend:p.items, pend.length?'Pedido nuevo':'Reimpresión'); if(pend.length) await rpc('pedido_impreso',{p_pedido_id:p.id, p_ronda:null}); await refrescar(); }catch(e){ err(e.message); } };
+  if($('#pAnular')) $('#pAnular').onclick=()=>{ $('#pAnu').innerHTML=`<div class="card"><div class="field"><label for="pMot">¿Por qué se anula?</label><input id="pMot" maxlength="200" placeholder="Ej. el cliente se fue"></div><button class="btn sm danger" id="pAnuOk">Confirmar anulación</button></div>`;
+    $('#pAnuOk').onclick=async()=>{ try{ const per=leerPersonal(); await rpc('pedido_anular',{p_pedido_id:p.id, p_motivo:$('#pMot').value, ...per}); recordarPin(per); ped.sel=null; ped.vista='mesas'; vPedidos(); }catch(e){ fallo(e); } }; };
+  $('#pCerrar').onclick=()=>{ let cSel=null, timer; const z=$('#pCierre');
+    z.innerHTML=`<div class="card" style="gap:12px"><span class="display" style="font-size:18px">Cerrar cuenta · ${soles(p.total)}</span>
+      <div class="field"><label for="pCel">Celular del cliente (para sumar su sello)</label><input id="pCel" type="tel" inputmode="numeric" maxlength="12" placeholder="987 654 321"></div>
+      <div id="pRes" class="list"></div>
+      <div id="pNuevoC" class="field hidden"><label for="pNom">Cliente nuevo: nombre</label><input id="pNom" placeholder="Nombre y apellido"></div>
+      <div id="pCErr" class="msg err hidden"></div>
+      <button class="btn" id="pCon">Cerrar y sumar sello</button>
+      <button class="btn sm ghost" id="pSin">Cerrar sin cliente (no suma sello)</button></div>`;
+    const ce=$('#pCErr'), cel=$('#pCel'); cel.focus();
+    cel.oninput=()=>{ clearTimeout(timer); timer=setTimeout(async()=>{ const q=cel.value.replace(/\D/g,''); cSel=null; $('#pRes').innerHTML=''; $('#pNuevoC').classList.add('hidden'); if(q.length<3) return;
+      try{ const l=await rpc('buscar_clientes',{p_q:q});
+        $('#pRes').innerHTML=l.map(c=>`<button class="item" data-id="${c.id}" style="border:0;text-align:left;width:100%;cursor:pointer"><div class="avatar">${ini(c.nombre)}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">${c.celular}</div></div></button>`).join('');
+        $('#pRes').querySelectorAll('button').forEach(b=>b.onclick=()=>{ cSel=l.find(x=>x.id===b.dataset.id); cel.value=cSel.celular; $('#pRes').innerHTML=`<div class="msg ok">Cliente: ${esc(cSel.nombre)}</div>`; });
+        if(q.length===9 && !l.some(c=>c.celular===q)) $('#pNuevoC').classList.remove('hidden');
+      }catch(e){ ce.textContent=e.message; ce.classList.remove('hidden'); } },300); };
+    const cerrar = async conCliente => { ce.classList.add('hidden'); $('#pCon').disabled=$('#pSin').disabled=true;
+      try{ const per=leerPersonal(); let cid=null;
+        if(conCliente){ if(cSel) cid=cSel.id; else { const q=cel.value.replace(/\D/g,''); if(q.length!==9) throw new Error('Escribe los 9 dígitos del celular y elige al cliente, o cierra sin cliente.');
+            const c=await rpc('buscar_o_crear_cliente',{p_nombre:$('#pNom').value, p_celular:q}); cid=c.id; } }
+        const r=await rpc('pedido_cerrar',{p_pedido_id:p.id, p_cliente_id:cid, ...per}); recordarPin(per); const t=r.tarjeta, nom=t?esc(t.cliente.nombre.split(' ')[0]):'';
+        ped.sel=null; ped.vista='mesas';
+        $('#vista').innerHTML=`<div style="display:flex;flex-direction:column;gap:14px"><div class="card ${t&&t.premio_nuevo?'yellow premio-in':'outline'}">
+          <div class="row"><span style="width:26px;height:26px;flex-shrink:0">${icon.check}</span><div class="display" style="font-size:18px">Cuenta cerrada · Mesa ${esc(p.mesa)} · ${soles(r.total)}</div></div>
+          <div style="font-weight:700">${!t?'Sin cliente: no se sumó sello.':t.premio_nuevo?`¡Tarjeta completa! ${nom} ganó: ${esc(panel.negocio.premio)}. Entrégaselo ahora.${t.premio_disponible?` Si no lo reclama hoy, dile que tiene hasta el ${fechaLarga(t.premio_disponible.vence_en)}.`:''}`:t.sumo_sello?`Sello sumado: ${nom} tiene ${t.sellos} de ${t.meta}.`:t.ya_sello_hoy?`${nom} ya tenía su sello de hoy (máximo 1 al día).`:`No suma sello: la cuenta es menor a ${soles(panel.negocio.monto_minimo)}.`}</div>
+          ${t&&t.premio_nuevo?`<button class="btn sm" id="pPremio" style="background:var(--vino);color:var(--amarillo)">Entregar premio ahora</button>`:''}
+          <span class="hint" style="color:inherit;opacity:.85">Recuerda entregar al cliente su boleta, como siempre.</span></div>
+          <button class="btn" id="pListo">Volver a las cuentas</button></div>`;
+        if($('#pPremio')) $('#pPremio').onclick=()=>{ canjePendiente=t.cliente.id; tab='canjear'; render(); };
+        $('#pListo').onclick=()=>vPedidos();
+      }catch(e){ if(/PIN incorrecto/.test(e.message)){ olvidarPin(); if($('#pin')) $('#pin').value=''; } ce.textContent=e.message; ce.classList.remove('hidden'); if($('#pCon')) $('#pCon').disabled=$('#pSin').disabled=false; } };
+    $('#pCon').onclick=()=>cerrar(true); $('#pSin').onclick=()=>cerrar(false); z.scrollIntoView({behavior:'smooth',block:'start'}); };
+}
+// Carta: el dueño cambia platos, precios y salsas
+async function vCartaEditar(){
+  const v=$('#vista'); v.innerHTML=`<div class="skeleton"></div>`; let c;
+  try{ c=await rpc('carta_ver',{p_todo:true}); }catch(e){ v.innerHTML=`${segPedidos()}<div class="msg err">${esc(e.message)}</div>`; enlazarSeg(); return; }
+  ped.carta=null; const cats=[...new Set(c.productos.map(p=>p.categoria))];
+  v.innerHTML=`<div style="display:flex;flex-direction:column;gap:14px">${segPedidos()}
+    <button class="btn sm" id="kNuevo">Agregar un plato</button>
+    <div id="kForm"></div><div id="kMsg" class="msg hidden"></div>
+    ${cats.map(cat=>`<div class="card" style="gap:8px"><b>${esc(cat)}</b>${c.productos.filter(p=>p.categoria===cat).map(p=>`<div class="row"><div class="grow" style="${p.activo?'':'opacity:.55'}"><div style="font-weight:700">${esc(p.nombre)}</div><div class="hint" style="color:var(--crema)">${soles(p.precio)}${p.salsas_max?` · hasta ${p.salsas_max} salsa${p.salsas_max>1?'s':''}`:''}${p.activo?'':' · apagado: no sale en la carta'}</div></div><button class="btn sm ghost" data-e="${p.id}" style="width:auto;height:36px;padding:0 14px;font-size:13px">Editar</button></div>`).join('')}</div>`).join('')}
+    <form class="card" id="kSal"><div class="field"><label for="kSalsas">Salsas (separadas por coma)</label><textarea id="kSalsas" rows="3">${esc((c.salsas||[]).join(', '))}</textarea></div><button class="btn sm" type="submit">Guardar salsas</button></form>
+  </div>`;
+  enlazarSeg(); const m=$('#kMsg'), aviso=(t,ok)=>{ m.className='msg '+(ok?'ok':'err'); m.textContent=t; };
+  const form = p => { $('#kForm').innerHTML=`<form class="card" id="kF" style="gap:12px"><span class="display" style="font-size:18px">${p?'Editar plato':'Plato nuevo'}</span>
+      <div class="field"><label for="k_nom">Nombre</label><input id="k_nom" maxlength="80" value="${esc(p?p.nombre:'')}" required></div>
+      <div class="row"><div class="field grow"><label for="k_cat">Categoría</label><input id="k_cat" list="k_cats" maxlength="40" value="${esc(p?p.categoria:(ped.cat||cats[0]||''))}" required><datalist id="k_cats">${cats.map(x=>`<option value="${esc(x)}">`).join('')}</datalist></div>
+        <div class="field" style="width:120px"><label for="k_pre">Precio (S/)</label><input id="k_pre" type="number" step="0.1" min="0" value="${p?p.precio:''}" required></div></div>
+      <div class="row"><div class="field grow"><label for="k_sal">Salsas que lleva</label><input id="k_sal" type="number" min="0" max="6" value="${p?p.salsas_max:0}"></div>
+        <div class="field grow"><label for="k_act">¿Sale en la carta?</label><select id="k_act"><option value="1"${!p||p.activo?' selected':''}>Sí</option><option value="0"${p&&!p.activo?' selected':''}>No (apagado)</option></select></div></div>
+      <div class="row"><button class="btn sm" type="submit">Guardar</button><button class="btn sm ghost" type="button" id="kCan" style="width:auto;padding:0 16px">Cancelar</button></div></form>`;
+    $('#kCan').onclick=()=>{ $('#kForm').innerHTML=''; };
+    $('#kF').onsubmit=async ev=>{ ev.preventDefault(); try{ await rpc('carta_guardar_producto',{p_id:p?p.id:null, p_categoria:$('#k_cat').value, p_nombre:$('#k_nom').value, p_precio:parseFloat($('#k_pre').value), p_salsas_max:parseInt($('#k_sal').value)||0, p_activo:$('#k_act').value==='1'}); vCartaEditar(); }catch(e){ aviso(e.message,false); } };
+    $('#kForm').scrollIntoView({behavior:'smooth',block:'start'}); };
+  $('#kNuevo').onclick=()=>form(null);
+  v.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>form(c.productos.find(p=>p.id===b.dataset.e)));
+  $('#kSal').onsubmit=async ev=>{ ev.preventDefault(); try{ await rpc('carta_guardar_salsas',{p_salsas:$('#kSalsas').value.split(',').map(x=>x.trim()).filter(Boolean)}); aviso('Salsas guardadas.',true); }catch(e){ aviso(e.message,false); } };
 }
 
 // ----- Registrar compra -----
