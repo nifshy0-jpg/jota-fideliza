@@ -251,7 +251,7 @@ async function vistaInscripcion(slug){
     <div><h1>Tu tarjeta de sellos</h1><p class="sub">Regístrate en 10 segundos y guárdala en tu Apple Wallet o Google Wallet.</p></div>
     ${guardado?'':`<div class="card yellow" style="gap:4px;padding:14px 16px"><span class="display" style="font-size:17px">${refInv?'Un amigo te invitó: ':''}¡Regístrate y empieza con 1 sello de regalo!</span></div>`}
     ${guardado?`<div class="card yellow" style="gap:8px"><span class="display" style="font-size:18px">Ya tienes tu tarjeta en este celular</span><a class="btn" style="background:var(--vino);color:var(--amarillo);text-decoration:none" href="?t=${encodeURIComponent(guardado)}">Ver mi tarjeta</a></div>`:''}
-    <div class="card outline" style="gap:4px"><span class="eyebrow" style="text-transform:none;letter-spacing:.02em">Junta ${n.meta_sellos} sellos y llévate</span><span class="display" style="font-size:19px">${esc(n.premio)}</span><span class="hint" style="color:var(--crema)">1 sello al día con ${pal(n)} desde ${soles(n.monto_minimo)}. El premio vence a los ${n.premio_vigencia_dias} días.</span></div>
+    <div class="card outline" style="gap:4px"><span class="eyebrow" style="text-transform:none;letter-spacing:.02em">${n.visita_gratis?`Junta ${n.meta_sellos-1} sellos y tu siguiente visita es gratis`:`Junta ${n.meta_sellos} sellos y llévate`}</span><span class="display" style="font-size:19px">${esc(n.premio)}</span><span class="hint" style="color:var(--crema)">${reglasTxt(n)}</span></div>
     ${n.activo?`<form id="fi" class="card" style="gap:12px">
       <div class="field"><label for="in_nom">Tu nombre</label><input id="in_nom" autocomplete="name" maxlength="60" required placeholder="Nombre y apellido"></div>
       <div class="field"><label for="in_cel">Tu celular</label><input id="in_cel" type="tel" inputmode="numeric" autocomplete="tel" maxlength="15" required placeholder="987 654 321"></div>
@@ -378,7 +378,12 @@ function enlazarBrillo(){ activarBrillo(); const c=$('#misSellos'); if(!c || !gi
 const vistoKey = tok => 'yv_visto_'+tok;
 function leerVisto(tok){ try{ const v=JSON.parse(localStorage.getItem(vistoKey(tok))||'null'); return v&&typeof v.s==='number'?v:null; }catch{ return null; } }
 function guardarVisto(tok, e){ try{ localStorage.setItem(vistoKey(tok), JSON.stringify({s:e.sellos, p:e.premio_disponible?e.premio_disponible.id||e.premio_disponible.vence_en:null})); }catch{} }
-function mensajeSellos(s, meta, premio, w='compra'){ const f=meta-s; if(premio && s===0) return `Completaste tu tarjeta: tu premio está listo. Tu próxima ${w} inicia una nueva.`; if(s===0) return `Tu primera ${w} suma tu primer sello.`; if(f===1) return 'Te falta 1 sello para tu premio.'; if(f<=0) return 'Completaste la tarjeta.'; return `Te faltan ${f} sellos para tu premio.`; }
+const DIAS_SEM = ['','lunes','martes','miércoles','jueves','viernes','sábado','domingo'];
+// Reglas en letra chica (las mismas que salen al reverso de la tarjeta del Wallet)
+function reglasTxt(n){ const c=(n.dias_cerrado||[]).map(d=>DIAS_SEM[d]).filter(Boolean); const sc=c.length?` (sin contar ${c.length>1?c.slice(0,-1).join(', ')+' y '+c[c.length-1]:c[0]})`:'';
+  return `1 sello al día con ${pal(n)} desde ${soles(n.monto_minimo)}.`+(n.visita_gratis?` Con ${n.meta_sellos-1} sellos, tu siguiente visita es gratis.`:` El premio se reclama el mismo día en caja; plazo máximo: ${n.premio_vigencia_dias} días${sc}.`)+` Si pasas ${n.dias_inactividad||40} días sin venir, tus sellos se reinician.`; }
+const fechaLarga = d => new Date(d).toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long',timeZone:'America/Lima'});
+function mensajeSellos(s, meta, premio, w='compra', gratis=false){ const f=meta-s; if(premio && s===0) return `Completaste tu tarjeta: tu premio está listo. Tu próxima ${w} inicia una nueva.`; if(s===0) return `Tu primera ${w} suma tu primer sello.`; if(gratis && f===1) return '¡Tu próxima visita es gratis!'; if(gratis && f>1) return f===2?'Te falta 1 visita para tu visita gratis.':`Te faltan ${f-1} visitas para tu visita gratis.`; if(f===1) return 'Te falta 1 sello para tu premio.'; if(f<=0) return 'Completaste la tarjeta.'; return `Te faltan ${f} sellos para tu premio.`; }
 
 async function vistaTarjeta(tok){
   document.title = 'Mi tarjeta';
@@ -420,10 +425,10 @@ function renderTarjeta(e, tok, mostrados){
     <div class="card">
       <div class="row" style="justify-content:space-between"><h3>Tus sellos</h3><span class="display" id="cuenta" style="font-size:22px;color:var(--amarillo)">${mostrados} de ${e.meta}</span></div>
       <div class="stamps" id="misSellos">${stampsHTML(mostrados,e.meta)}</div>
-      <p class="sub">${mensajeSellos(e.sellos,e.meta,!!premio,pal(e.negocio))}</p>
+      <p class="sub">${mensajeSellos(e.sellos,e.meta,!!premio,pal(e.negocio),e.negocio.visita_gratis)}</p>
       ${e.sellos>0?tipBrillo():''}
     </div>
-    ${premio?`<div class="card yellow premio-in" id="premioListo"><span class="display" style="font-size:19px">Tienes un premio listo</span><span style="font-weight:600">${esc(premio.descripcion)}</span><span style="font-size:12.5px;font-weight:700">Vence el ${fecha(premio.vence_en)} · muéstralo en caja</span></div>`
+    ${premio?`<div class="card yellow premio-in" id="premioListo"><span class="display" style="font-size:19px">Tienes un premio listo</span><span style="font-weight:600">${esc(premio.descripcion)}</span><span style="font-size:12.5px;font-weight:700">Reclámalo en caja hasta el ${fecha(premio.vence_en)}</span></div>`
             :`<div class="card outline" style="gap:3px"><span class="eyebrow" style="text-transform:none;letter-spacing:.02em">Tu premio al completar ${e.meta}</span><span class="display" style="font-size:17px;font-weight:700">${esc(n.premio)}</span></div>`}
     ${n.resena_url && e.ultimo_canje && (Date.now()-new Date(e.ultimo_canje).getTime())<14*864e5 ? `<div class="card outline" style="gap:8px"><h3>¿Disfrutaste tu premio?</h3><p class="sub">Cuéntalo en Google. Tu opinión ayuda mucho a ${esc(n.nombre)}.</p><a class="btn sm" style="text-decoration:none;height:44px" href="${esc(n.resena_url)}" target="_blank" rel="noopener">Dejar mi reseña en Google</a></div>`:''}
     ${bloqueRanking(e)}
@@ -431,7 +436,7 @@ function renderTarjeta(e, tok, mostrados){
       <div class="qr">${qrSVG(link)}</div>
       <div style="display:flex;flex-direction:column;gap:6px">
         <span class="display" style="font-size:17px">Muestra este código en caja</span>
-        <span style="font-size:13px;line-height:1.35;color:var(--vino3)">1 sello al día con ${pal(n)} desde ${soles(n.monto_minimo)}. El premio vence a los ${n.premio_vigencia_dias} días.</span>
+        <span style="font-size:13px;line-height:1.35;color:var(--vino3)">${reglasTxt(n)}</span>
         <span style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--borde)">${esc(tok.slice(0,8).toUpperCase())}</span>
       </div>
     </div>
@@ -522,7 +527,7 @@ function vistaRegistrarNegocio(){
       <button class="btn" type="submit">Crear negocio</button>
       <button class="btn danger" type="button" id="salir">Salir</button>
     </form>
-    <p class="hint">Reglas iniciales: 1 sello al día con compra desde S/20, meta 6 sellos, el premio vence a los 30 días. Se cambian en el panel.</p>
+    <p class="hint">Reglas iniciales: 1 sello al día con compra desde S/20 y meta de 6 sellos. El premio se reclama el mismo día (máximo 7 días) y los sellos se reinician a los 40 días sin venir. En las barberías, la visita que completa la tarjeta es gratis. Se cambian en el panel.</p>
   </div>`;
   $('#salir').onclick = salir;
   $('#f').onsubmit = async ev => { ev.preventDefault(); const m=$('#m'); m.classList.add('hidden');
@@ -785,7 +790,8 @@ function vRegistrar(){
   async function elegir(c){ clienteSel=c; res.innerHTML=''; nuevo.classList.add('hidden'); cli.innerHTML=`<div class="skeleton"></div>`;
     try{ estadoActual = await rpc('estado_tarjeta',{p_cliente_id:c.id}); const pd=estadoActual.premio_disponible;
       cli.innerHTML = `<div style="display:flex;flex-direction:column;gap:8px">${bloqueCliente(c, estadoActual)}
-        ${pd?`<div class="card yellow premio-in" style="gap:6px"><span class="display" style="font-size:18px">Tiene un premio por entregar</span><span style="font-weight:700">${esc(pd.descripcion)}</span><span style="font-size:12.5px;font-weight:700">Vence el ${fecha(pd.vence_en)}. Ofréceselo ahora.</span><button class="btn sm" id="irCanje" style="background:var(--vino);color:var(--amarillo)">Entregar premio</button></div>`:''}
+        ${pd?`<div class="card yellow premio-in" style="gap:6px"><span class="display" style="font-size:18px">Tiene un premio por entregar</span><span style="font-weight:700">${esc(pd.descripcion)}</span><span style="font-size:12.5px;font-weight:700">Tiene hasta el ${fecha(pd.vence_en)}. Entrégaselo ahora.</span><button class="btn sm" id="irCanje" style="background:var(--vino);color:var(--amarillo)">Entregar premio</button></div>`:''}
+        ${!pd && estadoActual.negocio.visita_gratis && estadoActual.sellos===estadoActual.meta-1?`<div class="card yellow premio-in" style="gap:6px"><span class="display" style="font-size:18px">Esta visita es gratis</span><span style="font-weight:700">Es su premio: ${esc(estadoActual.negocio.premio)}</span><span style="font-size:12.5px;font-weight:700">Regístrala con S/ 0 (o con lo que pague por otros servicios) y luego entrega el premio.</span></div>`:''}
         ${btnReenviar({...c, ...estadoActual.cliente})}</div>`;
       if($('#irCanje')) $('#irCanje').onclick=()=>{ canjePendiente=c.id; tab='canjear'; render(); }; }catch(e){ cli.innerHTML=''; err(e.message); } $('#monto').focus(); }
   $('#scan').onclick = () => escanear(t => { const tok = (t.match(/[?&]t=([a-f0-9]+)/)||[])[1]; if(!tok) return err('Ese código no es de una tarjeta.'); buscarPorToken(tok); });
@@ -793,17 +799,20 @@ function vRegistrar(){
   $('#go').onclick = async () => { m.classList.add('hidden'); out.innerHTML=''; const b=$('#go'); b.disabled=true;
     try{ const per = leerPersonal();
       if(!clienteSel){ const q=cel.value.replace(/\D/g,''); if(q.length!==9) throw new Error('Escribe los 9 dígitos del celular y elige al cliente.'); const c = await rpc('buscar_o_crear_cliente',{p_nombre:$('#nom').value, p_celular:q}); clienteSel={id:c.id,nombre:c.nombre,celular:c.celular,token:c.token_tarjeta}; }
-      const monto = parseFloat(String($('#monto').value).replace(',','.')); if(isNaN(monto)||monto<0) throw new Error(`Escribe el monto de la ${pal()}.`);
+      let monto = parseFloat(String($('#monto').value).replace(',','.'));
+      if(isNaN(monto) && estadoActual && estadoActual.cliente && estadoActual.cliente.id===clienteSel.id && estadoActual.negocio.visita_gratis && estadoActual.sellos===estadoActual.meta-1) monto = 0;
+      if(isNaN(monto)||monto<0) throw new Error(`Escribe el monto de la ${pal()}.`);
       const r = await rpc('registrar_compra',{p_cliente_id:clienteSel.id, p_monto:monto, ...per}); recordarPin(per);
       const link=`${BASE_URL}?t=${r.cliente.token}`; const wa=`https://wa.me/51${r.cliente.celular}?text=${encodeURIComponent(msgTarjeta(r.cliente.nombre, panel.negocio.nombre, link))}`;
       out.innerHTML = `<div class="card ${r.premio_nuevo?'yellow premio-in':'outline'}" style="margin-top:4px">
-        <div class="row"><span style="width:26px;height:26px;flex-shrink:0">${icon.check}</span><div class="grow"><div class="display" style="font-size:16px">${r.premio_nuevo?`¡Tarjeta completa! ${esc(r.cliente.nombre.split(' ')[0])} llegó a ${r.meta} de ${r.meta}`:r.sumo_sello?`Sello sumado · ${esc(r.cliente.nombre.split(' ')[0])} tiene ${r.sellos} de ${r.meta}`:`${r.ya_sello_hoy?`${Pal()} registrada · ${esc(r.cliente.nombre.split(' ')[0])} ya ganó su sello de hoy (máximo 1 al día)`:`${Pal()} registrada (no suma sello: menor a ${soles(panel.negocio.monto_minimo)})`}`}</div><div class="s" style="font-size:12.5px">${soles(monto)} · ${fechaHora(new Date())}</div></div></div>
-        ${r.premio_nuevo?`<div style="font-weight:700">Premio disponible: ${esc(panel.negocio.premio)} (vence en ${panel.negocio.premio_vigencia_dias} días). Su tarjeta vuelve a empezar en 0 de ${r.meta}.</div>`:''}
+        <div class="row"><span style="width:26px;height:26px;flex-shrink:0">${icon.check}</span><div class="grow"><div class="display" style="font-size:16px">${r.premio_nuevo?(r.visita_gratis?`¡Visita gratis! ${esc(r.cliente.nombre.split(' ')[0])} completó su tarjeta`:`¡Tarjeta completa! ${esc(r.cliente.nombre.split(' ')[0])} llegó a ${r.meta} de ${r.meta}`):r.sumo_sello?`Sello sumado · ${esc(r.cliente.nombre.split(' ')[0])} tiene ${r.sellos} de ${r.meta}`:`${r.ya_sello_hoy?`${Pal()} registrada · ${esc(r.cliente.nombre.split(' ')[0])} ya ganó su sello de hoy (máximo 1 al día)`:`${Pal()} registrada (no suma sello: menor a ${soles(panel.negocio.monto_minimo)})`}`}</div><div class="s" style="font-size:12.5px">${soles(monto)} · ${fechaHora(new Date())}</div></div></div>
+        ${r.premio_nuevo?`<div style="font-weight:700">${r.visita_gratis?`Hoy no paga: ${esc(panel.negocio.premio)}.`:`Ganó su premio: ${esc(panel.negocio.premio)}.`} Entrégaselo ahora.${!r.visita_gratis && r.premio_disponible?` Si no lo reclama hoy, dile que tiene hasta el ${fechaLarga(r.premio_disponible.vence_en)}.`:''} Su tarjeta vuelve a empezar en 0 de ${r.meta}.</div><button class="btn sm" id="entregarYa" style="background:var(--vino);color:var(--amarillo)">Entregar premio ahora</button>`:''}
         <div class="stamps">${r.premio_nuevo?stampsHTML(r.meta,r.meta,r.meta):stampsHTML(r.sellos,r.meta,r.sumo_sello?r.sellos:0)}</div>
         <a class="btn sm ${r.premio_nuevo?'':'ghost'}" style="text-decoration:none;${r.premio_nuevo?'background:var(--vino);color:var(--amarillo)':''}" href="${wa}" target="_blank" rel="noopener"><span style="width:20px;height:20px">${icon.wa}</span>Enviar tarjeta por WhatsApp</a>
         ${r.referido?`<div style="font-weight:700;font-size:13.5px">${r.referido.premiado?`Regalo: ${esc(r.referido.nombre.split(' ')[0])} ganó 1 sello por invitar a ${esc(r.cliente.nombre.split(' ')[0])}.`:`${esc(r.referido.nombre.split(' ')[0])} lo invitó, pero ya usó sus 3 regalos de este mes.`}</div>`:''}
         <button class="btn sm danger" id="undo" style="height:38px">Me equivoqué: deshacer este registro</button>
       </div>`;
+      if($('#entregarYa')) $('#entregarYa').onclick=()=>{ canjePendiente=r.cliente.id; tab='canjear'; render(); };
       const compraId=r.compra_id; dobleToque($('#undo'), async()=>{ $('#undo').disabled=true; try{ await anularMio(compraId); out.innerHTML=`<div class="msg ok">Registro deshecho. No se sumó el sello; vuelve a registrarlo bien.</div>`; cargarHoy(); }catch(e){ if(/PIN/.test(e.message)){ olvidarPin(); if($('#pin')) $('#pin').value=''; } err(e.message); $('#undo').disabled=false; } });
       cargarHoy();
       cel.value=''; $('#monto').value=''; clienteSel=null; cli.innerHTML=''; nuevo.classList.add('hidden'); cel.focus();
@@ -823,7 +832,7 @@ function vCanjear(){
   async function detalle(id){ res.innerHTML=''; m.classList.add('hidden'); det.innerHTML='<div class="skeleton"></div>';
     try{ const e=await rpc('estado_tarjeta',{p_cliente_id:id}); const p=e.premio_disponible;
       det.innerHTML = `${bloqueCliente(e.cliente,e)}
-        <div class="card" style="margin-top:8px"><div class="stamps">${stampsHTML(e.sellos,e.meta)}</div><p class="sub">${mensajeSellos(e.sellos,e.meta,!!p,pal(e.negocio))}</p>${e.cliente.token?btnReenviar(e.cliente):''}</div>
+        <div class="card" style="margin-top:8px"><div class="stamps">${stampsHTML(e.sellos,e.meta)}</div><p class="sub">${mensajeSellos(e.sellos,e.meta,!!p,pal(e.negocio),e.negocio.visita_gratis)}</p>${e.cliente.token?btnReenviar(e.cliente):''}</div>
         ${p?`<div class="card yellow" style="margin-top:8px"><span class="display" style="font-size:18px">Premio disponible</span><span style="font-weight:600">${esc(p.descripcion)}</span><span style="font-size:12.5px;font-weight:700">Otorgado el ${fecha(p.otorgado_en)} · vence el ${fecha(p.vence_en)}</span>
              <button class="btn hold" id="canje" style="background:var(--vino);color:var(--amarillo);margin-top:6px"><div class="bar"></div><span style="position:relative">Mantén presionado para canjear</span></button></div>`
           :`<div class="msg ok" style="margin-top:8px">Este cliente no tiene premio disponible todavía.</div>`}`;
@@ -998,7 +1007,9 @@ function vPanel(){
       <form id="fc" style="display:flex;flex-direction:column;gap:10px">
         <div class="field"><label>Nombre</label><input id="c_nombre" value="${esc(n.nombre)}"></div>
         <div class="field"><label>Premio</label><input id="c_premio" value="${esc(n.premio)}"></div>
-        <div class="row"><div class="field grow"><label>Monto mínimo (S/)</label><input id="c_min" type="number" step="0.5" value="${n.monto_minimo}"></div><div class="field grow"><label>Meta de sellos</label><input id="c_meta" type="number" min="2" max="20" value="${n.meta_sellos}"></div><div class="field grow"><label>Premio vence (días)</label><input id="c_vig" type="number" min="1" value="${n.premio_vigencia_dias}"></div></div>
+        <div class="row"><div class="field grow"><label>Monto mínimo (S/)</label><input id="c_min" type="number" step="0.5" value="${n.monto_minimo}"></div><div class="field grow"><label>Meta de sellos</label><input id="c_meta" type="number" min="2" max="20" value="${n.meta_sellos}"></div><div class="field grow"><label>Plazo para reclamar el premio (días)</label><input id="c_vig" type="number" min="1" value="${n.premio_vigencia_dias}"></div></div>
+        <div class="row"><div class="field grow"><label>Día de descanso</label><select id="c_desc">${['Ninguno','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'].map((d,i)=>`<option value="${i}"${((n.dias_cerrado||[])[0]||0)===i?' selected':''}>${d}</option>`).join('')}</select></div><div class="field grow"><label>Sellos se reinician tras (días sin venir)</label><input id="c_inac" type="number" min="15" max="365" value="${n.dias_inactividad||40}"></div></div>
+        <span class="hint" style="display:block;margin-top:-4px">El día de descanso no cuenta en el plazo del premio. Antes de reiniciar los sellos, el cliente recibe un aviso 10 días antes.${n.visita_gratis?' En tu negocio, la visita que completa la tarjeta es gratis.':''}</span>
         <div class="row"><div class="field grow"><label>WhatsApp</label><input id="c_wa" value="${esc(n.whatsapp||'')}"></div><div class="field grow"><label>Dirección</label><input id="c_dir" value="${esc(n.direccion||'')}"></div></div>
         <div class="field"><label>Link de reseñas de Google</label><input id="c_res" inputmode="url" autocapitalize="off" placeholder="https://g.page/r/…/review" value="${esc(n.resena_url||'')}"><span class="hint" style="margin-top:6px;display:block">Al entregar un premio podrás invitar al cliente a dejar su reseña. No ofrezcas regalos a cambio de reseñas: Google lo prohíbe.</span></div>
         <div class="field"><label>Logo</label><div class="logobox"><div class="pv" id="c_pv">${n.logo_url?`<img src="${esc(n.logo_url)}" alt="">`:ini(n.nombre)}</div><div class="grow"><div class="t" style="font-weight:700;font-size:14px" id="c_lt">${n.logo_url?'Logo actual':'Sin logo'}</div><div class="hint" style="color:var(--crema)">Sale en la tarjeta del cliente y en el Wallet.</div></div><label class="btn sm ghost" for="c_logo" style="height:38px;width:auto;padding:0 14px;margin:0;color:var(--amarillo);cursor:pointer">${n.logo_url?'Cambiar':'Subir'}</label></div><input id="c_logo" type="file" accept="image/png,image/jpeg,image/webp" hidden></div>
@@ -1016,6 +1027,7 @@ function vPanel(){
   $('#fc').onsubmit=async ev=>{ev.preventDefault(); const m=$('#mc'); m.className='msg hidden'; try{ let logo=null; const f=$('#c_logo').files[0]; if(f){ if(f.size>3*1024*1024) throw new Error('El logo pesa más de 3 MB; usa una imagen más liviana.'); logo=await logoPNG(f); }
     await rpc('actualizar_negocio',{p_nombre:$('#c_nombre').value,p_premio:$('#c_premio').value,p_monto_minimo:parseFloat($('#c_min').value),p_meta:parseInt($('#c_meta').value),p_vigencia:parseInt($('#c_vig').value),p_whatsapp:$('#c_wa').value,p_direccion:$('#c_dir').value,p_logo_url:logo,p_color_primario:n.color_primario||null,p_color_acento:n.color_acento||null});
     await rpc('guardar_resena_url',{p_url:$('#c_res').value});
+    await rpc('guardar_reglas',{p_dias_cerrado:+$('#c_desc').value?[+$('#c_desc').value]:[], p_dias_inactividad:parseInt($('#c_inac').value)||40});
     await cargarPanel(); }catch(e){ m.className='msg err'; m.textContent=e.message; }};
   $('#out').onclick=salir;
 }

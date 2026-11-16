@@ -58,25 +58,42 @@ const linkWeb = (tok: string) => `${BASE_WEB}?t=${tok}`;
 
 type Estado = {
   cliente: { id: string; nombre: string; token: string };
-  negocio: { id: string; nombre: string; rubro?: string; logo_url: string | null; color_primario: string; color_acento: string; monto_minimo: number; meta_sellos: number; premio: string; premio_vigencia_dias: number; direccion: string | null };
+  negocio: { id: string; nombre: string; rubro?: string; logo_url: string | null; color_primario: string; color_acento: string; monto_minimo: number; meta_sellos: number; premio: string; premio_vigencia_dias: number; direccion: string | null; visita_gratis?: boolean; dias_inactividad?: number; dias_cerrado?: number[] };
   sellos: number; meta: number; premio_disponible: { id: string; descripcion: string; vence_en: string } | null;
   mod: string; activo: boolean; whatsapp: string | null;
   ubicacion?: { lat: number; lng: number } | null; aviso?: { texto: string; en: string } | null;
   ultima_compra?: { monto: number; fecha: string } | null;
 };
-// Título de la franja de sellos: cambia según el avance del cliente
-function tituloFranja(sellos: number, meta: number, ganado: boolean) {
+// Textos de la franja de sellos: rótulo, y frase que cambia según el avance del cliente.
+// «gratis»: negocios donde la visita que completa la tarjeta es el premio (barberías).
+const ORDINAL: Record<number, string> = { 2: "segunda", 3: "tercera", 4: "cuarta", 5: "quinta", 6: "sexta", 7: "séptima", 8: "octava", 9: "novena", 10: "décima" };
+function rotuloFranja(meta: number, ganado: boolean, gratis: boolean) {
+  if (ganado) return "Tu premio está listo";
+  if (gratis) return ORDINAL[meta] ? `Tu ${ORDINAL[meta]} visita es gratis` : `Tu visita ${meta} es gratis`;
+  return `Tu premio al juntar ${meta} sellos`;
+}
+function fraseFranja(sellos: number, meta: number, ganado: boolean, gratis: boolean) {
   const faltan = meta - sellos;
-  if (ganado) return "¡Ganaste! Muéstralo en caja";
-  if (sellos <= 0) return `Junta ${meta} sellos y gana`;
-  if (faltan === 1) return "¡Solo te falta 1 sello para ganar!";
-  if (faltan <= 0) return `Junta ${meta} sellos y gana`;
-  return `Te faltan ${faltan} sellos para ganar`;
+  if (ganado) return "¡Ganaste! Reclámalo hoy en caja";
+  if (sellos <= 0 || faltan <= 0) return "Empieza hoy: suma tu primer sello";
+  if (faltan === 1) return gratis ? "¡Tu próxima visita es gratis!" : "¡Solo te falta 1 sello!";
+  if (gratis) return faltan === 2 ? "Te falta 1 visita para tu visita gratis" : `Te faltan ${faltan - 1} visitas para tu visita gratis`;
+  return `Te faltan ${faltan} sellos para tu premio`;
 }
-async function textoFranja(sellos: number, meta: number, ganado: boolean, premio: string): Promise<TextoFranja> {
+async function textoFranja(sellos: number, meta: number, ganado: boolean, premio: string, gratis = false): Promise<TextoFranja> {
   const fuente = await cargarFuente();
-  return fuente ? { fuente, titulo: tituloFranja(sellos, meta, ganado), premio } : null;
+  return fuente ? { fuente, rotulo: rotuloFranja(meta, ganado, gratis), premio, frase: fraseFranja(sellos, meta, ganado, gratis) } : null;
 }
+// Reglas en letra chica (reverso de la tarjeta)
+const DIAS = ["", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"];
+function reglas(n: Estado["negocio"]) {
+  const cerrado = (n.dias_cerrado || []).map((d) => DIAS[d]).filter(Boolean);
+  const sinContar = cerrado.length ? ` (sin contar ${cerrado.length > 1 ? cerrado.slice(0, -1).join(", ") + " y " + cerrado[cerrado.length - 1] : cerrado[0]})` : "";
+  return `1 sello al día con ${palabra(n)} desde ${soles(n.monto_minimo)}.` +
+    (n.visita_gratis ? ` Con ${n.meta_sellos - 1} sellos, tu siguiente visita es gratis.` : ` El premio se reclama el mismo día en caja; plazo máximo: ${n.premio_vigencia_dias} días${sinContar}.`) +
+    ` Si pasas ${n.dias_inactividad ?? 40} días sin venir, tus sellos se reinician.`;
+}
+const amigoTexto = (n: Estado["negocio"]) => `Abre tu tarjeta y comparte tu enlace. Cuando tu amigo haga su primera ${palabra(n)}, tú ganas 1 sello extra (máximo 3 al mes).`;
 // Texto que el iPhone muestra en la pantalla bloqueada cuando el cliente pasa cerca del local
 function textoCercania(e: Estado) {
   const n = e.negocio.nombre, p = e.premio_disponible, faltan = e.meta - e.sellos;
@@ -84,13 +101,15 @@ function textoCercania(e: Estado) {
   if (e.sellos > 0 && faltan > 0) return `¡Te faltan ${faltan} sello${faltan === 1 ? "" : "s"} para tu premio! Pasa por ${n}`;
   return `Estás cerca de ${n} ${e.negocio.rubro === "barberia" ? "💈" : "🍗"} Suma tu sello de hoy`;
 }
+// Con el premio ganado y la tarjeta nueva aún sin sellos, se muestra la tarjeta completa (no vacía)
+const vistos = (e: Estado) => e.premio_disponible && e.sellos === 0 ? e.meta : e.sellos;
 const ubicaciones = (e: Estado) => e.ubicacion ? [{ latitude: e.ubicacion.lat, longitude: e.ubicacion.lng }] : undefined;
 const datos = (args: { p_token?: string; p_cliente_id?: string }) => rpc("wallet_datos", args) as Promise<Estado | null>;
 
 function imgSellosURL(e: Estado, w: number, h: number, google = false) {
   const n = e.negocio;
   const p = e.premio_disponible;
-  return `${FN_URL}/img/sellos?s=${e.sellos}&m=${e.meta}&p=${sinHash(n.color_primario)}&a=${sinHash(n.color_acento)}&w=${w}&h=${h}&g=${p ? 1 : 0}&t=${encodeURIComponent((p ? p.descripcion : n.premio).slice(0, 140))}&v=5${google ? "&b=g" : ""}`;
+  return `${FN_URL}/img/sellos?s=${vistos(e)}&m=${e.meta}&p=${sinHash(n.color_primario)}&a=${sinHash(n.color_acento)}&w=${w}&h=${h}&g=${p ? 1 : 0}&t=${encodeURIComponent((p ? p.descripcion : n.premio).slice(0, 140))}&vg=${n.visita_gratis ? 1 : 0}&v=6${google ? "&b=g" : ""}`;
 }
 function logoInfo(dataUrl: string | null): { mime: string; bytes: Uint8Array } | null {
   const m = /^data:(image\/[a-z+.-]+);base64,(.+)$/i.exec(dataUrl || "");
@@ -131,7 +150,7 @@ const gClaseId = (c: Record<string, string>, negocioId: string) => `${c.wallet_g
 const gObjetoId = (c: Record<string, string>, clienteId: string) => `${c.wallet_google_issuer_id}.c_${clienteId.replace(/-/g, "")}`;
 const es = (v: string) => ({ defaultValue: { language: "es-PE", value: v } });
 
-async function gClase(c: Record<string, string>, e: Estado) {
+async function gClase(c: Record<string, string>, e: Estado, simple = false) {
   const n = e.negocio;
   // Google recorta el logo en círculo y pone blanco donde es transparente: se le da el logo ya montado sobre el color del negocio
   const png = !!n.logo_url && logoInfo(n.logo_url)?.mime === "image/png", huella = await huellaLogo(n);
@@ -148,7 +167,8 @@ async function gClase(c: Record<string, string>, e: Estado) {
     ...(png ? { wideProgramLogo: { sourceUri: { uri: marca("a") }, contentDescription: es(n.nombre) } } : {}),
     accountNameLabel: "Cliente", localizedAccountNameLabel: es("Cliente"),
     classTemplateInfo: { cardTemplateOverride: { cardRowTemplateInfos: [{ twoItems: {
-      startItem: campo("object.loyaltyPoints.label", "object.loyaltyPoints.balance"), endItem: campo("object.accountName") } }] } },
+      startItem: campo("object.loyaltyPoints.label", "object.loyaltyPoints.balance"), endItem: campo("object.accountName") } },
+      ...(simple ? [] : [{ oneItem: { item: campo("object.textModulesData['amigo']") } }])] } },
     hexBackgroundColor: n.color_primario,
     countryCode: "PE",
     reviewStatus: "UNDER_REVIEW",
@@ -162,12 +182,14 @@ function gObjeto(c: Record<string, string>, e: Estado) {
   const o: Record<string, unknown> = {
     id: gObjetoId(c, e.cliente.id), classId: gClaseId(c, n.id), state: "ACTIVE",
     accountName: e.cliente.nombre, accountId: e.cliente.token.slice(0, 8).toUpperCase(),
-    loyaltyPoints: { label: "Sellos", balance: { string: `${e.sellos} de ${e.meta}` } },
-    heroImage: { sourceUri: { uri: imgSellosURL(e, 1032, 336, true) }, contentDescription: es(`${e.sellos} de ${e.meta} sellos`) },
+    loyaltyPoints: { label: "Sellos", balance: { string: `${vistos(e)} de ${e.meta}` } },
+    heroImage: { sourceUri: { uri: imgSellosURL(e, 1032, 336, true) }, contentDescription: es(`${vistos(e)} de ${e.meta} sellos`) },
     textModulesData: [
-      p ? { id: "premio", header: "¡Tu premio está listo!", body: `${p.descripcion} · vence el ${ddmm(p.vence_en)}. Muéstralo en caja.` }
-        : { id: "premio", header: `Tu premio al completar ${e.meta} sellos`, body: n.premio },
-      { id: "reglas", header: "Cómo funciona", body: `1 sello al día con ${palabra(n)} desde ${soles(n.monto_minimo)}. El premio vence a los ${n.premio_vigencia_dias} días.` },
+      p ? { id: "premio", header: "¡Tu premio está listo!", body: `${p.descripcion}. Reclámalo en caja hasta el ${ddmm(p.vence_en)}.` }
+        : { id: "premio", header: n.visita_gratis ? `Tu premio en tu visita ${e.meta}` : `Tu premio al completar ${e.meta} sellos`, body: n.premio },
+      { id: "amigo", header: "Invita a un amigo", body: "Gana 1 sello extra" },
+      { id: "amigo_d", header: "Cómo invitar", body: amigoTexto(n) },
+      { id: "reglas", header: "Cómo funciona", body: reglas(n) },
     ],
     linksModuleData: { uris: [{ id: "web", uri: link, description: "Ver mi tarjeta" }] },
   };
@@ -182,8 +204,13 @@ async function gGuardar(c: Record<string, string>, clase: Record<string, unknown
   if (r.status === 404) r = await gApi(c, "POST", `/${ruta}`, clase);
   if (!r.ok) throw new Error(`Google ${ruta} ${r.status}: ${await r.text()}`);
 }
+// Guarda la clase; si Google rechaza la fila extra del frente, la guarda sin ella
+async function gGuardarClase(c: Record<string, string>, e: Estado) {
+  try { await gGuardar(c, await gClase(c, e), "loyaltyClass"); }
+  catch (err) { console.error("Google: clase con fila extra rechazada, se guarda la simple:", err); await gGuardar(c, await gClase(c, e, true), "loyaltyClass"); }
+}
 async function googleGuardarURL(c: Record<string, string>, e: Estado) {
-  await gGuardar(c, await gClase(c, e), "loyaltyClass");
+  await gGuardarClase(c, e);
   const obj = gObjeto(c, e);
   await gGuardar(c, obj, "loyaltyObject");
   await rpc("wallet_marcar_google", { p_cliente_id: e.cliente.id });
@@ -247,16 +274,18 @@ export async function armarPkpass(c: Record<string, string>, e: Estado, wwdr: st
     sharingProhibited: true,
     barcodes: [{ format: "PKBarcodeFormatQR", message: link, messageEncoding: "iso-8859-1", altText: e.cliente.token.slice(0, 8).toUpperCase() }],
     storeCard: {
-      headerFields: [{ key: "sellos", label: "SELLOS", value: `${e.sellos}/${e.meta}`, changeMessage: "Llevas %@ sellos" }],
+      headerFields: [{ key: "sellos", label: "SELLOS", value: `${vistos(e)}/${e.meta}`, changeMessage: "Llevas %@ sellos" }],
       secondaryFields: [
         { key: "cliente", label: "CLIENTE", value: e.cliente.nombre },
-        ...(p ? [{ key: "vence", label: "CANJÉALO HASTA EL", value: ddmm(p.vence_en), textAlignment: "PKTextAlignmentRight" }]
+        ...(p ? [{ key: "vence", label: "RECLÁMALO HASTA EL", value: ddmm(p.vence_en), textAlignment: "PKTextAlignmentRight" }]
           : e.ultima_compra ? [{ key: "visita", label: "ÚLTIMA VISITA", value: ddmm(e.ultima_compra.fecha), textAlignment: "PKTextAlignmentRight" }] : []),
       ],
+      auxiliaryFields: [{ key: "amigo", label: "INVITA A UN AMIGO", value: "Gana 1 sello extra" }],
       backFields: [
         ...(e.aviso ? [{ key: "aviso", label: "Novedades", value: e.aviso.texto, changeMessage: "%@" }] : []),
-        { key: "premio_d", label: p ? "Tu premio" : `Tu premio al completar ${e.meta} sellos`, value: p ? `${p.descripcion}\nVence el ${ddmm(p.vence_en)}. Muéstralo en caja.` : n.premio },
-        { key: "reglas", label: "Cómo funciona", value: `1 sello al día con ${palabra(n)} desde ${soles(n.monto_minimo)}. El premio vence a los ${n.premio_vigencia_dias} días.` },
+        { key: "premio_d", label: p ? "Tu premio" : n.visita_gratis ? `Tu premio en tu visita ${e.meta}` : `Tu premio al completar ${e.meta} sellos`, value: p ? `${p.descripcion}\nReclámalo en caja hasta el ${ddmm(p.vence_en)}.` : n.premio },
+        { key: "amigo_d", label: "Invita a un amigo", value: amigoTexto(n) },
+        { key: "reglas", label: "Cómo funciona", value: reglas(n) },
         { key: "web", label: "Tu tarjeta en la web", value: link, attributedValue: `<a href='${link}'>Abrir mi tarjeta</a>` },
         ...(n.direccion ? [{ key: "dir", label: "Dirección", value: n.direccion }] : []),
         ...(e.whatsapp ? [{ key: "wa", label: "WhatsApp", value: e.whatsapp }] : []),
@@ -273,15 +302,15 @@ export async function armarPkpass(c: Record<string, string>, e: Estado, wwdr: st
       value: `Tu tarjeta de ${n.nombre} tiene una versión nueva y tus sellos no se pierden. Si todavía no la tienes, ábrela aquí y toca «Agregar a Apple Wallet»: ${link}\nEsta tarjeta antigua ya la puedes eliminar.` });
   }
 
-  const leyenda = await textoFranja(e.sellos, e.meta, !!p, p ? p.descripcion : n.premio);
+  const leyenda = await textoFranja(vistos(e), e.meta, !!p, p ? p.descripcion : n.premio, !!n.visita_gratis);
   const archivos: Record<string, Uint8Array> = {
     "pass.json": strToU8(JSON.stringify(pass)),
     "icon.png": icono(n.color_primario, n.color_acento, 29),
     "icon@2x.png": icono(n.color_primario, n.color_acento, 58),
     "icon@3x.png": icono(n.color_primario, n.color_acento, 87),
-    "strip.png": franjaSellos(e.sellos, e.meta, n.color_primario, n.color_acento, 375, 144, leyenda),
-    "strip@2x.png": franjaSellos(e.sellos, e.meta, n.color_primario, n.color_acento, 750, 288, leyenda),
-    "strip@3x.png": franjaSellos(e.sellos, e.meta, n.color_primario, n.color_acento, 1125, 432, leyenda),
+    "strip.png": franjaSellos(vistos(e), e.meta, n.color_primario, n.color_acento, 375, 144, leyenda),
+    "strip@2x.png": franjaSellos(vistos(e), e.meta, n.color_primario, n.color_acento, 750, 288, leyenda),
+    "strip@3x.png": franjaSellos(vistos(e), e.meta, n.color_primario, n.color_acento, 1125, 432, leyenda),
   };
   if (logoPng) { archivos["logo.png"] = logoPng; archivos["logo@2x.png"] = logoPng; }
   const manifest: Record<string, string> = {};
@@ -381,7 +410,7 @@ Deno.serve(async (req) => {
         let png: Uint8Array;
         if (partes[1] === "sellos") {
           const s = Math.max(0, Math.min(20, parseInt(q.get("s") || "0") || 0)), m = num("m", 6, 20), premio = (q.get("t") || "").slice(0, 140);
-          png = franjaSellos(s, m, "#" + (q.get("p") || "460E0D"), "#" + (q.get("a") || "F9B40F"), num("w", 1032, 1200), num("h", 336, 600), premio ? await textoFranja(s, m, q.get("g") === "1", premio) : null,
+          png = franjaSellos(s, m, "#" + (q.get("p") || "460E0D"), "#" + (q.get("a") || "F9B40F"), num("w", 1032, 1200), num("h", 336, 600), premio ? await textoFranja(s, m, q.get("g") === "1", premio, q.get("vg") === "1") : null,
             q.get("b") === "g" ? { base: [344, 112], margen: 8 } : {});
         }
         else if (partes[1] === "marca" && partes[2]) {
@@ -436,7 +465,7 @@ Deno.serve(async (req) => {
           for (const id of ids) {
             const e = await datos({ p_cliente_id: id });
             if (!e) continue;
-            if (negocio_id && primera) { await gGuardar(c, await gClase(c, e), "loyaltyClass"); primera = false; }
+            if (negocio_id && primera) { await gGuardarClase(c, e); primera = false; }
             // PUT (no PATCH): reemplaza la tarjeta completa, así también se quita lo que ya no va (el código QR)
             const r = await gApi(c, "PUT", `/loyaltyObject/${encodeURIComponent(gObjetoId(c, id))}`, gObjeto(c, e));
             if (r.ok) ok++;

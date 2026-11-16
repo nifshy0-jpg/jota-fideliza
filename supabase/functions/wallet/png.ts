@@ -181,67 +181,77 @@ function chunk(tipo: string, data: Uint8Array) {
   return out;
 }
 
-/** Texto opcional de la franja: título pequeño + premio (hasta 2 líneas), dibujados con la fuente de la marca. */
+/** Texto de la franja: rótulo pequeño, premio en grande y frase de avance, dibujados con la fuente de la marca. */
 // deno-lint-ignore no-explicit-any
-export type TextoFranja = { fuente: any; titulo: string; premio: string } | null;
+export type TextoFranja = { fuente: any; rotulo: string; premio: string; frase: string } | null;
 
-/** Franja de sellos: fondo del color de la tarjeta, premio escrito arriba, sellos ganados con acabado metálico (el más reciente brilla) y el último con un regalo. */
+/** Franja de sellos: el premio es el protagonista (rótulo + premio en grande); debajo los sellos (ganados con acabado metálico, los que faltan numerados y el último con un regalo) y la frase de avance. */
 /** `base` es el tamaño «en puntos» sobre el que se compone (iPhone: 375 × 144; Google usa uno más chico para que todo salga más grande). */
 export type OpFranja = { base?: [number, number]; margen?: number };
 export function franjaSellos(sellos: number, meta: number, primario: string, acento: string, w: number, h: number, txt: TextoFranja = null, op: OpFranja = {}): Uint8Array {
   const [BW, BH] = op.base ?? [375, 144];
-  const P = hexRGB(primario), A = hexRGB(acento, [249, 180, 15]);
+  const P = hexRGB(primario), A = hexRGB(acento, [249, 180, 15]), B: RGB = [255, 255, 255];
   const L = new Lienzo(w, h, P);
   meta = Math.max(1, Math.min(20, meta));
   const k = Math.min(w / BW, h / BH), anchoPt = w / k;              // todo se mide en «puntos» de una franja de BW × BH
   const filas = meta > 10 ? 2 : 1, porFila = Math.ceil(meta / filas);
-  const margen = op.margen ?? 19, hueco = 8;
-  // texto
-  let titulo = "", lineas: string[] = [], tam = 17;
-  if (txt?.fuente) {
-    titulo = limpiar(txt.fuente, txt.titulo.toUpperCase());
-    const premio = limpiar(txt.fuente, txt.premio);
+  const margen = op.margen ?? 19, hueco = 9, chico = BH < 130, pad = chico ? 8 : 14;
+  const f = txt?.fuente, max = Math.min(anchoPt - 2 * margen, 420);
+  // textos: rótulo, premio (1 línea si cabe; si no, 2 líneas equilibradas) y frase
+  const tr = chico ? 9 : 10, tf = chico ? 9.5 : 11;
+  let rot = "", frase = "", lineas: string[] = [], tam = chico ? 21 : 25;
+  if (f) {
+    rot = limpiar(f, txt!.rotulo.toUpperCase()); frase = limpiar(f, txt!.frase);
+    const premio = limpiar(f, txt!.premio);
     if (premio) {
-      const max = Math.min(anchoPt - 2 * margen, 420);
-      // 1 línea si cabe (18 → 15 pt); si no, 2 líneas a 15 pt; si aún no cabe, 2 líneas a 13 pt con «…»
-      tam = 18; while (tam > 15 && ancho(txt.fuente, premio, tam) > max) tam--;
-      if (ancho(txt.fuente, premio, tam) <= max) lineas = [premio];
-      else { tam = 15; lineas = partir(txt.fuente, premio, tam, max, 3); if (lineas.length > 2) { tam = 13; lineas = partir(txt.fuente, premio, tam, max, 2); } }
+      const min1 = chico ? 17 : 19;
+      while (tam > min1 && ancho(f, premio, tam) > max) tam--;
+      if (ancho(f, premio, tam) <= max) lineas = [premio];
+      else {
+        tam = chico ? 16 : 19; const ws = premio.split(" "); let mejor = Infinity;
+        for (let i = 1; i < ws.length; i++) {
+          const l1 = ws.slice(0, i).join(" "), l2 = ws.slice(i).join(" "), m = Math.max(ancho(f, l1, tam), ancho(f, l2, tam));
+          if (m < mejor) { mejor = m; lineas = [l1, l2]; }
+        }
+        if (mejor > max) { tam = chico ? 13 : 15; lineas = partir(f, premio, tam, max, 2); }
+      }
     }
   }
-  const altoTitulo = titulo ? 9 : 0, interlinea = tam * 1.12, altoTexto = lineas.length ? lineas.length * interlinea : 0;
-  const altoCabecera = (titulo ? altoTitulo + 8 : 0) + (lineas.length ? altoTexto + 6 : 0);
+  const altoRot = rot ? tr * 0.75 + 8 : 0, altoPremio = lineas.length ? lineas.length * tam * 1.08 + 9 : 0, altoFrase = 8 + tf * 0.75;
   const dMax = (anchoPt - 2 * margen - hueco * (porFila - 1)) / porFila;
-  const d = Math.min(dMax, 50, (BH - 22 - altoCabecera - (filas - 1) * hueco) / filas), r = d / 2;
-  const altoSellos = filas * d + (filas - 1) * hueco;
-  let y = (BH - (altoCabecera + altoSellos)) / 2;
-  const tenue = mix(P, A, 0.62), relleno = mix(P, [255, 255, 255], 0.07);
-  if (titulo) {
-    const t = 10, esp = 0.09, an = ancho(txt!.fuente, titulo, t, esp);
-    L.poligonos(contornos(txt!.fuente, titulo, ((anchoPt - an) / 2) * k, (y + altoTitulo) * k, t * k, esp), A);
-    y += altoTitulo + 8;
-  }
-  for (const [i, ln] of lineas.entries()) {
-    const an = ancho(txt!.fuente, ln, tam);
-    L.poligonos(contornos(txt!.fuente, ln, ((anchoPt - an) / 2) * k, (y + i * interlinea + tam * 0.80) * k, tam * k), [255, 255, 255]);
-  }
-  if (lineas.length) y += altoTexto + 6;
+  const dDe = (conF: boolean) => Math.min(dMax, 46, (BH - 2 * pad - altoRot - altoPremio - (conF ? altoFrase : 0) - (filas - 1) * hueco) / filas);
+  let conFrase = !!frase, d = dDe(conFrase);
+  if (conFrase && d < 30) { conFrase = false; d = dDe(false); }
+  const r = d / 2, altoSellos = filas * d + (filas - 1) * hueco;
+  let y = (BH - (altoRot + altoPremio + altoSellos + (conFrase ? altoFrase : 0))) / 2;
+  const centrado = (t: string, tm: number, base: number, c: RGB, esp = 0) => {
+    const an = ancho(f, t, tm, esp);
+    L.poligonos(contornos(f, t, ((anchoPt - an) / 2) * k, base * k, tm * k, esp), c);
+  };
+  if (rot) { centrado(rot, tr, y + tr * 0.75, A, 0.1); y += altoRot; }
+  for (const [i, ln] of lineas.entries()) centrado(ln, tam, y + tam * 0.80 + i * tam * 1.08, B);
+  y += altoPremio;
+  const tenue = mix(P, A, 0.62), relleno = mix(P, B, 0.07);
   for (let i = 0; i < meta; i++) {
     const fila = Math.floor(i / porFila), col = i % porFila, enFila = Math.min(porFila, meta - fila * porFila);
     const anchoFila = enFila * d + (enFila - 1) * hueco;
     const cx = ((anchoPt - anchoFila) / 2 + col * (d + hueco) + r) * k, cy = (y + fila * (d + hueco) + r) * k, R = r * k;
     const ultimo = i === meta - 1;
     if (i < sellos) {
-      const reciente = i === sellos - 1, relieve = mix(A, [255, 255, 255], 0.6), dz = Math.max(1, R * 0.05);
-      if (reciente) L.halo(cx, cy, R, mix(A, [255, 255, 255], 0.35));
+      const reciente = i === sellos - 1, relieve = mix(A, B, 0.6), dz = Math.max(1, R * 0.05);
+      if (reciente) L.halo(cx, cy, R, mix(A, B, 0.35));
       L.selloMetal(cx, cy, R, A, reciente);
       // marca con relieve: primero su reflejo claro, corrido un poco hacia abajo, y encima la marca oscura
       if (ultimo) L.regalo(cx, cy + dz, R * 0.86, relieve, relieve); else L.check(cx, cy + dz, R * 0.86, relieve);
-      if (ultimo) L.regalo(cx, cy, R * 0.86, P, mix(A, [255, 255, 255], 0.2)); else L.check(cx, cy, R * 0.86, P);
-      if (reciente) { L.destello(cx + R * 0.68, cy - R * 0.7, R * 0.4, [255, 255, 255]); L.destello(cx - R * 0.78, cy + R * 0.6, R * 0.22, [255, 255, 255]); }
+      if (ultimo) L.regalo(cx, cy, R * 0.86, P, mix(A, B, 0.2)); else L.check(cx, cy, R * 0.86, P);
+      if (reciente) { L.destello(cx + R * 0.68, cy - R * 0.7, R * 0.4, B); L.destello(cx - R * 0.78, cy + R * 0.6, R * 0.22, B); }
+    } else {
+      L.circulo(cx, cy, R, relleno); L.aro(cx, cy, R, Math.max(2, R * 0.09), tenue);
+      if (ultimo) L.regalo(cx, cy, R, tenue, relleno);
+      else if (f) { const n = String(i + 1), tn = d * 0.44, an = ancho(f, n, tn); L.poligonos(contornos(f, n, cx - (an * k) / 2, cy + tn * 0.34 * k, tn * k), tenue); }
     }
-    else { L.circulo(cx, cy, R, relleno); L.aro(cx, cy, R, Math.max(2, R * 0.09), tenue); if (ultimo) L.regalo(cx, cy, R, tenue, relleno); }
   }
+  if (conFrase) centrado(frase, tf, y + altoSellos + altoFrase, mix(P, B, 0.78), 0.02);
   return L.png();
 }
 
