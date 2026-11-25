@@ -121,7 +121,7 @@ svg{display:block}.sr{position:absolute;width:1px;height:1px;overflow:hidden;cli
 .pass-top span:last-child{letter-spacing:.1em}
 .pass-name{margin-top:4.5cqw;font-family:var(--display);font-weight:800;font-size:8.6cqw;letter-spacing:-.035em;line-height:1}
 .pass-sub{margin-top:1.6cqw;font-size:4cqw;opacity:.78}
-.stamps{display:grid;grid-template-columns:repeat(4,1fr);gap:3.6cqw;margin-top:auto}
+.stamps{display:grid;grid-template-columns:repeat(3,18.5cqw);justify-content:space-between;gap:4cqw;margin-top:auto}
 .st{position:relative;aspect-ratio:1;border-radius:50%;box-shadow:inset 0 0 0 .7cqw rgba(255,255,255,.34)}
 .st b{position:absolute;inset:0;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 1.4cqw 3cqw -1cqw rgba(3,20,60,.6)}
 .st b svg{width:52%;height:52%;stroke:var(--blue);stroke-width:3.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
@@ -155,12 +155,12 @@ svg{display:block}.sr{position:absolute;width:1px;height:1px;overflow:hidden;cli
 @media (max-width:899px){.chaps-box{min-height:0}}
 
 /* ---------- cinta ---------- */
-.tape{position:relative;z-index:3;background:var(--blue);color:#fff;padding:20px 0;overflow:hidden;display:grid;gap:8px}
+.tape{position:relative;z-index:3;background:var(--blue);color:#fff;padding:22px 0;overflow:hidden}
 .tape-row{display:flex;width:max-content;will-change:transform}
 .tape-row span{display:inline-flex;align-items:center;gap:26px;padding-right:26px;font-family:var(--display);font-weight:800;font-size:clamp(24px,4.2vw,46px);letter-spacing:-.035em;white-space:nowrap;line-height:1.15}
 .tape-row span::after{content:"";width:.26em;height:.26em;border-radius:50%;background:#fff;opacity:.9}
 .tape-row span:nth-child(even){color:transparent;-webkit-text-stroke:1.4px rgba(255,255,255,.85)}
-.static .tape-row,.lite .tape-row{flex-wrap:wrap;width:auto;justify-content:center;row-gap:4px}
+.static .tape-row{flex-wrap:wrap;width:auto;justify-content:center;row-gap:4px}
 
 /* ---------- títulos ---------- */
 .sec{padding:clamp(76px,11vw,140px) 0}
@@ -327,14 +327,14 @@ footer{padding:26px 0 calc(34px + env(safe-area-inset-bottom));text-align:center
             <div class="pass-top"><span>TARJETA DE SELLOS</span><span>•••</span></div>
             <div class="pass-name">Tu Negocio</div>
             <div class="pass-sub">Con tu logo y tus colores</div>
-            <div class="stamps"><div class="st"><b><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></b><u></u></div><div class="st"><b><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></b><u></u></div><div class="st"><b><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></b><u></u></div><div class="st"><b><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></b><u></u></div><div class="st"><b><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></b><u></u></div><div class="st"><b><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></b><u></u></div><div class="st"><b><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></b><u></u></div><div class="st"><b><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></b><u></u></div></div>
-            <div class="pass-bot"><div class="qr" id="qr"></div><div class="cnt"><span id="cnt">8/8</span><small>sellos</small></div></div>
+            <div class="stamps"><div class="st"><b><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></b><u></u></div><div class="st"><b><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></b><u></u></div><div class="st"><b><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></b><u></u></div><div class="st"><b><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></b><u></u></div><div class="st"><b><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></b><u></u></div><div class="st"><b><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></b><u></u></div></div>
+            <div class="pass-bot"><div class="qr" id="qr"></div><div class="cnt"><span id="cnt">6/6</span><small>sellos</small></div></div>
           </div>
           <div class="rev"><i><svg viewBox="0 0 24 24"><path d="m12 2.6 2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z"/></svg></i><div><b>Enlace a reseñas de Google</b><small>Directo desde tu tarjeta</small></div></div>
           <div class="toast"><i><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></i>Agregada a tu Wallet</div>
         </div></div>
         <div class="conf"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-        <div class="prize" id="prize"><strong>¡YA! VOLVERÁS</strong><span>8/8 sellos · ¡premio!</span></div>
+        <div class="prize" id="prize"><strong>¡YA! VOLVERÁS</strong><span>6/6 sellos · ¡premio!</span></div>
         <p class="note">Tarjeta de ejemplo</p>
       </div>
     </div>
@@ -342,8 +342,7 @@ footer{padding:26px 0 calc(34px + env(safe-area-inset-bottom));text-align:center
 </section>
 
 <div class="tape" aria-hidden="true">
-  <div class="tape-row" data-dir="-1"><span>Tarjeta de sellos</span><span>Apple Wallet</span><span>Google Wallet</span><span>Reseñas de Google</span><span>Avisos al celular</span><span>Panel del dueño</span></div>
-  <div class="tape-row" data-dir="1"><span>Instalación en persona</span><span>Con tu marca</span><span>Web de tu negocio</span><span>Chatbot con IA 24/7</span><span>QR y afiche</span><span>Soporte por WhatsApp</span></div>
+  <div class="tape-row" data-dir="-1"><span>Tarjeta de sellos</span><span>Apple Wallet</span><span>Google Wallet</span><span>Reseñas de Google</span><span>Avisos al celular</span><span>Panel del dueño</span><span>Instalación en persona</span><span>Con tu marca</span><span>Web de tu negocio</span><span>Chatbot con IA 24/7</span><span>QR y afiche</span><span>Soporte por WhatsApp</span></div>
 </div>
 
 <section class="sec plans" id="planes">
@@ -501,11 +500,11 @@ var pw=$('#pw'),phone=$('#phone'),pass=$('#pass'),sts=$$('.st'),cnt=$('#cnt'),ch
 function sizePw(){pw.style.setProperty('--pw',pw.offsetWidth+'px')}sizePw();addEventListener('resize',sizePw);
 var cuts=[0,.7,1.95,4.35,5.85],stT=[],cur=-1;
 function chapter(k){if(k===cur)return;chaps.forEach(function(c,i){c.classList.toggle('on',i===k);c.classList.toggle('out',i<k)});cur=k}
-cnt.textContent='0/8';
+cnt.textContent='0/'+sts.length;
 gsap.set(sts.map(function(s){return $('b',s)}),{scale:0});
 var tl=gsap.timeline({defaults:{ease:'power2.out'},scrollTrigger:{trigger:'.stage',start:'top top',end:'+=330%',pin:true,scrub:.6,anticipatePin:1,invalidateOnRefresh:true,
 }});
-function sync(){var t=tl.time(),n=0;for(var i=0;i<8;i++)if(t>=stT[i]+.1)n++;cnt.textContent=n+'/8';
+function sync(){var t=tl.time(),n=0;for(var i=0;i<sts.length;i++)if(t>=stT[i]+.1)n++;cnt.textContent=n+'/'+sts.length;
 var k=0;for(var j=1;j<4;j++)if(t>=cuts[j])k=j;chapter(k);
 dash.forEach(function(b,i){var p=(t-cuts[i])/(cuts[i+1]-cuts[i]);b.style.transform='scaleX('+Math.max(0,Math.min(1,p))+')'})}
 tl.eventCallback('onUpdate',sync);
@@ -525,7 +524,7 @@ tl.fromTo(phone,{rotationY:-13,rotationX:5,rotationZ:1.5},{rotationY:-17,rotatio
  .to('.toast',{autoAlpha:0,yPercent:-140,duration:.28,ease:'power2.in'},1.86)
  .fromTo('.rev',{opacity:0,yPercent:40},{opacity:1,yPercent:0,duration:.45},1.5);
 /* 3 · sellos */
-sts.forEach(function(s,i){var T=2.1+i*.27;stT.push(T);
+sts.forEach(function(s,i){var T=2.1+i*.37;stT.push(T);
 tl.fromTo($('b',s),{scale:0,rotation:-50},{scale:1,rotation:0,duration:.26,ease:'back.out(3)'},T)
   .fromTo($('u',s),{scale:.5,opacity:.9},{scale:1.5,opacity:0,duration:.34,ease:'power1.out'},T+.05)
   .fromTo(pass,{scale:1},{scale:1.02,duration:.07,ease:'power1.out',immediateRender:false},T+.02).to(pass,{scale:1,duration:.14,ease:'power1.inOut'},T+.09)});
@@ -540,10 +539,10 @@ tl.to({}, {duration:.3},5.55);
 chapter(0);
 
 /* ---------- cinta ---------- */
-if(!lite){$$('.tape-row').forEach(function(r){r.innerHTML+=r.innerHTML;var dir=+r.dataset.dir,w=r.scrollWidth/2;
-var t=gsap.fromTo(r,{x:dir<0?0:-w},{x:dir<0?-w:0,duration:w/48,ease:'none',repeat:-1});r._t=t});
-ScrollTrigger.create({onUpdate:function(self){var v=gsap.utils.clamp(-5,5,self.getVelocity()/260),s=1+Math.abs(v);
-$$('.tape-row').forEach(function(r){gsap.to(r._t,{timeScale:s,duration:.2,overwrite:true,onComplete:function(){gsap.to(r._t,{timeScale:1,duration:1.1})}})})}})}
+$$('.tape-row').forEach(function(r){r.innerHTML+=r.innerHTML;var w=r.scrollWidth/2;
+r._t=gsap.fromTo(r,{x:0},{x:-w,duration:w/(lite?46:70),ease:'none',repeat:-1})});
+if(!lite)ScrollTrigger.create({onUpdate:function(self){var s=1+Math.abs(gsap.utils.clamp(-5,5,self.getVelocity()/260));
+$$('.tape-row').forEach(function(r){gsap.to(r._t,{timeScale:s,duration:.2,overwrite:true,onComplete:function(){gsap.to(r._t,{timeScale:1,duration:1.1})}})})}});
 
 /* ---------- apariciones ---------- */
 $$('.split').forEach(function(h){gsap.from($$('.w',h),{yPercent:115,opacity:0,rotation:4,duration:.9,stagger:.055,ease:'power4.out',scrollTrigger:{trigger:h,start:'top 88%',once:true}})});
