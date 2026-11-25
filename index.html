@@ -16,7 +16,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230B5BD3'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Arial Black,Arial' font-weight='900' font-size='30' fill='white'%3EYA!%3C/text%3E%3C/svg%3E">
 <script>document.documentElement.className='js';setTimeout(function(){if(!window.__yvOK)document.documentElement.className='static'},3500)</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap">
 <style>
 :root{--blue:#0B5BD3;--navy:#073A8F;--deep:#052A66;--ink:#0A1B3D;--mute:#56678A;--soft:#8493B0;--tint:#EEF4FF;--tint2:#DCE8FF;--line:#E3ECFB;--sky:#3D8BFF;
 --display:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;--body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
@@ -113,28 +113,35 @@ svg{display:block}.sr{position:absolute;width:1px;height:1px;overflow:hidden;cli
 .island{position:absolute;z-index:6;left:50%;top:2.4%;width:31%;height:3.6%;margin-left:-15.5%;border-radius:99px;background:#0A1E4A}
 .w-head{position:absolute;left:8%;right:8%;top:10.5%;display:flex;align-items:center;justify-content:space-between;font-family:var(--display);font-weight:800;font-size:8.4cqw;letter-spacing:-.03em;color:var(--ink)}
 .w-head i{width:10cqw;height:10cqw;border-radius:50%;background:#fff;box-shadow:0 0 0 1px var(--line);display:grid;place-items:center;font-style:normal;font-size:7cqw;font-weight:600;color:var(--blue);line-height:1}
-.ghost{position:absolute;left:11%;right:11%;height:16%;border-radius:6cqw;top:19.5%;background:#C5D9FF}
-.ghost.g2{left:8.5%;right:8.5%;top:22%;background:#9DBFFF}
-.pass{position:absolute;left:6%;right:6%;top:24.6%;height:53%;border-radius:6.5cqw;padding:6cqw;background:linear-gradient(165deg,#2B7BF0 0%,#0B5BD3 38%,#073A8F 100%);color:#fff;box-shadow:0 5cqw 9cqw -4cqw rgba(5,42,102,.7);display:flex;flex-direction:column;will-change:transform;transform-style:preserve-3d;overflow:hidden}
-.pass::before{content:"";position:absolute;right:-22%;top:-30%;width:70%;aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.09)}
-.pass-top{display:flex;justify-content:space-between;align-items:center;font-size:3.5cqw;font-weight:700;letter-spacing:.16em;opacity:.8}
-.pass-top span:last-child{letter-spacing:.1em}
-.pass-name{margin-top:4.5cqw;font-family:var(--display);font-weight:800;font-size:8.6cqw;letter-spacing:-.035em;line-height:1}
-.pass-sub{margin-top:1.6cqw;font-size:4cqw;opacity:.78}
-.stamps{display:grid;grid-template-columns:repeat(3,18.5cqw);justify-content:space-between;gap:4cqw;margin-top:auto}
-.st{position:relative;aspect-ratio:1;border-radius:50%;box-shadow:inset 0 0 0 .7cqw rgba(255,255,255,.34)}
-.st b{position:absolute;inset:0;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 1.4cqw 3cqw -1cqw rgba(3,20,60,.6)}
-.st b svg{width:52%;height:52%;stroke:var(--blue);stroke-width:3.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.st u{position:absolute;inset:-18%;border-radius:50%;box-shadow:0 0 0 .8cqw rgba(255,255,255,.75);opacity:0}
-.pass-bot{display:flex;align-items:flex-end;justify-content:space-between;margin-top:5cqw}
-.qr{width:19cqw;height:19cqw;border-radius:3cqw;background:#fff;padding:2.2cqw}.qr svg{width:100%;height:100%}
-.cnt{text-align:right;font-family:var(--display);font-weight:800;font-size:12cqw;letter-spacing:-.04em;line-height:.9}
-.cnt small{display:block;margin-top:1.4cqw;font-family:var(--body);font-size:3.6cqw;font-weight:500;letter-spacing:0;opacity:.78}
-.rev{position:absolute;left:6%;right:6%;top:80.4%;height:12.6%;border-radius:5cqw;background:#fff;box-shadow:0 0 0 1px var(--line),0 3cqw 6cqw -4cqw rgba(7,58,143,.4);display:flex;align-items:center;gap:3.6cqw;padding:0 4.6cqw}
-.rev i{flex:none;width:10.5cqw;height:10.5cqw;border-radius:3cqw;background:var(--tint);display:grid;place-items:center}
-.rev i svg{width:56%;height:56%;fill:var(--blue)}
-.rev b{display:block;font-size:4.5cqw;font-weight:600;line-height:1.2;color:var(--ink)}
-.rev small{display:block;font-size:3.5cqw;color:var(--soft);line-height:1.3}
+.ghost{position:absolute;left:11%;right:11%;height:16%;border-radius:6cqw;top:15.5%;background:#C5D9FF}
+.ghost.g2{left:8.5%;right:8.5%;top:18.3%;background:#9DBFFF}
+#pass{position:absolute;left:6%;right:6%;top:21.5%;will-change:transform;transform-style:preserve-3d;box-shadow:0 5cqw 9cqw -4cqw rgba(5,20,60,.75)}
+.wp{--bg:#0B1F4D;--fg:#fff;--ac:#F2B33D;display:flex;flex-direction:column;aspect-ratio:.69;border-radius:4.6cqw;padding:5cqw 5cqw 4.6cqw;background:var(--bg);color:var(--fg);overflow:hidden;font-family:var(--body);transition:background-color .35s ease,color .3s ease}
+.wp small{display:block;font-size:3.1cqw;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ac);line-height:1.2}
+.wp-top{display:flex;justify-content:space-between;align-items:flex-start;gap:3cqw;min-height:11cqw}
+.wp-logo{display:flex;align-items:center;gap:2.4cqw;min-width:0;height:11cqw}
+.wp-logo img{height:11cqw;max-width:30cqw;object-fit:contain;border-radius:1.6cqw;flex:none}
+.wp-logo b{font-family:'Baloo 2',var(--display);font-weight:700;font-size:5.6cqw;line-height:1;letter-spacing:-.01em;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+.wp-s{flex:none;text-align:right}.wp-s span{display:block;font-size:5.6cqw;line-height:1.1}
+.wp-eye{margin-top:5.4cqw;text-align:center;font-family:'Baloo 2',var(--display);font-weight:700;font-size:2.9cqw;letter-spacing:.13em;text-transform:uppercase;color:var(--ac);line-height:1.2}
+.wp-prize{margin-top:.6cqw;text-align:center;font-family:'Baloo 2',var(--display);font-weight:700;font-size:6.5cqw;line-height:1.08;overflow-wrap:anywhere}
+.wp-row{display:flex;justify-content:center;gap:var(--g,1.8cqw);margin-top:2.6cqw}
+.st{position:relative;flex:none;width:var(--sz,11.2cqw);aspect-ratio:1;border-radius:50%;background:color-mix(in srgb,var(--ac) 13%,transparent);box-shadow:inset 0 0 0 .5cqw color-mix(in srgb,var(--ac) 78%,transparent);display:grid;place-items:center;font-family:'Baloo 2',var(--display);font-weight:700;font-size:calc(var(--sz,11.2cqw)*.44);color:var(--ac);font-style:normal}
+.st i{font-style:normal;line-height:1;display:grid;place-items:center}
+.st i svg{width:calc(var(--sz,11.2cqw)*.56);height:calc(var(--sz,11.2cqw)*.56);fill:var(--ac)}
+.st b{position:absolute;inset:-3%;border-radius:50%;background:radial-gradient(circle at 34% 27%,#FFF6C2 0%,#FFD95A 26%,#F3AE1F 60%,#C57F08 100%);box-shadow:inset 0 0 0 .45cqw #B8760A,inset 0 0 0 1cqw rgba(255,226,120,.9),0 .8cqw 1.8cqw rgba(0,0,0,.4);display:grid;place-items:center}
+.st b svg{width:56%;height:56%;stroke:#33240A;stroke-width:3.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.st b::after{content:"";position:absolute;right:-12%;top:-12%;width:44%;height:44%;background:#fff;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);opacity:0;transition:opacity .25s ease;filter:drop-shadow(0 0 1cqw rgba(255,255,255,.9))}
+.st.last b::after{opacity:1}
+.st u{position:absolute;inset:-18%;border-radius:50%;box-shadow:0 0 0 .8cqw rgba(255,214,90,.8);opacity:0}
+.wp-cap{margin-top:1.8cqw;text-align:center;font-family:'Baloo 2',var(--display);font-weight:700;font-size:3.1cqw;line-height:1.2}
+.wp-f{display:flex;justify-content:space-between;gap:3cqw;margin-top:3.4cqw}
+.wp-f:first-of-type{margin-top:4.6cqw}
+.wp-f span{display:block;font-size:4.9cqw;line-height:1.25;overflow-wrap:anywhere}
+.wp-f .r{text-align:right;flex:none}
+.wp-qr{align-self:center;margin-top:auto;width:30cqw;padding:2.4cqw 2.4cqw 1.4cqw;border-radius:2.4cqw;background:#fff}
+.wp-qr .qr svg{display:block;width:100%;height:auto}
+.wp-qr small{margin-top:1.2cqw;text-align:center;font-size:2.7cqw;font-weight:500;letter-spacing:.02em;color:#0A1B3D;text-transform:none}
 .toast{position:absolute;z-index:5;left:7%;right:7%;top:8.4%;height:11.4%;border-radius:5.4cqw;background:rgba(255,255,255,.96);box-shadow:0 4cqw 8cqw -3cqw rgba(7,58,143,.45),0 0 0 1px var(--line);display:flex;align-items:center;gap:3.4cqw;padding:0 4.2cqw;font-size:4.4cqw;font-weight:600;color:var(--ink)}
 .toast i{flex:none;width:9cqw;height:9cqw;border-radius:50%;background:var(--blue);display:grid;place-items:center}
 .toast i svg{width:54%;height:54%;stroke:#fff;stroke-width:3.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
@@ -265,21 +272,9 @@ svg{display:block}.sr{position:absolute;width:1px;height:1px;overflow:hidden;cli
 .mphone{position:relative;width:min(300px,74vw);aspect-ratio:.492;border-radius:15.5% / 7.6%;background:#0A1E4A;padding:3.1%;box-shadow:0 0 0 1.5px #1B3B7E,0 40px 70px -30px rgba(7,58,143,.6),0 18px 30px -18px rgba(5,42,102,.5)}
 .mglow{position:absolute;inset:-12% -40%;border-radius:50%;background:radial-gradient(closest-side,rgba(61,139,255,.3),rgba(61,139,255,0));pointer-events:none}
 .mscreen{position:relative;width:100%;height:100%;border-radius:13% / 6.3%;background:linear-gradient(180deg,#F7FAFF,#EAF1FF);overflow:hidden;container-type:inline-size}
-.mpass{--c:#0B5BD3;--on:#fff;position:absolute;left:6%;right:6%;top:11%;bottom:8%;border-radius:6.5cqw;padding:6cqw;background:var(--c);background:linear-gradient(165deg,color-mix(in srgb,var(--c) 80%,#fff) 0%,var(--c) 40%,color-mix(in srgb,var(--c) 72%,#000) 100%);color:var(--on);box-shadow:0 5cqw 9cqw -4cqw rgba(5,42,102,.55);display:flex;flex-direction:column;overflow:hidden;transition:color .3s ease}
-.mpass::before{content:"";position:absolute;right:-22%;top:-18%;width:70%;aspect-ratio:1;border-radius:50%;background:currentColor;opacity:.08}
-.mhead{position:relative;display:flex;align-items:center;gap:3.6cqw;margin-top:5cqw;min-height:16cqw}
-.mlogo{flex:none;width:16cqw;height:16cqw;border-radius:50%;background:#fff center/cover no-repeat;box-shadow:0 0 0 .6cqw rgba(255,255,255,.5)}
-.mlogo[hidden]{display:none}
-.mname{font-family:var(--display);font-weight:800;font-size:8cqw;letter-spacing:-.035em;line-height:1.04;overflow-wrap:anywhere}
-.mrule{position:relative;margin-top:5cqw;font-size:4.2cqw;opacity:.82}
-.mprize{position:relative;margin-top:1cqw;font-family:var(--display);font-weight:800;font-size:6.6cqw;letter-spacing:-.03em;line-height:1.08;overflow-wrap:anywhere}
-.mstamps{position:relative;display:grid;grid-template-columns:repeat(var(--cols,3),var(--sz,18.5cqw));justify-content:space-between;gap:3.4cqw;margin-top:auto}
-.mst{position:relative;aspect-ratio:1;border-radius:50%;box-shadow:inset 0 0 0 .7cqw color-mix(in srgb,currentColor 40%,transparent)}
-.mst b{position:absolute;inset:0;border-radius:50%;background:var(--on);display:grid;place-items:center;transform:scale(0);transition:transform .32s cubic-bezier(.34,1.56,.64,1)}
-.mst.on b{transform:scale(1)}
-.mst b svg{width:52%;height:52%;stroke:var(--c);stroke-width:3.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.mpass .pass-bot{position:relative}
-.mpass .qr{box-shadow:0 0 0 .5cqw rgba(10,27,61,.08)}
+#mPass{position:absolute;left:6%;right:6%;top:16.5%;box-shadow:0 5cqw 9cqw -4cqw rgba(5,20,60,.6)}
+#mPass .st b{transform:scale(0);transition:transform .34s cubic-bezier(.34,1.56,.64,1)}
+#mPass .st.on b{transform:scale(1)}
 .mact{display:flex;flex-direction:column;align-items:center;gap:10px;min-height:104px;width:100%;max-width:330px}
 .mact .btn{height:50px;padding:0 24px;font-size:15.5px}
 .mwin{font-family:var(--display);font-weight:800;font-size:18px;letter-spacing:-.02em;color:var(--blue);text-align:center;overflow-wrap:anywhere}
@@ -418,14 +413,16 @@ footer{padding:26px 0 calc(34px + env(safe-area-inset-bottom));text-align:center
           <div class="island"></div>
           <div class="w-head"><span>Wallet</span><i>+</i></div>
           <div class="ghost"></div><div class="ghost g2"></div>
-          <div class="pass" id="pass">
-            <div class="pass-top"><span>TARJETA DE SELLOS</span><span>•••</span></div>
-            <div class="pass-name">Tu Negocio</div>
-            <div class="pass-sub">Con tu logo y tus colores</div>
-            <div class="stamps"><div class="st"><b><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></b><u></u></div><div class="st"><b><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></b><u></u></div><div class="st"><b><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></b><u></u></div><div class="st"><b><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></b><u></u></div><div class="st"><b><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></b><u></u></div><div class="st"><b><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></b><u></u></div></div>
-            <div class="pass-bot"><div class="qr" id="qr"></div><div class="cnt"><span id="cnt">6/6</span><small>sellos</small></div></div>
+          <div class="wp" id="pass">
+            <div class="wp-top"><div class="wp-logo"><b>Tu Negocio</b></div><div class="wp-s"><small>Sellos</small><span id="cnt">6/6</span></div></div>
+            <p class="wp-eye">Tu premio al juntar 6 sellos</p>
+            <p class="wp-prize">Tu premio</p>
+            <div class="wp-row"><div class="st"><i>1</i><b><svg viewBox="0 0 24 24"><path d="m5 12.500 4.500 4.500L19 7.500"/></svg></b><u></u></div><div class="st"><i>2</i><b><svg viewBox="0 0 24 24"><path d="m5 12.500 4.500 4.500L19 7.500"/></svg></b><u></u></div><div class="st"><i>3</i><b><svg viewBox="0 0 24 24"><path d="m5 12.500 4.500 4.500L19 7.500"/></svg></b><u></u></div><div class="st"><i>4</i><b><svg viewBox="0 0 24 24"><path d="m5 12.500 4.500 4.500L19 7.500"/></svg></b><u></u></div><div class="st"><i>5</i><b><svg viewBox="0 0 24 24"><path d="m5 12.500 4.500 4.500L19 7.500"/></svg></b><u></u></div><div class="st"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.500h18V12H3zM4.500 13h6.750v8H6.500a2 2 0 0 1-2-2zM12.750 13h6.750v6a2 2 0 0 1-2 2h-4.750zM11.250 8.500h1.500V7.200c0-1.900 1.300-3.700 3.200-3.700 1.400 0 2.300 1 2.300 2.200 0 1.400-1.200 2.300-2.700 2.300h-2.800zM12.750 8.500h-1.500V7.200c0-1.900-1.300-3.700-3.200-3.700-1.400 0-2.300 1-2.300 2.200 0 1.400 1.200 2.300 2.700 2.300h2.800z"/></svg></i><b><svg viewBox="0 0 24 24"><path d="m5 12.500 4.500 4.500L19 7.500"/></svg></b><u></u></div></div>
+            <p class="wp-cap" id="cap">¡Tarjeta completa! Reclama tu premio</p>
+            <div class="wp-f"><div><small>Cliente</small><span>Rosa</span></div><div class="r"><small>Última visita</small><span class="hoy">24/11</span></div></div>
+            <div class="wp-f"><div><small>Invita a un amigo</small><span>Gana 1 sello extra</span></div></div>
+            <div class="wp-qr"><div class="qr" id="qr"></div><small>EJEMPLO</small></div>
           </div>
-          <div class="rev"><i><svg viewBox="0 0 24 24"><path d="m12 2.6 2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z"/></svg></i><div><b>Enlace a reseñas de Google</b><small>Directo desde tu tarjeta</small></div></div>
           <div class="toast"><i><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></i>Agregada a tu Wallet</div>
         </div></div>
         <div class="conf"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
@@ -462,13 +459,15 @@ footer{padding:26px 0 calc(34px + env(safe-area-inset-bottom));text-align:center
       <div class="mk-view rv">
         <div class="mphone"><div class="mglow"></div><div class="mscreen">
           <div class="island"></div>
-          <div class="mpass" id="mPass">
-            <div class="pass-top"><span>TARJETA DE SELLOS</span><span>•••</span></div>
-            <div class="mhead"><span class="mlogo" id="mLogo" hidden></span><div class="mname" id="mName">Tu Negocio</div></div>
-            <div class="mrule" id="mRule">Junta 6 sellos y gana:</div>
-            <div class="mprize" id="mPrize">Tu premio</div>
-            <div class="mstamps" id="mStamps"></div>
-            <div class="pass-bot"><div class="qr" id="mQr"></div><div class="cnt"><span id="mCnt">0/6</span><small>sellos</small></div></div>
+          <div class="wp" id="mPass">
+            <div class="wp-top"><div class="wp-logo"><img id="mLogo" alt="" hidden><b id="mName">Tu Negocio</b></div><div class="wp-s"><small>Sellos</small><span id="mCnt">0/6</span></div></div>
+            <p class="wp-eye" id="mRule">Tu premio al juntar 6 sellos</p>
+            <p class="wp-prize" id="mPrize">Tu premio</p>
+            <div class="wp-row" id="mStamps"></div>
+            <p class="wp-cap" id="mCap">Te faltan 6 sellos para tu premio</p>
+            <div class="wp-f"><div><small>Cliente</small><span>Tu cliente</span></div><div class="r"><small>Última visita</small><span class="hoy">24/11</span></div></div>
+            <div class="wp-f"><div><small>Invita a un amigo</small><span>Gana 1 sello extra</span></div></div>
+            <div class="wp-qr"><div class="qr" id="mQr"></div><small>EJEMPLO</small></div>
           </div>
         </div></div>
         <div class="mact"><button type="button" class="btn btn-soft" id="mBtn">Sellar una visita</button><p class="mwin" id="mWin" role="status" aria-live="polite"></p><p class="mnote">Tarjeta de ejemplo</p></div>
@@ -556,18 +555,21 @@ if(e){var a=x-e[0],b=y-e[1];on=(a===0||a===4||b===0||b===4||(a===2&&b===2))}else
 if(on)s+='<rect x="'+x+'" y="'+y+'" width="1.04" height="1.04"/>'}
 el.innerHTML='<svg viewBox="0 0 '+n+' '+n+'" fill="#0A1B3D">'+s+'</svg>'}
 fakeQR($('#qr'),7);fakeQR($('#mQr'),23);
+function faltan(el,k){el.textContent=k<=0?'¡Tarjeta completa! Reclama tu premio':k===1?'Te falta 1 sello para tu premio':'Te faltan '+k+' sellos para tu premio'}
+(function(){var d=new Date(),t=('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2);$$('.hoy').forEach(function(e){e.textContent=t})})();
+var GIFT='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.500h18V12H3zM4.500 13h6.750v8H6.500a2 2 0 0 1-2-2zM12.750 13h6.750v6a2 2 0 0 1-2 2h-4.750zM11.250 8.500h1.500V7.200c0-1.900 1.300-3.700 3.200-3.700 1.400 0 2.300 1 2.300 2.200 0 1.400-1.200 2.300-2.700 2.300h-2.800zM12.750 8.500h-1.500V7.200c0-1.900-1.300-3.700-3.200-3.700-1.400 0-2.300 1-2.300 2.200 0 1.400 1.200 2.300 2.700 2.300h2.800z"/></svg>',CHK='<svg viewBox="0 0 24 24"><path d="m5 12.500 4.500 4.500L19 7.500"/></svg>';
 
 /* ---------- arma tu tarjeta ---------- */
 (function(){var WA0='https://wa.me/51977651675?text=',st={name:'',prize:'',color:'#0B5BD3',cname:'Azul',n:6,got:0};
-var mPass=$('#mPass'),mName=$('#mName'),mPrize=$('#mPrize'),mRule=$('#mRule'),mStamps=$('#mStamps'),mCnt=$('#mCnt'),mLogo=$('#mLogo'),mBtn=$('#mBtn'),mWin=$('#mWin'),mkWa=$('#mkWa'),sw=$('#mkSw'),other=$('.other',sw),colN=$('#mkColorN'),logoUrl=null;
+var mPass=$('#mPass'),mName=$('#mName'),mPrize=$('#mPrize'),mRule=$('#mRule'),mStamps=$('#mStamps'),mCnt=$('#mCnt'),mCap=$('#mCap'),mLogo=$('#mLogo'),mBtn=$('#mBtn'),mWin=$('#mWin'),mkWa=$('#mkWa'),sw=$('#mkSw'),other=$('.other',sw),colN=$('#mkColorN'),logoUrl=null;
 function lum(h){var c=[1,3,5].map(function(i){var v=parseInt(h.substr(i,2),16)/255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*c[0]+.7152*c[1]+.0722*c[2]}
-function drawStamps(){var h='';for(var i=0;i<st.n;i++)h+='<div class="mst'+(i<st.got?' on':'')+'"><b><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.500"/></svg></b></div>';mStamps.innerHTML=h;
-mStamps.style.setProperty('--cols',st.n===8?4:st.n===5?5:3);mStamps.style.setProperty('--sz',st.n===8?'15.6cqw':st.n===5?'12.2cqw':'18.5cqw')}
+function drawStamps(){var h='';for(var i=0;i<st.n;i++)h+='<div class="st'+(i<st.got?' on':'')+(i===st.got-1?' last':'')+'"><i>'+(i===st.n-1?GIFT:(i+1))+'</i><b>'+CHK+'</b></div>';mStamps.innerHTML=h;
+mStamps.style.setProperty('--sz',st.n===8?'8.5cqw':'11.2cqw');mStamps.style.setProperty('--g',st.n===8?'1.4cqw':st.n===5?'2.6cqw':'1.8cqw')}
 function wa(){var t=st.name?'Hola, quiero esta tarjeta de YA! VOLVERÁS para mi negocio «'+st.name+'».':'Hola, quiero una tarjeta de YA! VOLVERÁS para mi negocio.';
 t+=' Color: '+st.cname+'.'+(st.prize?' Premio: '+st.prize+'.':'')+' Sellos: '+st.n+'.';mkWa.href=WA0+encodeURIComponent(t)}
-function paint(){mName.textContent=st.name||'Tu Negocio';mPrize.textContent=st.prize||'Tu premio';mRule.textContent='Junta '+st.n+' sellos y gana:';
-mPass.style.setProperty('--c',st.color);mPass.style.setProperty('--on',lum(st.color)>.42?'#0A1B3D':'#fff');
-mCnt.textContent=st.got+'/'+st.n;var full=st.got>=st.n;mBtn.textContent=full?'Empezar de nuevo':'Sellar una visita';
+function paint(){mName.textContent=st.name||'Tu Negocio';mPrize.textContent=st.prize||'Tu premio';mRule.textContent='Tu premio al juntar '+st.n+' sellos';
+var claro=lum(st.color)>.42;mPass.style.setProperty('--bg',st.color);mPass.style.setProperty('--fg',claro?'#0A1B3D':'#fff');mPass.style.setProperty('--ac',claro?'#0A1B3D':'#F2B33D');
+mCnt.textContent=st.got+'/'+st.n;faltan(mCap,st.n-st.got);$$('.st',mStamps).forEach(function(e,i){e.classList.toggle('last',i===st.got-1)});var full=st.got>=st.n;mBtn.textContent=full?'Empezar de nuevo':'Sellar una visita';
 mWin.textContent=full?('¡Tarjeta completa! Premio: '+(st.prize||'tu premio')):'';wa()}
 function pop(el){if(window.gsap&&!reduce)gsap.fromTo(el,{scale:.94},{scale:1,duration:.45,ease:'back.out(2.6)',clearProps:'transform'})}
 $('#mkName').addEventListener('input',function(e){st.name=e.target.value.trim().slice(0,26);paint()});
@@ -578,9 +580,9 @@ $$('button',sw).forEach(function(b){b.addEventListener('click',function(){setCol
 $('#mkColor').addEventListener('input',function(e){setColor(e.target.value,'Personalizado ('+e.target.value.toUpperCase()+')',null)});
 $$('#mkSeg button').forEach(function(b){b.addEventListener('click',function(){st.n=+b.dataset.n;st.got=0;$$('#mkSeg button').forEach(function(x){x.setAttribute('aria-pressed',String(x===b))});drawStamps();paint();pop(mStamps)})});
 $('#mkLogo').addEventListener('change',function(e){var f=e.target.files&&e.target.files[0];if(!f||!/^image\//.test(f.type))return;if(logoUrl)URL.revokeObjectURL(logoUrl);logoUrl=URL.createObjectURL(f);
-mLogo.style.backgroundImage='url("'+logoUrl+'")';mLogo.hidden=false;$('#mkLogoX').hidden=false;$('#mkUpT').textContent='Cambiar logo';pop(mLogo)});
-$('#mkLogoX').addEventListener('click',function(){if(logoUrl)URL.revokeObjectURL(logoUrl);logoUrl=null;mLogo.style.backgroundImage='';mLogo.hidden=true;this.hidden=true;$('#mkLogo').value='';$('#mkUpT').textContent='Subir logo'});
-mBtn.addEventListener('click',function(){if(st.got>=st.n){st.got=0;drawStamps();paint();return}st.got++;var el=$$('.mst',mStamps)[st.got-1];el.classList.add('on');paint();
+mLogo.src=logoUrl;mLogo.hidden=false;$('#mkLogoX').hidden=false;$('#mkUpT').textContent='Cambiar logo';pop(mLogo)});
+$('#mkLogoX').addEventListener('click',function(){if(logoUrl)URL.revokeObjectURL(logoUrl);logoUrl=null;mLogo.removeAttribute('src');mLogo.hidden=true;this.hidden=true;$('#mkLogo').value='';$('#mkUpT').textContent='Subir logo'});
+mBtn.addEventListener('click',function(){if(st.got>=st.n){st.got=0;drawStamps();paint();return}st.got++;var el=$$('.st',mStamps)[st.got-1];el.classList.add('on');paint();
 if(window.gsap&&!reduce){gsap.fromTo(mPass,{scale:1},{scale:1.025,duration:.09,yoyo:true,repeat:1,ease:'power1.out'});if(st.got>=st.n)gsap.fromTo(mWin,{scale:.6,opacity:0},{scale:1,opacity:1,duration:.5,ease:'back.out(2.4)',clearProps:'transform,opacity'})}});
 drawStamps();paint()})();
 
@@ -686,15 +688,15 @@ b.addEventListener('pointermove',function(e){var r=b.getBoundingClientRect();x((
 b.addEventListener('pointerleave',function(){x(0);y(0)})})}
 
 /* ---------- demo fija ---------- */
-var pw=$('#pw'),phone=$('#phone'),pass=$('#pass'),sts=$$('.st'),cnt=$('#cnt'),chaps=$$('.chap'),dash=$$('.dashes b'),prize=$('#prize'),conf=$$('.conf i');
+var pw=$('#pw'),phone=$('#phone'),pass=$('#pass'),sts=$$('.st',$('#pass')),cnt=$('#cnt'),cap=$('#cap'),chaps=$$('.chap'),dash=$$('.dashes b'),prize=$('#prize'),conf=$$('.conf i');
 function sizePw(){pw.style.setProperty('--pw',pw.offsetWidth+'px')}sizePw();addEventListener('resize',sizePw);
 var cuts=[0,.7,1.95,4.35,5.85],stT=[],cur=-1;
 function chapter(k){if(k===cur)return;chaps.forEach(function(c,i){c.classList.toggle('on',i===k);c.classList.toggle('out',i<k)});cur=k}
-cnt.textContent='0/'+sts.length;
+cnt.textContent='0/'+sts.length;faltan(cap,sts.length);
 gsap.set(sts.map(function(s){return $('b',s)}),{scale:0});
 var tl=gsap.timeline({defaults:{ease:'power2.out'},scrollTrigger:{trigger:'.stage',start:'top top',end:'+=330%',pin:true,scrub:.6,anticipatePin:1,invalidateOnRefresh:true,
 }});
-function sync(){var t=tl.time(),n=0;for(var i=0;i<sts.length;i++)if(t>=stT[i]+.1)n++;cnt.textContent=n+'/'+sts.length;
+function sync(){var t=tl.time(),n=0;for(var i=0;i<sts.length;i++)if(t>=stT[i]+.1)n++;cnt.textContent=n+'/'+sts.length;faltan(cap,sts.length-n);sts.forEach(function(e,i){e.classList.toggle('last',i===n-1)});
 var k=0;for(var j=1;j<4;j++)if(t>=cuts[j])k=j;chapter(k);
 dash.forEach(function(b,i){var p=(t-cuts[i])/(cuts[i+1]-cuts[i]);b.style.transform='scaleX('+Math.max(0,Math.min(1,p))+')'})}
 tl.eventCallback('onUpdate',sync);
@@ -703,16 +705,16 @@ gsap.timeline({scrollTrigger:{trigger:'.stage',start:'top 92%',end:'top top',scr
  .fromTo(phone,{yPercent:46,rotationY:-38,rotationX:18,rotationZ:8,scale:.82,opacity:0},{yPercent:0,rotationY:-13,rotationX:5,rotationZ:1.5,scale:1,opacity:1,duration:1,ease:'power2.out'},0)
  .fromTo('.glow,.ring',{scale:.4,opacity:0},{scale:1,opacity:1,duration:1,stagger:.08,ease:'power2.out'},0)
  .fromTo(pass,{rotationX:-80,opacity:0},{rotationX:0,opacity:1,duration:.6,ease:'power2.out'},.4);
-gsap.set(pass,{yPercent:-13,scale:1.02});
+gsap.set(pass,{yPercent:-9,scale:1.02});
 tl.fromTo(phone,{rotationY:-13,rotationX:5,rotationZ:1.5},{rotationY:-17,rotationX:6,rotationZ:2,duration:.7,ease:'sine.inOut',immediateRender:false},0)
 /* 2 · entra al Wallet */
  .fromTo(phone,{rotationY:-17,rotationX:6,rotationZ:2},{rotationY:0,rotationX:0,rotationZ:0,duration:.9,ease:'power2.inOut',immediateRender:false},.7)
  .fromTo('.w-head',{opacity:0,y:-10},{opacity:1,y:0,duration:.4},.9)
  .fromTo('.ghost',{opacity:0,yPercent:60},{opacity:1,yPercent:0,duration:.5,stagger:.1},.92)
- .fromTo(pass,{yPercent:-13,scale:1.02},{yPercent:0,scale:1,duration:.6,ease:'power3.inOut',immediateRender:false},.92)
+ .fromTo(pass,{yPercent:-9,scale:1.02},{yPercent:0,scale:1,duration:.6,ease:'power3.inOut',immediateRender:false},.92)
  .fromTo('.toast',{autoAlpha:0,yPercent:-140},{autoAlpha:1,yPercent:0,duration:.32,ease:'back.out(1.8)'},1.3)
  .to('.toast',{autoAlpha:0,yPercent:-140,duration:.28,ease:'power2.in'},1.86)
- .fromTo('.rev',{opacity:0,yPercent:40},{opacity:1,yPercent:0,duration:.45},1.5);
+;
 /* 3 · sellos */
 sts.forEach(function(s,i){var T=2.1+i*.37;stT.push(T);
 tl.fromTo($('b',s),{scale:0,rotation:-50},{scale:1,rotation:0,duration:.26,ease:'back.out(3)'},T)
