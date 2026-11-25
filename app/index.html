@@ -1,0 +1,1308 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>YA! VOLVERÁS...</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230A5BD3'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Arial Black,Arial' font-weight='900' font-size='30' fill='white'%3EYA!%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800;900&family=Anton&display=swap">
+<style>
+:root{--vino:#460E0D;--vino2:#5A1A18;--vino3:#6B2A26;--amarillo:#F9B40F;--amarillo2:#FFC63A;--crema:#F3DDD5;--rosa:#C98E80;--borde:#9A4A3E;--blanco:#FFFFFF;--ok:#F9B40F;--error:#FF8A80;
+--ease-out:cubic-bezier(.23,1,.32,1);--ease-in-out:cubic-bezier(.77,0,.175,1);--ease-arrive:cubic-bezier(.16,1,.3,1);--dur:180ms}
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{background:var(--vino);color:var(--blanco);font-family:'Nunito',system-ui,sans-serif;font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+h1,h2,h3,.display{font-family:'Baloo 2','Nunito',sans-serif;font-weight:800;line-height:1.05;margin:0}
+h1{font-size:30px}h2{font-size:22px}h3{font-size:18px;font-weight:700}
+p{margin:0}button,input,select,textarea{font:inherit;color:inherit}
+.app{max-width:480px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column}
+.screen{padding:24px 20px 96px;display:flex;flex-direction:column;gap:14px;flex:1}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--amarillo);text-transform:uppercase}
+.sub{font-size:14px;color:var(--crema)}
+.card{background:var(--vino2);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.card.outline{background:transparent;border:1.5px solid var(--amarillo)}
+.card.yellow{background:var(--amarillo);color:var(--vino)}
+.card.white{background:var(--blanco);color:var(--vino)}
+label{font-size:13px;font-weight:700;color:var(--crema);display:block;margin-bottom:6px}
+.field{display:flex;flex-direction:column}
+input,select,textarea{width:100%;height:50px;border:1.5px solid var(--borde);border-radius:14px;background:var(--vino2);color:#fff;padding:0 14px;font-size:17px;font-weight:600;outline:none;transition:border-color var(--dur) var(--ease-out)}
+textarea{height:auto;padding:12px 14px;min-height:80px}
+input:focus,select:focus,textarea:focus{border-color:var(--amarillo)}
+input::placeholder{color:#B07C70}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23F9B40F' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px}
+.money{display:flex;align-items:center;height:60px;border:1.5px solid var(--borde);border-radius:14px;background:var(--vino2);padding:0 16px;gap:8px}
+.money span{font-family:'Baloo 2',sans-serif;font-size:22px;font-weight:700;color:var(--rosa)}
+.money input{border:0;background:transparent;height:100%;padding:0;font-family:'Baloo 2',sans-serif;font-size:30px;font-weight:800}
+.btn{height:56px;border:0;border-radius:16px;background:var(--amarillo);color:var(--vino);font-family:'Baloo 2',sans-serif;font-size:18px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform 120ms var(--ease-out),background var(--dur) var(--ease-out);width:100%}
+.btn:active{transform:scale(.98)}.btn:disabled{opacity:.5;cursor:default}
+.btn.ghost{background:transparent;border:1.5px solid var(--amarillo);color:var(--amarillo)}
+.btn.sm{height:44px;font-size:15px;border-radius:12px;width:auto;padding:0 16px}
+.btn.danger{background:transparent;border:1.5px solid var(--borde);color:var(--crema)}
+.row{display:flex;gap:8px;align-items:center}.grow{flex:1;min-width:0}
+.hint{font-size:12.5px;color:var(--rosa)}
+.msg{border-radius:14px;padding:12px 14px;font-weight:600;font-size:14px}
+.msg.err{background:#2E0A0A;border:1.5px solid #B3473A;color:#FFD0CA}
+.msg.ok{background:var(--vino2);border:1.5px solid var(--amarillo)}
+.wallet-btns{display:flex;flex-direction:column;gap:10px}
+.wbtn{display:flex;align-items:center;justify-content:center;gap:10px;height:54px;border-radius:14px;background:#000;color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.35)}
+.wbtn svg{width:26px;height:26px}.wbtn span{display:flex;flex-direction:column;line-height:1.05;font-weight:700;font-size:17px;text-align:left}.wbtn small{font-size:11px;font-weight:600;opacity:.85}
+.aviso{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translate(-50%,12px);width:max-content;max-width:min(92vw,440px);z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+.aviso.ver{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;background:var(--vino2);border-radius:14px;padding:5px}
+.seg button{height:40px;border:0;border-radius:10px;background:transparent;color:var(--crema);font-weight:700;font-size:14px;cursor:pointer;transition:background var(--dur) var(--ease-out),color var(--dur)}
+.seg button.on{background:var(--amarillo);color:var(--vino)}
+.avatar{width:40px;height:40px;border-radius:999px;background:var(--amarillo);color:var(--vino);display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:18px;flex-shrink:0}
+.stamps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.stamp{position:relative;aspect-ratio:1;border-radius:999px;border:2px solid var(--borde);display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;color:var(--rosa);transition:transform 220ms var(--ease-out),background 220ms var(--ease-out),border-color 220ms var(--ease-out)}
+/* Sello ganado: moneda metálica del color de acento (dorado), con luz que se mueve al inclinar el celular */
+.stamp.on{background:var(--amarillo);border-color:transparent;color:var(--vino);box-shadow:inset 0 0 0 2px rgba(255,255,255,.42),inset 0 -4px 7px rgba(0,0,0,.26),0 2px 5px rgba(0,0,0,.35)}
+@supports (background:color-mix(in srgb,red 50%,blue)){.stamp.on{background:linear-gradient(135deg,color-mix(in srgb,var(--amarillo) 50%,#fff) 0%,var(--amarillo) 30%,color-mix(in srgb,var(--amarillo) 55%,#fff) 47%,var(--amarillo) 60%,color-mix(in srgb,var(--amarillo) 62%,#000) 100%)}}
+.stamp.on svg{position:relative;z-index:2;filter:drop-shadow(0 1px 0 rgba(255,255,255,.55))}
+.stamp.on::before,.stamp.on::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1}
+.stamp.on::before{background:radial-gradient(circle at var(--lx,32%) var(--ly,26%),rgba(255,255,255,.9) 0,rgba(255,255,255,.3) 24%,rgba(255,255,255,0) 54%)}
+.stamp.on::after{background:linear-gradient(115deg,rgba(255,255,255,0) 38%,rgba(255,255,255,.85) 50%,rgba(255,255,255,0) 62%) no-repeat;background-size:300% 100%;background-position:140% 0}
+#misSellos .stamp.on::after{animation:barrido 5s ease-in-out infinite;animation-delay:calc(var(--i,0)*140ms)}
+@keyframes barrido{0%,62%{background-position:140% 0}86%,100%{background-position:-40% 0}}
+#misSellos .stamp.ult{animation:halo 2.4s ease-in-out infinite alternate}
+@keyframes halo{from{box-shadow:inset 0 0 0 2px rgba(255,255,255,.42),inset 0 -4px 7px rgba(0,0,0,.26),0 2px 5px rgba(0,0,0,.35),0 0 0 0 rgba(255,221,128,0)}to{box-shadow:inset 0 0 0 2px rgba(255,255,255,.6),inset 0 -4px 7px rgba(0,0,0,.26),0 2px 5px rgba(0,0,0,.35),0 0 14px 3px rgba(255,221,128,.6)}}
+/* En caja el sello sumado es solo una confirmación rápida (se registra decenas de veces por turno) */
+.stamp.new{animation:pop 160ms var(--ease-out)}
+@keyframes pop{from{transform:scale(.9);opacity:.5}to{transform:scale(1);opacity:1}}
+/* En el celular del cliente el sello nuevo cae como un sellazo, rebota y suelta una onda */
+#misSellos .stamp.new{z-index:5;animation:sellazo 640ms cubic-bezier(.2,.9,.3,1) both,onda 720ms 280ms ease-out,halo 2.4s 1s ease-in-out infinite alternate}
+@keyframes sellazo{0%{transform:scale(2.7) rotate(-16deg);opacity:0}44%{transform:scale(.86) rotate(2deg);opacity:1}62%{transform:scale(1.1) rotate(-1deg)}82%{transform:scale(.98)}100%{transform:none}}
+@keyframes onda{0%{box-shadow:0 0 0 0 rgba(255,231,160,.95)}100%{box-shadow:0 0 0 22px rgba(255,231,160,0)}}
+.stamps.golpe{animation:temblor 300ms 280ms ease-out}
+@keyframes temblor{0%{transform:translateY(0)}30%{transform:translateY(3px)}60%{transform:translateY(-2px)}100%{transform:none}}
+.chispa{position:fixed;z-index:90;pointer-events:none;width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);background:radial-gradient(circle,#fff 0,#FFE9A8 45%,var(--amarillo) 100%);clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);animation:chispa 720ms cubic-bezier(.15,.7,.3,1) forwards}
+@keyframes chispa{0%{transform:translate(0,0) scale(.3) rotate(0);opacity:1}70%{opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1) rotate(160deg);opacity:0}}
+.brillo-tip{font-size:12.5px;font-weight:700;color:var(--rosa);text-align:center}
+.premio-in{animation:arrive 600ms var(--ease-arrive)}
+@keyframes arrive{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+.nav{position:fixed;left:0;right:0;bottom:0;background:var(--vino);border-top:1px solid var(--vino2);padding:8px 0 calc(10px + env(safe-area-inset-bottom));display:flex;justify-content:center}
+.nav .in{width:100%;max-width:480px;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}
+.nav button{background:none;border:0;color:var(--rosa);font-size:11.5px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;cursor:pointer;min-height:48px}
+.nav button.on{color:var(--amarillo)}
+.nav svg{width:24px;height:24px}
+.toplogo{display:block;height:68px;width:auto;max-width:230px;object-fit:contain;margin:0 0 8px -2px}
+.lockb{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px;border-radius:999px;border:1.5px solid var(--borde);background:transparent;color:var(--crema);font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap}.lockb svg{width:16px;height:16px}.lockb.abierto{background:var(--amarillo);border-color:var(--amarillo);color:var(--vino)}
+.hoja{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;padding:12px}.hoja .card{background:var(--vino);width:100%;max-width:440px;gap:12px;margin-bottom:env(safe-area-inset-bottom);box-shadow:0 12px 40px rgba(0,0,0,.45)}
+.logobox{display:flex;align-items:center;gap:14px;padding:12px;border:1.5px solid var(--borde);border-radius:16px;background:var(--vino2)}.logobox .pv{width:64px;height:64px;border-radius:12px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:22px;color:var(--amarillo)}.logobox .pv img{width:100%;height:100%;object-fit:contain}
+.qrgrande{background:#fff;border-radius:22px;padding:22px;display:flex;align-items:center;justify-content:center}.qrgrande svg{width:100%;max-width:300px;height:auto}
+.list{display:flex;flex-direction:column;gap:8px}
+.item{background:var(--vino2);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+.item .t{font-weight:700}.item .s{font-size:12.5px;color:var(--crema)}
+.chip{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--vino3);color:var(--crema);white-space:nowrap}
+.chip.y{background:var(--amarillo);color:var(--vino)}
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.kpi{background:var(--vino2);border-radius:14px;padding:12px 14px}
+.kpi .n{font-family:'Baloo 2',sans-serif;font-size:28px;font-weight:800;color:var(--amarillo);line-height:1}
+.kpi .l{font-size:12.5px;color:var(--crema);margin-top:4px}
+.logo{max-width:180px;max-height:110px;object-fit:contain;border-radius:10px}
+.qr{width:150px;height:150px;flex-shrink:0;background:#fff;border-radius:12px;padding:6px}
+.qr svg{width:100%;height:100%;display:block}
+.hold{position:relative;overflow:hidden}
+.hold .bar{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(70,14,13,.18);transition:none}
+.hold.holding .bar{width:100%;transition:width 1.5s linear}
+.hidden{display:none !important}
+.center{text-align:center}
+a{color:var(--amarillo)}
+.skeleton{background:linear-gradient(90deg,var(--vino2),var(--vino3),var(--vino2));background-size:200% 100%;animation:sk 1.2s linear infinite;border-radius:14px;height:60px}
+@keyframes sk{to{background-position:-200% 0}}
+
+/* ---- Lobby YA! VOLVERÁS... (blanco y azul) ---- */
+body.lobby{background:#FFFFFF;color:#0A0A0A;--lb-bg2:#F5F5F7;--lb-ink2:#3A3A3C;--lb-ink3:#6E6E73;--lb-az:#0A5BD3;--lb-deep:#063A8A;--lb-night:#041F4D;--lb-border:#EDEDF0}
+body.lobby .app{max-width:440px}
+body.lobby h1,body.lobby h2,body.lobby h3{font-family:'Nunito',sans-serif;font-weight:900;letter-spacing:-.02em;color:#0A0A0A}
+body.lobby .sub{color:var(--lb-ink2)}body.lobby .hint{color:var(--lb-ink3)}
+body.lobby label{color:var(--lb-ink2)}
+body.lobby input,body.lobby select,body.lobby textarea{background:var(--lb-bg2);border-color:transparent;color:#0A0A0A;border-radius:16px}
+body.lobby input::placeholder{color:#9A9AA0}
+body.lobby input:focus,body.lobby select:focus{border-color:var(--lb-az);background:#fff}
+body.lobby .btn{background:var(--lb-az);color:#fff;border-radius:999px;font-family:'Nunito',sans-serif;font-weight:800}
+body.lobby .btn.ghost{background:transparent;border:1.5px solid var(--lb-az);color:var(--lb-az)}
+body.lobby .btn.danger{background:transparent;border:1.5px solid var(--lb-border);color:var(--lb-ink2)}
+body.lobby .card{background:var(--lb-bg2)}body.lobby .card.white{background:#fff;border:1px solid var(--lb-border)}
+body.lobby .msg.err{background:#FFF1F0;border-color:#F5B5AE;color:#8A1C12}body.lobby .msg.ok{background:#EAF2FF;border-color:#B9D3FF;color:#063A8A}
+body.lobby .item{background:#fff;border:1px solid var(--lb-border)}body.lobby .item .s{color:var(--lb-ink3)}
+body.lobby .chip{background:var(--lb-bg2);color:var(--lb-ink2)}body.lobby .chip.y{background:var(--lb-az);color:#fff}
+body.lobby .kpi{background:#fff;border:1px solid var(--lb-border)}body.lobby .kpi .n{color:var(--lb-az)}body.lobby .kpi .l{color:var(--lb-ink3)}
+body.lobby a{color:var(--lb-az)}body.lobby .avatar{background:var(--lb-az);color:#fff}
+body.lobby .skeleton{background:linear-gradient(90deg,#F5F5F7,#ECECEF,#F5F5F7);background-size:200% 100%}
+body.lobby .nav{background:#fff;border-top:1px solid var(--lb-border)}body.lobby .nav button{color:var(--lb-ink3)}body.lobby .nav button.on{color:var(--lb-az)}
+@media (hover:hover) and (pointer:fine){body.lobby .btn:hover{background:#0848A8}body.lobby .btn.ghost:hover,body.lobby .btn.danger:hover{background:var(--lb-bg2)}}
+.yv{display:inline-flex;flex-direction:column;align-items:flex-start;font-family:'Anton',sans-serif;line-height:.88;letter-spacing:.01em;white-space:nowrap;color:#0A5BD3;text-shadow:1px 1px 0 #063A8A,2px 2px 0 #063A8A,3px 3px 0 #063A8A,4px 4px 0 #063A8A}
+.yv .ya{font-size:62px}.yv .vo{font-size:27px;letter-spacing:.09em}
+.yv.sm{text-shadow:1px 1px 0 #063A8A,2px 2px 0 #063A8A}.yv.sm .ya{font-size:26px}.yv.sm .vo{font-size:11.5px;letter-spacing:.09em}
+.yv.w{color:#fff;text-shadow:1px 1px 0 #041F4D,2px 2px 0 #041F4D,3px 3px 0 #041F4D}
+.yv.row{flex-direction:row;align-items:baseline;gap:.3em}.yv.row .vo{font-size:inherit;letter-spacing:.03em}
+.yv-foot{font-family:'Anton',sans-serif;font-size:12px;letter-spacing:.04em;white-space:nowrap}
+.tabla{width:100%;border-collapse:collapse;font-size:14px}.tabla th{text-align:left;font-weight:700;color:#6E6E73;font-size:12px;padding:8px 10px;border-bottom:1px solid #EDEDF0}.tabla td{padding:12px 10px;border-bottom:1px solid #EDEDF0;vertical-align:middle}
+.seg.s3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.delta{font-size:12px;font-weight:800;margin-top:6px}.delta.up{color:var(--amarillo)}.delta.down{color:var(--error)}.delta.eq{color:var(--rosa)}.delta span{font-weight:600;color:var(--rosa)}
+.chart svg{width:100%;height:auto;display:block;touch-action:pan-y}
+.tip{font-size:13px;font-weight:700;color:var(--crema);min-height:19px}
+.leyenda{display:flex;gap:14px;font-size:12px;color:var(--crema);font-weight:700}.leyenda i{display:inline-block;width:14px;height:0;border-top:2.5px solid var(--amarillo);vertical-align:middle;margin-right:5px}.leyenda i.prev{border-top:2px dashed var(--rosa)}
+.rank{width:30px;height:30px;border-radius:999px;background:var(--vino3);color:var(--crema);display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:14px;flex-shrink:0}.rank.r1{background:var(--amarillo);color:var(--vino)}
+.podio{display:flex;flex-direction:column;gap:6px}.podio .p{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.08);border-radius:12px;padding:8px 10px}.podio .rank{background:var(--vino);color:var(--amarillo)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:999px;background:#1F9D55;margin-right:6px}.dot.off{background:#C7C7CC}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (hover:hover) and (pointer:fine){.btn:hover{background:var(--amarillo2)}.btn.ghost:hover,.btn.danger:hover{background:var(--vino2)}}
+</style>
+</head>
+<body>
+<div class="app" id="app"><div class="screen"><div class="skeleton"></div><div class="skeleton"></div></div></div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import qrcode from 'https://esm.sh/qrcode-generator@1.4.4';
+
+const SUPABASE_URL = 'https://ildmschqezgtkoeokcja.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_OX_eva6RkRAN0uqUfuZLOg_bnn8wT_k';
+const BASE_URL = location.origin + location.pathname.replace(/index\.html$/, '');
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+const app = document.getElementById('app');
+const $ = (s, r=document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const soles = n => 'S/ ' + Number(n||0).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
+// ----- Rubros: cada negocio pertenece a uno y la app habla en sus palabras (restaurante: «compra»; barbería: «visita») -----
+const RUBROS = {restaurante:'Restaurantes', barberia:'Barberías', otro:'Otros negocios'};
+const RUBRO_UNO = {restaurante:'Restaurante', barberia:'Barbería', otro:'Otro'};
+let RUBRO_ACTUAL = 'restaurante';
+const pal = n => ((n&&n.rubro)||RUBRO_ACTUAL)==='barberia' ? 'visita' : 'compra';
+const Pal = n => { const w=pal(n); return w[0].toUpperCase()+w.slice(1); };
+const fecha = d => new Date(d).toLocaleDateString('es-PE',{day:'2-digit',month:'short'});
+const fechaHora = d => new Date(d).toLocaleString('es-PE',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hour12:false}).replace(',','');
+const ini = n => (n||'?').trim().charAt(0).toUpperCase();
+const store = { get:k=>{try{return localStorage.getItem(k)}catch{return null}}, set:(k,v)=>{try{localStorage.setItem(k,v)}catch{}} };
+const rpc = async (fn, args={}) => { const {data,error} = await sb.rpc(fn, args); if (error) throw new Error(limpiaError(error.message)); return data; };
+const limpiaError = m => (m||'Error').replace(/^.*?:\s*/,'').replace(/\(SQLSTATE.*\)/,'').trim();
+const icon = {
+  carta:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/></svg>',
+  applew:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="3"/><path d="M3 9h18M16 14h2"/><path d="M6 5l9-3 2 3"/></svg>',
+  googlew:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="15" rx="3"/><path d="M3 9h18M16 14h2"/><path d="M6 5l9-3 2 3"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>',
+  gift:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v8H4v-8M2 7h20v5H2zM12 22V7M12 7c-2-3-6-3-6-1s4 1 6 1zM12 7c2-3 6-3 6-1s-4 1-6 1z"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  panel:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  scan:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/><rect x="7" y="7" width="4" height="4"/><rect x="13" y="7" width="4" height="4"/><rect x="7" y="13" width="4" height="4"/><path d="M13 13h4v4"/></svg>',
+  wa:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.9 11.9 0 0 0 4.5 4c1.7.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.2c0-.1-.2-.2-.4-.3z"/></svg>',
+  stats:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+  lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+  unlock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 7.6-1.7"/></svg>',
+  qr:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>',
+  logout:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17l5-5-5-5M15 12H3M21 3v18"/></svg>'
+};
+
+
+const LOGO = (cls='') => `<span class="yv ${cls}" aria-label="YA! VOLVERÁS..."><span class="ya">YA!</span><span class="vo">VOLVERÁS...</span></span>`;
+const PIE = `<span class="yv-foot">YA! VOLVERÁS...</span>`;
+function hexMix(a, b, t){ const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)); const A=p(a),B=p(b); return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join(''); }
+function aplicarTema(n){
+  RUBRO_ACTUAL = (n&&n.rubro)||'restaurante';
+  const p=(n&&n.color_primario)||'#460E0D', a=(n&&n.color_acento)||'#F9B40F';
+  const r=document.documentElement.style;
+  r.setProperty('--vino',p); r.setProperty('--vino2',hexMix(p,'#ffffff',.1)); r.setProperty('--vino3',hexMix(p,'#ffffff',.18));
+  r.setProperty('--borde',hexMix(p,'#ffffff',.38)); r.setProperty('--rosa',hexMix(p,'#ffffff',.6)); r.setProperty('--crema',hexMix(p,'#ffffff',.85));
+  r.setProperty('--amarillo',a); r.setProperty('--amarillo2',hexMix(a,'#ffffff',.18)); r.setProperty('--ok',a);
+  document.body.classList.remove('lobby'); const m=document.querySelector('meta[name=theme-color]'); if(m) m.content=p;
+}
+function modoLobby(){ document.body.classList.add('lobby'); const m=document.querySelector('meta[name=theme-color]'); if(m) m.content='#FFFFFF'; }
+
+// ---------- Apple Wallet / Google Wallet ----------
+const WALLET_URL = `${SUPABASE_URL}/functions/v1/wallet`;
+let walletOn = {apple:false, google:false};
+// Google Wallet: acceso de publicación aprobado por Google el 2 nov 2026.
+const GOOGLE_PUBLICO = true;
+const walletListo = fetch(`${WALLET_URL}/estado`).then(r=>r.json()).then(j=>{ walletOn={apple:!!j.apple, google:!!j.google && GOOGLE_PUBLICO}; return walletOn; }).catch(()=>walletOn);
+const esIOS = /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent) && !/Android/.test(navigator.userAgent);
+const esAndroid = /Android/.test(navigator.userAgent);
+function msgTarjeta(nombre, negocio, link){
+  const w = walletOn.apple || walletOn.google;
+  return `Hola ${String(nombre||'').split(' ')[0]}, esta es tu tarjeta de sellos de ${negocio}: ${link}` + (w ? `\n\nÁbrela y toca «Añadir a Wallet» para tenerla siempre en tu celular.` : '');
+}
+function botonesWallet(tok){
+  const apple = walletOn.apple && (esIOS || !esAndroid), google = walletOn.google && (esAndroid || !esIOS);
+  if(!apple && !google) return '';
+  const t = encodeURIComponent(tok);
+  return `<div class="wallet-btns">
+    ${apple?`<a class="wbtn" href="${WALLET_URL}/apple?t=${t}">${icon.applew}<span><small>Añadir a</small>Apple Wallet</span></a>`:''}
+    ${google?`<a class="wbtn" href="${WALLET_URL}/google?t=${t}">${icon.googlew}<span><small>Añadir a</small>Google Wallet</span></a>`:''}
+  </div>`;
+}
+
+
+// ---------- Inscripción del cliente por QR (?n=SLUG) ----------
+const linkInscripcion = slug => `${BASE_URL}?n=${encodeURIComponent(slug)}`;
+async function vistaInscripcion(slug){
+  document.title = 'Tu tarjeta de sellos';
+  let n; try{ n = await rpc('negocio_publico',{p_slug:slug}); }catch{ n=null; }
+  if(!n){ modoLobby(); app.innerHTML=`<div class="screen center" style="justify-content:center"><h1>Negocio no encontrado</h1><p class="sub">Revisa el código QR o pide tu tarjeta en caja.</p></div>`; return; }
+  aplicarTema(n); document.title = `Tarjeta de sellos · ${n.nombre}`;
+  const guardado = store.get('yv_t_'+n.slug);
+  const refInv = (new URLSearchParams(location.search).get('r')||'').replace(/[^A-Za-z0-9]/g,'').slice(0,12);
+  app.innerHTML = `<div class="screen" style="padding-bottom:28px">
+    <div class="center">${n.logo_url?`<img class="logo" src="${esc(n.logo_url)}" alt="${esc(n.nombre)}">`:`<h2>${esc(n.nombre)}</h2>`}</div>
+    <div><h1>Tu tarjeta de sellos</h1><p class="sub">Regístrate en 10 segundos y guárdala en tu Apple Wallet o Google Wallet.</p></div>
+    ${guardado?'':`<div class="card yellow" style="gap:4px;padding:14px 16px"><span class="display" style="font-size:17px">${refInv?'Un amigo te invitó: ':''}¡Regístrate y empieza con 1 sello de regalo!</span></div>`}
+    ${guardado?`<div class="card yellow" style="gap:8px"><span class="display" style="font-size:18px">Ya tienes tu tarjeta en este celular</span><a class="btn" style="background:var(--vino);color:var(--amarillo);text-decoration:none" href="?t=${encodeURIComponent(guardado)}">Ver mi tarjeta</a></div>`:''}
+    <div class="card outline" style="gap:4px"><span class="eyebrow" style="text-transform:none;letter-spacing:.02em">${n.visita_gratis?`Junta ${n.meta_sellos-1} sellos y tu siguiente visita es gratis`:`Junta ${n.meta_sellos} sellos y llévate`}</span><span class="display" style="font-size:19px">${esc(n.premio)}</span><span class="hint" style="color:var(--crema)">${reglasTxt(n)}</span></div>
+    ${n.activo?`<form id="fi" class="card" style="gap:12px">
+      <div class="field"><label for="in_nom">Tu nombre</label><input id="in_nom" autocomplete="name" maxlength="60" required placeholder="Nombre y apellido"></div>
+      <div class="field"><label for="in_cel">Tu celular</label><input id="in_cel" type="tel" inputmode="numeric" autocomplete="tel" maxlength="15" required placeholder="987 654 321"></div>
+      <div id="in_m" class="msg err hidden"></div>
+      <button class="btn" type="submit">Crear mi tarjeta</button>
+      <label style="display:flex;gap:8px;align-items:flex-start;font-size:11.5px;font-weight:600;line-height:1.35;margin:0;cursor:pointer"><input id="in_ok" type="checkbox" required checked style="width:16px;height:16px;flex-shrink:0;margin-top:1px;accent-color:var(--amarillo)"><span>Acepto que ${esc(n.nombre)} use mi nombre y celular para mi tarjeta de sellos y para avisarme de mis premios y promociones.</span></label>
+      <details style="font-size:11px;line-height:1.4;opacity:.85"><summary style="cursor:pointer">Aviso de privacidad</summary><p style="margin-top:6px">Responsable: ${esc(n.nombre)}${n.direccion?', '+esc(n.direccion):''}. Datos: tu nombre y celular. Para qué: administrar tu tarjeta de sellos y avisarte de tus sellos, premios y promociones de este negocio. No vendemos ni compartimos tus datos con otras empresas; se guardan en YA! VOLVERÁS..., la plataforma que usa el negocio para su tarjeta. Puedes pedir ver, corregir o borrar tus datos (Ley 29733) escribiendo al negocio${n.whatsapp?' por WhatsApp al '+esc(n.whatsapp):' o en caja'}.</p></details>
+    </form>`:`<div class="msg err">Este negocio no está recibiendo inscripciones por ahora. Pide tu tarjeta en caja.</div>`}
+    <div class="row" style="justify-content:space-between;padding:0 4px"><span class="hint">${esc(n.nombre)}${n.direccion?' · '+esc(n.direccion):''}</span><span style="color:var(--amarillo)">${PIE}</span></div>
+  </div>`;
+  const f=$('#fi'); if(!f) return;
+  f.onsubmit = async ev => { ev.preventDefault(); const m=$('#in_m'), b=f.querySelector('button'); m.classList.add('hidden'); b.disabled=true; b.textContent='Creando tu tarjeta…';
+    try{ const r = await rpc('inscribirme',{p_slug:n.slug, p_nombre:$('#in_nom').value, p_celular:$('#in_cel').value, p_ref:refInv||null});
+      if(r.error) throw new Error(r.error);
+      store.set('yv_t_'+n.slug, r.token);
+      location.href = `?t=${encodeURIComponent(r.token)}&bienvenida=${r.nuevo?1:2}`;
+    }catch(e){ m.textContent=e.message; m.classList.remove('hidden'); b.disabled=false; b.textContent='Crear mi tarjeta'; } };
+}
+
+// ---------- Material QR: afiche A5 para imprimir + imagen cuadrada para redes ----------
+function lum(hex){ const n=parseInt((hex||'#000').slice(1),16); const c=[n>>16&255,n>>8&255,n&255].map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)}); return .2126*c[0]+.7152*c[1]+.0722*c[2]; }
+function cargarImg(src){ return new Promise(ok=>{ if(!src) return ok(null); const i=new Image(); i.onload=()=>ok(i); i.onerror=()=>ok(null); i.src=src; }); }
+function lineas(ctx, txt, max){ const pal=String(txt).split(/\s+/); const out=[]; let l=''; for(const p of pal){ const t=l?l+' '+p:p; if(ctx.measureText(t).width>max && l){ out.push(l); l=p; } else l=t; } if(l) out.push(l); return out; }
+function textoCentrado(ctx, txt, x, y, max, size, peso, fam, color, maxLin=2, alto=1.12){
+  let s=size, ls; do{ ctx.font=`${peso} ${s}px ${fam}`; ls=lineas(ctx, txt, max); s-=4; } while(ls.length>maxLin && s>20);
+  ctx.fillStyle=color; ctx.textAlign='center'; ctx.textBaseline='top';
+  const lh=(s+4)*alto; ls.forEach((l,i)=>ctx.fillText(l, x, y+i*lh)); return y+ls.length*lh;
+}
+function redondo(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function dibujarQR(ctx, texto, x, y, lado){ const q=qrcode(0,'M'); q.addData(texto); q.make(); const n=q.getModuleCount(), m=lado/(n+2);
+  ctx.fillStyle='#fff'; ctx.fillRect(x,y,lado,lado); ctx.fillStyle='#000';
+  for(let r=0;r<n;r++) for(let c=0;c<n;c++) if(q.isDark(r,c)) ctx.fillRect(Math.floor(x+(c+1)*m), Math.floor(y+(r+1)*m), Math.ceil(m), Math.ceil(m)); }
+async function lienzoMaterial(n, tipo){
+  try{ await Promise.all(['800 60px "Baloo 2"','700 40px Nunito','400 40px Anton'].map(f=>document.fonts.load(f))); }catch{}
+  const W = tipo==='afiche'?1748:1080, H = tipo==='afiche'?2480:1080, k = W/1748;
+  const cv=document.createElement('canvas'); cv.width=W; cv.height=H; const ctx=cv.getContext('2d');
+  const P=n.color_primario||'#460E0D', A=n.color_acento||'#F9B40F', claro=lum(P)>.45;
+  const T=claro?'#111':'#fff', T2=claro?'rgba(0,0,0,.65)':'rgba(255,255,255,.82)';
+  ctx.fillStyle=P; ctx.fillRect(0,0,W,H);
+  const logo=await cargarImg(n.logo_url), url=linkInscripcion(n.slug), B='"Baloo 2", "Nunito", sans-serif', N='Nunito, sans-serif';
+  let y;
+  if(tipo==='afiche'){
+    y=130;
+    if(logo){ const bw=1000, bh=360, e=Math.min(bw/logo.width, bh/logo.height); const w=logo.width*e, h=logo.height*e; ctx.drawImage(logo,(W-w)/2,y+(bh-h)/2,w,h); y+=bh+70; }
+    else y=textoCentrado(ctx, n.nombre, W/2, y+40, W-240, 150, 800, B, T, 2)+60;
+    y=textoCentrado(ctx, 'Tu tarjeta de sellos', W/2, y, W-200, 132, 800, B, A, 1);
+    y=textoCentrado(ctx, 'Escanea, regístrate y guárdala en tu Apple Wallet o Google Wallet', W/2, y+20, W-300, 58, 700, N, T2, 2, 1.25)+50;
+    const lado=Math.min(980, H-y-560); ctx.fillStyle='#fff'; redondo(ctx,(W-lado)/2-40,y,lado+80,lado+80,60); ctx.fill(); dibujarQR(ctx,url,(W-lado)/2,y+40,lado); y+=lado+80+70;
+    y=textoCentrado(ctx, `Junta ${n.meta_sellos} sellos y llévate`, W/2, y, W-240, 60, 700, N, T2, 1);
+    y=textoCentrado(ctx, n.premio, W/2, y+10, W-220, 92, 800, B, A, 2, 1.05)+30;
+    textoCentrado(ctx, `1 sello al día con ${pal(n)} desde ${soles(n.monto_minimo)}`, W/2, y, W-240, 48, 700, N, T2, 1);
+    ctx.globalAlpha=.6; textoCentrado(ctx, 'YA! VOLVERÁS...', W/2, H-110, W, 44, 400, 'Anton, sans-serif', T, 1); ctx.globalAlpha=1;
+  } else {
+    y=60;
+    if(logo){ const bw=560, bh=170, e=Math.min(bw/logo.width, bh/logo.height); const w=logo.width*e, h=logo.height*e; ctx.drawImage(logo,(W-w)/2,y+(bh-h)/2,w,h); y+=bh+24; }
+    else y=textoCentrado(ctx, n.nombre, W/2, y+10, W-160, 92, 800, B, T, 1)+20;
+    y=textoCentrado(ctx, 'Tu tarjeta de sellos', W/2, y, W-120, 80, 800, B, A, 1)+8;
+    const lado=520; ctx.fillStyle='#fff'; redondo(ctx,(W-lado)/2-26,y,lado+52,lado+52,40); ctx.fill(); dibujarQR(ctx,url,(W-lado)/2,y+26,lado); y+=lado+52+28;
+    y=textoCentrado(ctx, `Junta ${n.meta_sellos} sellos y llévate: ${n.premio}`, W/2, y, W-140, 44, 800, B, T, 2, 1.1);
+    textoCentrado(ctx, 'Escanéalo y guárdala en tu Apple Wallet o Google Wallet', W/2, H-70, W-120, 30, 700, N, T2, 1);
+  }
+  return cv;
+}
+async function materialQR(slug){
+  const ov=document.createElement('div'); ov.style.cssText='position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.72);display:flex;align-items:flex-end;justify-content:center;padding:12px';
+  ov.innerHTML=`<div style="background:#fff;color:#111;border-radius:22px;width:100%;max-width:460px;max-height:94dvh;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:12px;font-family:Nunito,system-ui,sans-serif">
+    <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:19px">QR para tus clientes</b><button id="qx" aria-label="Cerrar" style="border:0;background:#eee;border-radius:999px;width:36px;height:36px;font-size:18px;cursor:pointer">✕</button></div>
+    <p style="margin:0;font-size:14px;color:#555">El cliente lo escanea, pone su nombre y celular, y guarda su tarjeta en el Wallet. Imprime el afiche y ponlo en el mostrador.</p>
+    <div id="qp" style="background:#f2f2f4;border-radius:14px;min-height:240px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#777">Preparando…</div>
+    <a id="qa" class="wbtn" style="background:#111" href="#">Descargar afiche para imprimir (A5)</a>
+    <a id="qc" class="wbtn" style="background:#fff;color:#111;border:1.5px solid #111" href="#">Descargar imagen para redes</a>
+    <div style="font-size:12.5px;color:#666;word-break:break-all">Link: <span id="ql"></span></div>
+  </div>`;
+  document.body.appendChild(ov); const cerrar=()=>ov.remove(); ov.querySelector('#qx').onclick=cerrar; ov.onclick=e=>{ if(e.target===ov) cerrar(); };
+  try{
+    const n=await rpc('negocio_publico',{p_slug:slug}); if(!n) throw new Error('Negocio no encontrado');
+    ov.querySelector('#ql').textContent=linkInscripcion(n.slug);
+    const af=await lienzoMaterial(n,'afiche'), cu=await lienzoMaterial(n,'cuadrado');
+    ov.querySelector('#qp').innerHTML=`<img src="${af.toDataURL('image/jpeg',.85)}" alt="Afiche" style="width:100%;border-radius:12px;display:block">`;
+    const bajar=(cv,nombre)=>async e=>{ e.preventDefault(); const b=await new Promise(ok=>cv.toBlob(ok,'image/png')); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=nombre; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},1500); };
+    ov.querySelector('#qa').onclick=bajar(af,`qr-${n.slug}-afiche.png`);
+    ov.querySelector('#qc').onclick=bajar(cu,`qr-${n.slug}-redes.png`);
+  }catch(e){ ov.querySelector('#qp').textContent=e.message; }
+}
+
+// ---------- Tarjeta pública del cliente (?t=TOKEN) ----------
+const token = new URLSearchParams(location.search).get('t');
+const slugInsc = new URLSearchParams(location.search).get('n');
+if (token) { vistaTarjeta(token); } else if (slugInsc) { vistaInscripcion(slugInsc); } else { iniciarStaff(); }
+
+function qrSVG(text){ const q = qrcode(0,'M'); q.addData(text); q.make(); return q.createSvgTag({cellSize:4, margin:0, scalable:true}); }
+function stampsHTML(sellos, meta, nuevo){ let h=''; for(let i=1;i<=meta;i++){ const on=i<=sellos; h+=`<div class="stamp ${on?'on':''} ${on&&nuevo===i?'new':''} ${on&&i===sellos&&nuevo!==i?'ult':''}" style="--i:${i}">${on?icon.check:i}</div>`; } return h; }
+// ---- Sellos dorados: chispas, sellazo y brillo que sigue la inclinación del celular ----
+const sinMovimiento = () => matchMedia('(prefers-reduced-motion:reduce)').matches;
+function chispas(el, cuantas=12, alcance=1){
+  if(!el || !el.isConnected || sinMovimiento()) return;
+  const r=el.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2, base=Math.min(r.width,r.height);
+  for(let i=0;i<cuantas;i++){ const c=document.createElement('i'); c.className='chispa'; const ang=(i/cuantas)*Math.PI*2+Math.random()*.5, d=base*alcance*(.85+Math.random()*.9);
+    c.style.cssText=`left:${cx}px;top:${cy}px;--dx:${(Math.cos(ang)*d).toFixed(1)}px;--dy:${(Math.sin(ang)*d).toFixed(1)}px;--s:${(7+Math.random()*8).toFixed(1)}px;animation-delay:${Math.round(Math.random()*70)}ms`;
+    document.body.appendChild(c); c.addEventListener('animationend',()=>c.remove()); setTimeout(()=>c.remove(),1200); }
+}
+function sellazo(el){ if(!el) return; setTimeout(()=>{ chispas(el); try{ navigator.vibrate && navigator.vibrate(35); }catch{} }, sinMovimiento()?0:280); }
+// Los sellos que el cliente todavía no ha visto caen uno por uno (desde = cuántos ya había visto)
+function animarSellos(desde, hasta, meta){
+  const cont=$('#misSellos'); if(!cont) return;
+  for(let i=desde;i<hasta;i++) setTimeout(()=>{ const el=cont.children[i]; if(!el||!el.isConnected) return;
+    cont.querySelectorAll('.ult,.new').forEach(x=>{ if(x!==el){ x.classList.remove('new'); x.classList.remove('ult'); } });
+    el.className='stamp on new'; el.innerHTML=icon.check;
+    cont.classList.remove('golpe'); void cont.offsetWidth; cont.classList.add('golpe'); sellazo(el);
+    const c=$('#cuenta'); if(c) c.textContent=`${i+1} de ${meta}`; }, 500+(i-desde)*800);
+}
+let brilloOn=false;
+function activarBrillo(){
+  if(brilloOn) return; brilloOn=true; let raf=0, x=32, y=26;
+  const pon=(nx,ny)=>{ x=nx; y=ny; if(!raf) raf=requestAnimationFrame(()=>{ raf=0; const r=document.documentElement.style; r.setProperty('--lx',x.toFixed(1)+'%'); r.setProperty('--ly',y.toFixed(1)+'%'); }); };
+  const lim=(v,a,b)=>Math.max(a,Math.min(b,v));
+  addEventListener('deviceorientation',ev=>{ if(ev.gamma==null) return; const t=$('#btip'); if(t && !t.dataset.ok){ t.dataset.ok=1; t.textContent='Mueve tu celular para ver brillar tus sellos'; } pon(50+lim(ev.gamma,-32,32)*1.4, 50+lim((ev.beta||0)-42,-32,32)*1.4); });
+  addEventListener('pointermove',ev=>{ if(ev.pointerType==='mouse') pon(lim(ev.clientX/innerWidth*100,8,92), lim(ev.clientY/innerHeight*100,8,92)); });
+}
+// En iPhone el giroscopio pide permiso y solo se puede pedir tras un toque del usuario
+const giroPidePermiso = () => typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function';
+function tipBrillo(){ if(sinMovimiento() || !matchMedia('(pointer:coarse)').matches) return ''; return `<p class="brillo-tip" id="btip">${giroPidePermiso()?'Toca tus sellos y mueve tu celular para verlos brillar':'Mueve tu celular para ver brillar tus sellos'}</p>`; }
+function enlazarBrillo(){ activarBrillo(); const c=$('#misSellos'); if(!c || !giroPidePermiso()) return; c.addEventListener('click',()=>{ DeviceOrientationEvent.requestPermission().then(r=>{ if(r==='granted'){ const t=$('#btip'); if(t) t.textContent='Mueve tu celular para ver brillar tus sellos'; } }).catch(()=>{}); }); }
+const vistoKey = tok => 'yv_visto_'+tok;
+function leerVisto(tok){ try{ const v=JSON.parse(localStorage.getItem(vistoKey(tok))||'null'); return v&&typeof v.s==='number'?v:null; }catch{ return null; } }
+function guardarVisto(tok, e){ try{ localStorage.setItem(vistoKey(tok), JSON.stringify({s:e.sellos, p:e.premio_disponible?e.premio_disponible.id||e.premio_disponible.vence_en:null})); }catch{} }
+const DIAS_SEM = ['','lunes','martes','miércoles','jueves','viernes','sábado','domingo'];
+// Reglas en letra chica (las mismas que salen al reverso de la tarjeta del Wallet)
+function reglasTxt(n){ const c=(n.dias_cerrado||[]).map(d=>DIAS_SEM[d]).filter(Boolean); const sc=c.length?` (sin contar ${c.length>1?c.slice(0,-1).join(', ')+' y '+c[c.length-1]:c[0]})`:'';
+  return `1 sello al día con ${pal(n)} desde ${soles(n.monto_minimo)}.`+(n.visita_gratis?` Con ${n.meta_sellos-1} sellos, tu siguiente visita es gratis.`:` El premio se reclama el mismo día en caja; plazo máximo: ${n.premio_vigencia_dias} días${sc}.`)+` Si pasas ${n.dias_inactividad||40} días sin venir, tus sellos se reinician.`; }
+const fechaLarga = d => new Date(d).toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long',timeZone:'America/Lima'});
+function mensajeSellos(s, meta, premio, w='compra', gratis=false){ const f=meta-s; if(premio && s===0) return `Completaste tu tarjeta: tu premio está listo. Tu próxima ${w} inicia una nueva.`; if(s===0) return `Tu primera ${w} suma tu primer sello.`; if(gratis && f===1) return '¡Tu próxima visita es gratis!'; if(gratis && f>1) return f===2?'Te falta 1 visita para tu visita gratis.':`Te faltan ${f-1} visitas para tu visita gratis.`; if(f===1) return 'Te falta 1 sello para tu premio.'; if(f<=0) return 'Completaste la tarjeta.'; return `Te faltan ${f} sellos para tu premio.`; }
+
+async function vistaTarjeta(tok){
+  document.title = 'Mi tarjeta';
+  try{
+    const e = await rpc('tarjeta_por_token',{p_token:tok});
+    // Primero se pinta lo que el cliente ya había visto; cuando el Wallet responde (o tras 1,2 s) caen los sellos nuevos
+    renderTarjeta(e, tok, sellosVistos(e, tok));
+    let tarde=false; await Promise.race([walletListo, new Promise(r=>setTimeout(()=>{ tarde=true; r(); },1200))]);
+    pintarTarjeta(e, tok);
+    if(tarde) walletListo.then(()=>{ const w=$('#wbox'); if(w) w.innerHTML=botonesWallet(tok); });
+    const aviso = new URLSearchParams(location.search).get('aviso'); if(aviso) alertMsg(aviso);
+    document.addEventListener('visibilitychange', async()=>{ if(!document.hidden){ try{ pintarTarjeta(await rpc('tarjeta_por_token',{p_token:tok}), tok);}catch{} } });
+  }catch(err){
+    modoLobby(); app.innerHTML = `<div class="screen center" style="justify-content:center"><h1>Tarjeta no encontrada</h1><p class="sub">Pide en caja que te vuelvan a enviar tu link.</p></div>`;
+  }
+}
+// Cuántos sellos mostrar «ya puestos»: los que el cliente vio la última vez en este celular (los demás caen animados)
+function sellosVistos(e, tok){
+  const v=leerVisto(tok);
+  if(v) return v.s<e.sellos ? v.s : e.sellos;
+  return new URLSearchParams(location.search).get('bienvenida')==='1' && e.sellos>0 ? e.sellos-1 : e.sellos;
+}
+function pintarTarjeta(e, tok){
+  const v=leerVisto(tok), desde=sellosVistos(e, tok), p=e.premio_disponible;
+  const premioNuevo = !!(v && p && v.p!==(p.id||p.vence_en));
+  renderTarjeta(e, tok, desde);
+  guardarVisto(tok, e);
+  if(desde<e.sellos) animarSellos(desde, e.sellos, e.meta);
+  if(premioNuevo) setTimeout(()=>{ const c=$('#premioListo'); chispas(c, 22, 1.5); try{ navigator.vibrate && navigator.vibrate([40,60,40]); }catch{} }, 450);
+}
+function renderTarjeta(e, tok, mostrados){
+  const n=e.negocio, link=`${BASE_URL}?t=${tok}`; aplicarTema(n);
+  const premio=e.premio_disponible; if(mostrados==null) mostrados=e.sellos;
+  app.innerHTML = `
+  <div class="screen" style="padding-bottom:24px">
+    <div class="center">${n.logo_url?`<img class="logo" src="${esc(n.logo_url)}" alt="${esc(n.nombre)}">`:`<h2>${esc(n.nombre)}</h2>`}</div>
+    <div><h1>Hola, ${esc(e.cliente.nombre.split(' ')[0])}</h1><p class="sub">Tu tarjeta de sellos</p></div>
+    ${new URLSearchParams(location.search).get('bienvenida')?`<div class="card yellow premio-in" style="gap:10px"><span class="display" style="font-size:19px">${new URLSearchParams(location.search).get('bienvenida')==='1'?'¡Listo! Ya tienes tu tarjeta y tu primer sello de regalo':'¡Aquí está tu tarjeta!'}</span><span style="font-weight:600;font-size:14px">${walletOn.apple||walletOn.google?'Guárdala en tu Wallet para tenerla siempre a mano:':`Muéstrala en caja en cada ${pal()} para sumar tus sellos.`}</span>${botonesWallet(tok)}</div>`:''}
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><h3>Tus sellos</h3><span class="display" id="cuenta" style="font-size:22px;color:var(--amarillo)">${mostrados} de ${e.meta}</span></div>
+      <div class="stamps" id="misSellos">${stampsHTML(mostrados,e.meta)}</div>
+      <p class="sub">${mensajeSellos(e.sellos,e.meta,!!premio,pal(e.negocio),e.negocio.visita_gratis)}</p>
+      ${e.sellos>0?tipBrillo():''}
+    </div>
+    ${premio?`<div class="card yellow premio-in" id="premioListo"><span class="display" style="font-size:19px">Tienes un premio listo</span><span style="font-weight:600">${esc(premio.descripcion)}</span><span style="font-size:12.5px;font-weight:700">Reclámalo en caja hasta el ${fecha(premio.vence_en)}</span></div>`
+            :`<div class="card outline" style="gap:3px"><span class="eyebrow" style="text-transform:none;letter-spacing:.02em">Tu premio al completar ${e.meta}</span><span class="display" style="font-size:17px;font-weight:700">${esc(n.premio)}</span></div>`}
+    ${n.resena_url && e.ultimo_canje && (Date.now()-new Date(e.ultimo_canje).getTime())<14*864e5 ? `<div class="card outline" style="gap:8px"><h3>¿Disfrutaste tu premio?</h3><p class="sub">Cuéntalo en Google. Tu opinión ayuda mucho a ${esc(n.nombre)}.</p><a class="btn sm" style="text-decoration:none;height:44px" href="${esc(n.resena_url)}" target="_blank" rel="noopener">Dejar mi reseña en Google</a></div>`:''}
+    ${bloqueRanking(e)}
+    <div class="card white" style="flex-direction:row;align-items:center;gap:14px">
+      <div class="qr">${qrSVG(link)}</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span class="display" style="font-size:17px">Muestra este código en caja</span>
+        <span style="font-size:13px;line-height:1.35;color:var(--vino3)">${reglasTxt(n)}</span>
+        <span style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--borde)">${esc(tok.slice(0,8).toUpperCase())}</span>
+      </div>
+    </div>
+    <div id="wbox">${botonesWallet(tok)}</div>
+    ${e.cliente.ref?(()=>{ const inv=`${BASE_URL}?n=${encodeURIComponent(n.slug)}&r=${e.cliente.ref}`; const txt=`¡Hola! Te invito a ${n.nombre}. Regístrate con este link y empiezas tu tarjeta con 1 sello de regalo: ${inv}`;
+      return `<div class="card outline" style="gap:8px"><h3>Invita a un amigo</h3><p class="sub">Si tu amigo se registra con tu link y hace su primera ${pal()}, <b>tú ganas 1 sello de regalo</b> (hasta 3 al mes). Él también empieza con 1 sello.</p><a class="btn sm" style="text-decoration:none;height:44px" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener"><span style="width:20px;height:20px">${icon.wa}</span>Invitar por WhatsApp</a></div>`; })():''}
+    <div class="row" style="justify-content:space-between;padding:0 4px"><span class="hint">${esc(n.nombre)}${n.direccion?' · '+esc(n.direccion):''}</span><span style="color:var(--amarillo)">${PIE}</span></div>
+    <p class="hint center">${walletOn.apple||walletOn.google?'Guárdala en tu Wallet o en la pantalla de inicio para tenerla a mano.':'Guarda esta página en tu pantalla de inicio para tenerla a mano.'}</p>
+  </div>`;
+  enlazarBrillo();
+}
+
+const mesLima = (off=0) => { const d=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Lima'})); d.setDate(1); d.setMonth(d.getMonth()+off); return d.toLocaleDateString('es-PE',{month:'long'}); };
+function bloqueRanking(e){
+  const pm=e.negocio.premio_mes, rk=e.ranking||{}; if(!pm) return '';
+  const v=rk.visitas_mes||0;
+  return `<div class="card outline" style="gap:6px">
+    <span class="eyebrow" style="text-transform:none;letter-spacing:.02em">Cliente del mes · ${mesLima()}</span>
+    ${rk.puesto?`<div class="row" style="align-items:baseline;gap:8px"><span class="display" style="font-size:34px;color:var(--amarillo)">#${rk.puesto}</span><span class="sub">de ${rk.participantes} cliente${rk.participantes==1?'':'s'} · ${v} visita${v==1?'':'s'} este mes</span></div>
+      <p class="sub" style="font-weight:700">${rk.puesto==1?'¡Vas primero! Sigue así para ganar.':'Cada visita te acerca al primer puesto.'}</p>`
+      :`<p class="sub" style="font-weight:700">Aún no tienes visitas este mes. Tu próxima ${pal()} te pone en carrera.</p>`}
+    <p class="hint" style="color:var(--crema)">El cliente con más visitas del mes gana: <b style="color:var(--amarillo)">${esc(pm)}</b></p>
+  </div>`;
+}
+
+// ---------- App del personal ----------
+let session=null, panel=null, tab='registrar', estadoActual=null;
+async function iniciarStaff(){
+  const {data:{session:s}} = await sb.auth.getSession(); session=s;
+  sb.auth.onAuthStateChange((_e,s2)=>{ session=s2; if(!s2){ panel=null; render(); } });
+  if(!session) return vistaLogin();
+  await cargarPanel();
+}
+async function cargarPanel(){
+  const {error:eu} = await sb.auth.getUser(); if(eu){ await sb.auth.signOut().catch(()=>{}); session=null; panel=null; return vistaLogin('Tu sesión ya no es válida. Vuelve a entrar.'); }
+  try{ panel = await rpc('mi_panel'); }catch(err){ return vistaLogin(err.message); }
+  if(panel && panel.es_superadmin && (!panel.negocio || vistaForzada!=='negocio')) return vistaMaestro();
+  if(!panel || !panel.negocio) return vistaRegistrarNegocio();
+  render();
+}
+let vistaForzada=null;
+
+// Usuario de negocio -> cuenta interna (usuario@yavolveras.com). Si escriben un correo, se usa tal cual.
+const usuarioACorreo = u => { u=String(u||'').trim().toLowerCase(); return u.includes('@') ? u : `${u}@yavolveras.com`; };
+function vistaLogin(msg=''){
+  modoLobby(); document.title='YA! VOLVERÁS...';
+  let finT=''; try{ finT=localStorage.getItem('yv_fin_turno')||''; localStorage.removeItem('yv_fin_turno'); }catch{}
+  app.innerHTML = `<div class="screen" style="justify-content:center;gap:26px;padding-bottom:40px">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:18px">${LOGO()}<h1 style="font-size:28px">Ingresa a tu negocio</h1></div>
+    <form id="f" style="display:flex;flex-direction:column;gap:10px">
+      <div class="field"><input id="em" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required placeholder="Usuario" value="${esc(store.get('yv_usuario')||'')}"></div>
+      <div class="field"><input id="pw" type="password" autocomplete="current-password" required minlength="4" placeholder="Contraseña o PIN"></div>
+      <div id="m" class="msg err ${msg?'':'hidden'}">${esc(msg)}</div>
+      ${finT?`<div class="msg ok">${esc(finT)}</div>`:''}
+      <button class="btn" type="submit" style="margin-top:4px">Entrar</button>
+    </form>
+    <p class="hint center" style="margin-top:auto">Empleados y Caja: tu usuario y tu PIN de 4 números.<br>Dueños: tu usuario y tu contraseña.<br><br><a href="/?web=1" style="color:inherit;text-decoration:underline;text-underline-offset:3px">Conoce YA! VOLVERÁS: planes y precios</a></p>
+  </div>`;
+  const f=$('#f'), m=$('#m');
+  const showErr = t => { m.className='msg err'; m.textContent=t; };
+  f.onsubmit = async ev => { ev.preventDefault(); m.classList.add('hidden'); const b=f.querySelector('.btn'); b.disabled=true;
+    const usuario=$('#em').value.trim(), pass=$('#pw').value;
+    try{
+      if(/^\d{4}$/.test(pass)){
+        const a = await rpc('acceso_empleado',{p_usuario:usuario, p_pin:pass}); if(a.error) throw new Error(a.error.replace('Te quedan 1 intentos','Te queda 1 intento'));
+        const {error} = await sb.auth.signInWithPassword({email:a.email, password:a.clave}); if(error) throw new Error(traduceAuth(error.message));
+        await rpc('empezar_turno');
+      } else {
+        const {error} = await sb.auth.signInWithPassword({email:usuarioACorreo(usuario), password:pass});
+        if(error) throw new Error(traduceAuth(error.message));
+      }
+      if(!usuario.includes('@')) store.set('yv_usuario', usuario.toLowerCase());
+      const {data:{session:s}} = await sb.auth.getSession(); session=s; await cargarPanel();
+    }catch(e){ showErr(e.message); b.disabled=false; } };
+}
+function traduceAuth(m){ if(/Invalid login/i.test(m)) return 'Usuario o contraseña incorrectos.'; if(/Email not confirmed/i.test(m)) return 'Confirma tu correo desde el enlace que te enviamos.'; if(/already registered/i.test(m)) return 'Ese correo ya tiene cuenta. Pulsa Entrar.'; if(/rate limit/i.test(m)) return 'Demasiados intentos. Espera un momento.'; return m; }
+
+function vistaRegistrarNegocio(){
+  modoLobby();
+  app.innerHTML = `<div class="screen" style="gap:18px">
+    <div style="display:flex;flex-direction:column;align-items:flex-start;gap:14px">${LOGO('sm')}<div><span class="eyebrow" style="color:var(--lb-az)">Paso 1 de 2</span><h1 style="font-size:28px">Registra tu negocio</h1><p class="sub">Esto se hace una sola vez.</p></div></div>
+    <form id="f" style="display:flex;flex-direction:column;gap:12px">
+      <div class="field"><label>Código de acceso</label><input id="cod" required autocomplete="off" placeholder="YV-XXXXX" style="text-transform:uppercase;letter-spacing:.12em;font-weight:800" value="${esc(store.get('yv_codigo')||'')}"></div>
+      <div class="field"><label>Nombre del negocio</label><input id="nn" required placeholder="El Chacombo"></div>
+      <div class="field"><label>Premio al completar 6 sellos</label><input id="np" placeholder="6 alitas + papas nativas + 1 salsa a elección"></div>
+      <div class="row"><div class="field grow"><label>WhatsApp (opcional)</label><input id="nw" type="tel" placeholder="934517954"></div><div class="field grow"><label>Dirección (opcional)</label><input id="nd" placeholder="San Hilarión, SJL"></div></div>
+      <div id="m" class="msg err hidden"></div>
+      <button class="btn" type="submit">Crear negocio</button>
+      <button class="btn danger" type="button" id="salir">Salir</button>
+    </form>
+    <p class="hint">Reglas iniciales: 1 sello al día con compra desde S/20 y meta de 6 sellos. El premio se reclama el mismo día (máximo 7 días) y los sellos se reinician a los 40 días sin venir. En las barberías, la visita que completa la tarjeta es gratis. Se cambian en el panel.</p>
+  </div>`;
+  $('#salir').onclick = salir;
+  $('#f').onsubmit = async ev => { ev.preventDefault(); const m=$('#m'); m.classList.add('hidden');
+    try{ await rpc('registrar_mi_negocio',{p_codigo:$('#cod').value.trim().toUpperCase(), p_slug:$('#nn').value, p_nombre:$('#nn').value, p_premio:$('#np').value||null, p_whatsapp:$('#nw').value||null, p_direccion:$('#nd').value||null});
+      store.set('yv_codigo',''); await cargarPanel(); }catch(err){ m.textContent=err.message; m.classList.remove('hidden'); } };
+}
+
+// ----- Panel maestro (solo administrador de la plataforma) -----
+async function vistaMaestro(){
+  modoLobby(); document.title='Panel maestro · YA! VOLVERÁS...';
+  app.innerHTML = `<div class="screen" style="gap:16px;padding-bottom:40px">
+    <div class="top"><div style="display:flex;flex-direction:column;gap:8px">${LOGO('sm')}<h1 style="font-size:26px">Panel maestro</h1></div><button class="btn sm ghost" id="out">Salir</button></div>
+    <div id="mm"></div>
+    <div class="kpis" id="k"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+    <div class="card white" style="gap:10px"><h3>Nuevo negocio</h3>
+      <form id="fn" style="display:flex;flex-direction:column;gap:10px">
+        <div class="field"><label>Nombre del negocio</label><input id="nn_nom" required placeholder="Pollería Don Pepe"></div>
+        <div class="row"><div class="field grow"><label>Usuario</label><input id="nn_usr" required autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="donpepe"></div><div class="field grow"><label>Contraseña</label><input id="nn_pw" required minlength="6" autocomplete="off"></div></div>
+        <div class="field"><label>Rubro</label><select id="nn_rub">${Object.keys(RUBRO_UNO).map(r=>`<option value="${r}">${RUBRO_UNO[r]}</option>`).join('')}</select></div>
+        <div class="field"><label>Premio al completar 6 sellos</label><input id="nn_pre" placeholder="Ej. 1/4 de pollo + papas + gaseosa"></div>
+        <div class="row"><div class="field grow"><label>WhatsApp del dueño</label><input id="nn_wa" type="tel" inputmode="numeric" placeholder="987654321"></div><div class="field grow"><label>Dirección (opcional)</label><input id="nn_dir" placeholder="SJL"></div></div>
+        <button class="btn" type="submit">Crear negocio</button>
+      </form>
+      <div id="nn_ok"></div>
+    </div>
+    <div class="card white"><h3>Negocios</h3><div class="list" id="negs"><div class="skeleton"></div></div></div>
+    ${panel.negocio?`<button class="btn ghost" id="mio">Ir a mi negocio (${esc(panel.negocio.nombre)})</button>`:''}
+  </div>`;
+  $('#out').onclick=salir;
+  if($('#mio')) $('#mio').onclick=()=>{ vistaForzada='negocio'; render(); };
+  const msg=(t,ok)=>{ $('#mm').innerHTML=`<div class="msg ${ok?'ok':'err'}" style="margin-bottom:4px">${esc(t)}</div>`; };
+  // ---- Pagos de cada negocio (solo los ve el administrador; suspender es siempre decisión manual) ----
+  let negMap={};
+  const diaTxt = s => { const [y,m,d]=String(s).split('-'); return `${d}/${m}/${y}`; };
+  const hoyLima = () => new Date().toLocaleDateString('en-CA',{timeZone:'America/Lima'});
+  function cobroTxt(n){ const c=n.cobro; if(!c || !(+c.mensualidad>0)) return 'Pago: sin mensualidad definida';
+    const m=`${soles(c.mensualidad)} al mes`; if(!c.vence) return `Pago: ${m} · sin fecha de vencimiento`;
+    if(c.dias<0) return `<b style="color:#C62828">Pago vencido hace ${-c.dias} día${c.dias===-1?'':'s'}</b> · ${m}`;
+    if(c.dias<=5) return `<b style="color:#B26A00">Pago vence ${c.dias===0?'hoy':`en ${c.dias} día${c.dias===1?'':'s'}`}</b> (${diaTxt(c.vence)}) · ${m}`;
+    return `Pago al día · vence el ${diaTxt(c.vence)} · ${m}`; }
+  function hojaCobro(n){ if(!n) return; const c=n.cobro||{}, h=document.createElement('div'); h.className='hoja';
+    h.innerHTML=`<div class="card" style="background:#fff;color:#0A0A0A;max-height:88vh;overflow:auto"><h3>Cobro · ${esc(n.nombre)}</h3>
+      <div class="row"><div class="field grow"><label>Mensualidad (S/)</label><input id="hc_m" type="number" inputmode="decimal" min="0" step="1" value="${c.mensualidad!=null?+c.mensualidad:''}" placeholder="0"></div><div class="field grow"><label>Vence el</label><input id="hc_v" type="date" value="${c.vence||''}"></div></div>
+      <button class="btn sm ghost" id="hc_g">Guardar mensualidad y fecha</button>
+      <div class="row"><div class="field grow"><label>Pago recibido (S/)</label><input id="hc_p" type="number" inputmode="decimal" min="0" step="1" value="${+c.mensualidad>0?+c.mensualidad:''}"></div><div class="field grow"><label>Fecha del pago</label><input id="hc_f" type="date" value="${hoyLima()}"></div></div>
+      <button class="btn sm" id="hc_r">Registrar pago</button>
+      <p class="hint">Cada pago corre el vencimiento un mes. Nada se suspende solo: suspender un negocio lo decides tú.</p>
+      <div id="hc_e"></div>
+      <div class="list">${(n.pagos||[]).length?n.pagos.map(g=>`<div class="item" style="padding:8px 12px"><div class="grow"><div class="t">${soles(g.monto)}</div><div class="s">pagado el ${diaTxt(g.fecha)}${g.nota?' · '+esc(g.nota):''}</div></div><button class="btn sm danger" data-bp="${g.id}" style="height:32px;width:auto;padding:0 12px;font-size:12.5px">Borrar</button></div>`).join(''):'<p class="hint">Todavía no hay pagos registrados.</p>'}</div>
+      <button class="btn sm danger" id="hc_x">Cerrar</button></div>`;
+    document.body.appendChild(h); const q=x=>h.querySelector(x), cerrar=()=>h.remove(), fallo=t=>{ q('#hc_e').innerHTML=`<div class="msg err">${esc(t)}</div>`; };
+    q('#hc_x').onclick=cerrar; h.onclick=ev=>{ if(ev.target===h) cerrar(); };
+    q('#hc_g').onclick=async()=>{ try{ await rpc('admin_guardar_cobro',{p_negocio_id:n.id,p_mensualidad:parseFloat(q('#hc_m').value||'0'),p_vence:q('#hc_v').value||null}); cerrar(); msg(`Cobro de ${n.nombre} guardado.`,true); cargar(); }catch(e){ fallo(e.message); } };
+    q('#hc_r').onclick=async()=>{ const b=q('#hc_r'); b.disabled=true; try{ const r=await rpc('admin_registrar_pago',{p_negocio_id:n.id,p_monto:parseFloat(q('#hc_p').value||'0'),p_fecha:q('#hc_f').value||null,p_nota:null}); cerrar(); msg(`Pago de ${n.nombre} registrado. Ahora vence el ${diaTxt(r.vence)}.`,true); cargar(); }catch(e){ fallo(e.message); b.disabled=false; } };
+    h.querySelectorAll('[data-bp]').forEach(b=>dobleToque(b, async()=>{ try{ await rpc('admin_borrar_pago',{p_pago_id:b.dataset.bp}); cerrar(); msg('Pago borrado. El vencimiento regresó un mes.',true); cargar(); }catch(e){ fallo(e.message); } })); }
+  async function cargar(){
+    try{ const d=await rpc('panel_maestro'); if(!d) throw new Error('No tienes permiso.');
+      $('#k').innerHTML=[['Negocios activos',d.totales.activos],['Suspendidos',d.totales.suspendidos],['Clientes en total',d.totales.clientes],['Sellos este mes',d.totales.sellos_mes],['Cobrado este mes',soles(d.totales.cobrado_mes||0)],['Pagos vencidos',d.totales.vencidos||0]].map(([l,v])=>`<div class="kpi"><div class="n">${v}</div><div class="l">${l}</div></div>`).join('');
+      const libres=d.codigos.filter(c=>!c.usado&&c.activo), usados=d.codigos.filter(c=>c.usado);
+      if($('#cods')) $('#cods').innerHTML = (libres.map(c=>`<div class="item" style="flex-direction:column;align-items:stretch;gap:8px"><div><div class="t" style="letter-spacing:.14em;font-family:Anton,sans-serif;font-weight:400;font-size:22px;color:var(--lb-az);white-space:nowrap">${c.codigo}</div><div class="s">creado ${fecha(c.creado_en)}${c.nota?' · '+esc(c.nota):''}</div></div><div class="row" style="gap:6px"><button class="btn sm ghost" data-copy="${c.codigo}" style="height:36px;padding:0 12px;font-size:13px">Copiar</button><a class="btn sm ghost" style="height:36px;padding:0 12px;text-decoration:none;gap:6px" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(`Hola, este es tu código de acceso a YA! VOLVERÁS...: ${c.codigo}\nEntra a ${BASE_URL}, pulsa "Crear cuenta" y escribe el código.`)}"><span style="width:18px;height:18px">${icon.wa}</span>WhatsApp</a><button class="btn sm danger" data-anular="${c.codigo}" style="height:36px;padding:0 12px;font-size:13px;margin-left:auto">Anular</button></div></div>`).join('')
+        + usados.slice(0,5).map(c=>`<div class="item" style="opacity:.55"><div class="grow"><div class="t" style="letter-spacing:.12em">${c.codigo}</div><div class="s">usado por ${esc(c.negocio||'—')}</div></div><span class="chip">usado</span></div>`).join('')) || '<p class="hint">Aún no hay códigos. Genera uno.</p>';
+      negMap={}; d.negocios.forEach(n=>negMap[n.id]=n);
+      const fila = n=>`<div class="item" style="${n.activo?'':'opacity:.6'}">${n.logo_url?`<img src="${esc(n.logo_url)}" alt="" style="width:40px;height:40px;border-radius:10px;object-fit:cover">`:`<div class="avatar">${ini(n.nombre)}</div>`}<div class="grow"><div class="t">${esc(n.nombre)}</div><div class="s">Usuario: <b>${esc(n.usuario||'—')}</b>${n.direccion?' · '+esc(n.direccion):''}</div><div class="s">${n.clientes} clientes · ${n.sellos_30d} sellos (30 d) · ${n.premios} premios · desde ${fecha(n.creado_en)}</div><div class="s">${cobroTxt(n)}</div></div><div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><span class="chip ${n.activo?'y':''}"><span class="dot ${n.activo?'':'off'}" style="background:${n.activo?'#fff':'#C7C7CC'}"></span>${n.activo?'Activo':'Suspendido'}</span><button class="btn sm" data-entrar="${n.id}" style="height:32px;padding:0 12px;font-size:12.5px">Entrar</button><div class="row" style="gap:4px"><button class="btn sm ghost" data-qr="${esc(n.slug)}" style="height:32px;padding:0 10px;font-size:12.5px">QR</button><button class="btn sm ghost" data-clave="${n.id}" data-nom="${esc(n.nombre)}" data-wa="${esc(n.whatsapp||'')}" style="height:32px;padding:0 10px;font-size:12.5px">Clave</button></div><button class="btn sm ${n.activo?'danger':''}" data-sus="${n.id}" data-act="${n.activo}" style="height:32px;padding:0 10px;font-size:12.5px">${n.activo?'Suspender':'Activar'}</button><button class="btn sm danger" data-del="${n.id}" data-nom="${esc(n.nombre)}" style="height:32px;padding:0 10px;font-size:12.5px">Eliminar</button><button class="btn sm ghost" data-cobro="${n.id}" style="height:32px;padding:0 10px;font-size:12.5px">Cobro</button><button class="btn sm ghost" data-res="${n.id}" style="height:32px;padding:0 10px;font-size:12.5px">Resumen del mes</button><select data-rub="${n.id}" aria-label="Rubro de ${esc(n.nombre)}" style="width:auto;height:32px;border-radius:10px;font-size:12.5px;font-weight:600;padding:0 30px 0 10px;background-position:right 8px center">${Object.keys(RUBRO_UNO).map(r=>`<option value="${r}"${(n.rubro||'restaurante')===r?' selected':''}>${RUBRO_UNO[r]}</option>`).join('')}</select></div></div>`;
+      // Cada rubro en su propia sección: los restaurantes con los restaurantes y las barberías con las barberías
+      $('#negs').innerHTML = !d.negocios.length ? '<p class="hint">Todavía no hay negocios registrados.</p>' : Object.keys(RUBROS).map(r=>{ const l=d.negocios.filter(n=>(n.rubro||'restaurante')===r); if(!l.length && r==='otro') return '';
+        return `<section data-seccion="${r}" style="display:flex;flex-direction:column;gap:10px"><h4 style="display:flex;align-items:center;gap:8px;margin:8px 0 0;font-size:17px;font-weight:800">${RUBROS[r]}<span class="chip" style="font-size:12px">${l.length}</span></h4>${l.length ? l.map(fila).join('') : `<p class="hint">Todavía no hay ${r==='barberia'?'barberías registradas':'restaurantes registrados'}.</p>`}</section>`; }).join('');
+      document.querySelectorAll('[data-rub]').forEach(x=>x.onchange=async()=>{ try{ await rpc('admin_cambiar_rubro',{p_negocio_id:x.dataset.rub,p_rubro:x.value}); msg(`${negMap[x.dataset.rub].nombre} ahora está en ${RUBROS[x.value]}.`,true); }catch(e){ msg(e.message); } cargar(); });
+      document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{ try{ await navigator.clipboard.writeText(b.dataset.copy); b.textContent='Copiado'; setTimeout(()=>b.textContent='Copiar',1500);}catch{ msg('Copia el código manualmente: '+b.dataset.copy,true);} });
+      document.querySelectorAll('[data-anular]').forEach(b=>b.onclick=async()=>{ try{ await rpc('anular_codigo',{p_codigo:b.dataset.anular}); cargar(); }catch(e){ msg(e.message); } });
+      document.querySelectorAll('[data-qr]').forEach(b=>b.onclick=()=>materialQR(b.dataset.qr));
+      document.querySelectorAll('[data-cobro]').forEach(b=>b.onclick=()=>hojaCobro(negMap[b.dataset.cobro]));
+      document.querySelectorAll('[data-entrar]').forEach(b=>b.onclick=async()=>{ b.disabled=true; try{ await rpc('admin_entrar_negocio',{p_negocio_id:b.dataset.entrar}); vistaForzada='negocio'; tab='panel'; await cargarPanel(); }catch(e){ msg(e.message); b.disabled=false; } });
+      document.querySelectorAll('[data-res]').forEach(b=>b.onclick=async()=>{ b.disabled=true;
+        try{ const r=await rpc('admin_resumen_mes',{p_negocio_id:b.dataset.res, p_offset:-1}); const p=(a,c)=>c?Math.round((a-c)/c*100):null; const pv=p(+r.ventas,+r.ventas_prev), pc=p(r.clientes,r.clientes_prev);
+          const t=`Hola 👋 Este es el resumen de *${r.mes.trim()}* de *${r.negocio}* con YA! VOLVERÁS...\n\n`+
+            `👥 ${r.clientes} clientes vinieron${pc===null?'':` (${pc>=0?'▲':'▼'} ${Math.abs(pc)}% vs. el mes anterior)`}\n`+
+            `🔁 ${r.volvieron} volvieron 2 o más veces\n`+
+            `🆕 ${r.nuevos} clientes nuevos\n`+
+            `💰 Ventas registradas: ${soles(r.ventas)}${pv===null?'':` (${pv>=0?'▲':'▼'} ${Math.abs(pv)}%)`}\n`+
+            `🎁 ${r.premios} premio${r.premios==1?'':'s'} entregado${r.premios==1?'':'s'}\n`+
+            (r.top?`🏆 Cliente del mes: ${r.top.nombre} (${r.top.visitas} visitas)\n`:'')+
+            `\nEl detalle completo está en Resultados, en ${BASE_URL}`;
+          const wa=String(r.whatsapp||'').replace(/\D/g,'').slice(-9);
+          window.open(wa?`https://wa.me/51${wa}?text=${encodeURIComponent(t)}`:`https://wa.me/?text=${encodeURIComponent(t)}`,'_blank');
+        }catch(e){ msg(e.message); } b.disabled=false; });
+      document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{ const nom=b.dataset.nom; const t=prompt(`Esto BORRA PARA SIEMPRE «${nom}»: sus clientes, compras, sellos, premios, personal y su usuario. No se puede deshacer.\n\nPara confirmar, escribe el nombre del negocio:`); if(t===null) return;
+        b.disabled=true; b.textContent='Borrando…'; try{ const r=await rpc('admin_eliminar_negocio',{p_negocio_id:b.dataset.del,p_confirmar:t}); msg(`Se eliminó «${r.eliminado}».`, true); window.scrollTo({top:0,behavior:"smooth"}); cargar(); }catch(e){ msg(e.message); b.disabled=false; b.textContent='Eliminar'; } });
+      document.querySelectorAll('[data-clave]').forEach(b=>b.onclick=async()=>{ const pw=prompt(`Nueva contraseña para ${b.dataset.nom} (mínimo 6 caracteres):`, window.__clave()); if(!pw) return;
+        try{ const r=await rpc('admin_cambiar_clave',{p_negocio_id:b.dataset.clave,p_clave:pw}); $('#mm').innerHTML=window.__credenciales(b.dataset.nom, r.usuario, pw, b.dataset.wa); window.__enlazarCopiar($('#mm')); window.scrollTo({top:0,behavior:'smooth'}); }catch(e){ msg(e.message); } });
+      document.querySelectorAll('[data-sus]').forEach(b=>b.onclick=async()=>{ const act=b.dataset.act==='true'; if(act && !confirm('¿Suspender este negocio? Su caja no podrá registrar ni canjear hasta que lo actives.')) return; try{ await rpc('suspender_negocio',{p_id:b.dataset.sus,p_activo:!act}); cargar(); }catch(e){ msg(e.message); } });
+    }catch(e){ msg(e.message); }
+  }
+  const clave = () => { const a='abcdefghjkmnpqrstuvwxyz23456789'; let c=''; const r=crypto.getRandomValues(new Uint32Array(8)); for(const x of r) c+=a[x%a.length]; return c; };
+  const slugUsr = t => String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/^(el|la|los|las)\s+/,'').replace(/[^a-z0-9]+/g,'').slice(0,30);
+  $('#nn_pw').value = clave();
+  const EJ_RUBRO = {restaurante:['Pollería Don Pepe','Ej. 1/4 de pollo + papas + gaseosa'], barberia:['Barbería El Patrón','Ej. 1 corte de cabello gratis'], otro:['Nombre del negocio','Ej. 1 servicio gratis']};
+  $('#nn_rub').onchange=()=>{ const e=EJ_RUBRO[$('#nn_rub').value]; $('#nn_nom').placeholder=e[0]; $('#nn_pre').placeholder=e[1]; };
+  let usrTocado=false; $('#nn_usr').oninput=()=>{ usrTocado=true; };
+  $('#nn_nom').oninput=()=>{ if(!usrTocado) $('#nn_usr').value=slugUsr($('#nn_nom').value); };
+  const credenciales = (nombre, usuario, pw, wa) => { const txt=`Hola, ya está listo el sistema de tarjeta de sellos de ${nombre} en YA! VOLVERÁS...\n\nEntra a ${BASE_URL}\nUsuario: ${usuario}\nContraseña: ${pw}\n\nGuarda estos datos.`;
+    return `<div class="msg ok" style="display:flex;flex-direction:column;gap:8px;margin-top:6px"><b>${esc(nombre)}</b><span>Usuario: <b>${esc(usuario)}</b> · Contraseña: <b>${esc(pw)}</b></span>
+      <div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn sm ghost" type="button" data-cp="${esc(txt)}" style="height:36px">Copiar datos</button>${wa?`<a class="btn sm" style="height:36px;text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/51${esc(String(wa).replace(/\D/g,'').slice(-9))}?text=${encodeURIComponent(txt)}">Enviar por WhatsApp</a>`:''}</div></div>`; };
+  const enlazarCopiar = cont => cont.querySelectorAll('[data-cp]').forEach(b=>b.onclick=async()=>{ try{ await navigator.clipboard.writeText(b.dataset.cp); b.textContent='Copiado'; }catch{ b.textContent='Cópialo a mano'; } });
+  $('#fn').onsubmit=async ev=>{ ev.preventDefault(); const b=$('#fn button'); b.disabled=true; $('#mm').innerHTML='';
+    const nombre=$('#nn_nom').value.trim(), usuario=$('#nn_usr').value.trim().toLowerCase(), pw=$('#nn_pw').value, wa=$('#nn_wa').value.trim(), rubro=$('#nn_rub').value;
+    const premio=$('#nn_pre').value.trim() || (rubro==='barberia' ? '1 corte de cabello gratis' : '');
+    try{ const r=await rpc('admin_crear_negocio',{p_nombre:nombre,p_usuario:usuario,p_clave:pw,p_premio:premio||null,p_whatsapp:wa||null,p_direccion:$('#nn_dir').value||null});
+      if(rubro!=='restaurante') await rpc('admin_cambiar_rubro',{p_negocio_id:r.negocio_id,p_rubro:rubro});
+      $('#nn_ok').innerHTML=credenciales(nombre, r.usuario, pw, wa); enlazarCopiar($('#nn_ok'));
+      $('#fn').reset(); $('#nn_rub').onchange(); usrTocado=false; $('#nn_pw').value=clave(); cargar();
+    }catch(e){ msg(e.message); } b.disabled=false; };
+  window.__credenciales = credenciales; window.__enlazarCopiar = enlazarCopiar; window.__clave = clave;
+  cargar();
+}
+
+const ROL={dueno:'Dueño', caja:'Caja', mesero:'Empleado'};
+const horaCorta = t => new Date(t).toLocaleTimeString('es-PE',{hour:'numeric',minute:'2-digit'});
+function render(){
+  if(!panel) return vistaLogin();
+  const n=panel.negocio; aplicarTema(n); document.title=n.nombre+' · YA! VOLVERÁS...';
+  const rol = panel.rol || (panel.es_admin?'dueno':'mesero');
+  if(rol!=='dueno' && panel.yo && !panel.turno) return vistaTurno();
+  if(tab==='panel') tab='ajustes'; if(tab==='stats') tab='resultados';
+  const T={registrar:[icon.plus,'Registrar',vRegistrar], canjear:[icon.gift,'Canjear',vCanjear], historial:[icon.clock,'Historial',vHistorial],
+    resultados:[icon.stats,'Resultados',vResultados], ajustes:[icon.panel,'Ajustes',vPanel], qr:[icon.qr,'QR clientes',vQR], cuadre:[icon.stats,'Cuadre',vCuadre], pedidos:[icon.carta,'Pedidos',vPedidos]};
+  const tabs = rol==='dueno' ? ['registrar','canjear','historial','resultados','ajustes'] : rol==='caja' ? ['registrar','canjear','qr','cuadre'] : ['registrar','canjear','qr'];
+  // Plan con pedidos: el mozo y la caja empiezan por ahí
+  if(n.pedidos_activo){ if(rol==='dueno') tabs.splice(1,0,'pedidos'); else tabs.unshift('pedidos'); }
+  clearInterval(pedTimer);
+  if(n.pedidos_activo && rol!=='dueno' && !ped.arranco){ ped.arranco=true; tab='pedidos'; }
+  if(!tabs.includes(tab)) tab = n.pedidos_activo && rol!=='dueno' ? 'pedidos' : 'registrar';
+  const quien = panel.yo ? `Atiende: ${esc(panel.yo.nombre)}${panel.turno?` · desde ${horaCorta(panel.turno.inicio)}`:''}` : '';
+  app.innerHTML = `<div class="screen">
+    ${panel.es_superadmin?`<div class="msg ok" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px"><span style="font-size:13px">Estás dentro de <b>${esc(n.nombre)}</b> como administrador</span><button class="btn sm" id="volverM" style="height:34px;padding:0 12px;font-size:13px;flex-shrink:0">Panel maestro</button></div>`:''}
+    <div class="top" style="align-items:flex-start">
+      <div>${n.logo_url?`<img class="toplogo" src="${esc(n.logo_url)}" alt="${esc(n.nombre)}">`:`<span class="eyebrow">${esc(n.nombre)}</span>`}${quien?`<div class="hint" style="color:var(--crema);font-weight:700;margin:2px 0 4px">${quien}</div>`:''}<h1 id="titulo"></h1></div>
+      <div class="row">${rol!=='dueno' && panel.turno?`<button class="lockb" id="finTurno">${icon.logout}Terminar turno</button>`:''}</div>
+    </div>
+    <div id="vista"></div>
+  </div>
+  <nav class="nav"><div class="in">${tabs.map(t=>`<button data-t="${t}">${T[t][0]}${T[t][1]}</button>`).join('')}</div></nav>`;
+  document.querySelectorAll('.nav button').forEach(b=>{ b.classList.toggle('on', b.dataset.t===tab); b.onclick=()=>{ tab=b.dataset.t; render(); }; });
+  if($('#volverM')) $('#volverM').onclick=async()=>{ try{ await rpc('admin_salir_negocio'); }catch{} vistaForzada='maestro'; await cargarPanel(); };
+  if($('#finTurno')) dobleToque($('#finTurno'), async()=>{ try{ const r=await rpc('terminar_turno'); if(r.ok) try{ localStorage.setItem('yv_fin_turno', `Turno terminado: ${horaCorta(r.inicio)} a ${horaCorta(r.fin)} · ${r.ventas} venta${r.ventas===1?'':'s'}.`); }catch{} }catch{} salir(); });
+  T[tab][2]();
+}
+
+// ----- Turno: el empleado lo empieza al entrar y lo termina al irse -----
+function vistaTurno(){
+  const n=panel.negocio;
+  app.innerHTML=`<div class="screen" style="justify-content:center;gap:22px;padding-bottom:40px">
+    <div class="center">${n.logo_url?`<img class="logo" src="${esc(n.logo_url)}" alt="${esc(n.nombre)}">`:`<h2>${esc(n.nombre)}</h2>`}</div>
+    <div class="center"><h1>Hola, ${esc(primerNombre(panel.yo.nombre))}</h1><p class="sub" style="margin-top:6px">${ROL[panel.yo.rol]||''} · ${esc(panel.yo.usuario||'')}</p></div>
+    <button class="btn" id="empT">Empezar mi turno</button>
+    <div id="mt" class="msg err hidden"></div>
+    <button class="btn danger" id="noSoy">No soy ${esc(primerNombre(panel.yo.nombre))} · Salir</button>
+  </div>`;
+  $('#empT').onclick=async()=>{ $('#empT').disabled=true; try{ await rpc('empezar_turno'); await cargarPanel(); }catch(e){ const m=$('#mt'); m.textContent=e.message; m.classList.remove('hidden'); $('#empT').disabled=false; } };
+  $('#noSoy').onclick=salir;
+}
+
+// ----- Cuadre del día (Caja) -----
+async function vCuadre(){
+  $('#titulo').textContent='Cuadre del día';
+  $('#vista').innerHTML=`<div class="kpis"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>`;
+  try{ const c=await rpc('cuadre_dia',{}); const t=c.total||{};
+    $('#vista').innerHTML=`<div style="display:flex;flex-direction:column;gap:16px">
+      <div class="kpis">${[['Total vendido',soles(t.monto||0)],['Ventas',t.ventas||0],['Sellos dados',t.sellos||0],['Premios entregados',c.canjes||0]].map(([l,v])=>`<div class="kpi"><div class="n">${v}</div><div class="l">${l}</div></div>`).join('')}</div>
+      ${t.anuladas?`<p class="hint" style="color:var(--crema)">${t.anuladas} registro${t.anuladas===1?'':'s'} anulado${t.anuladas===1?'':'s'} hoy (no suman).</p>`:''}
+      <div class="card" style="gap:10px"><h3>Por persona</h3><div class="list">${c.por_persona.length?c.por_persona.map(x=>`<div class="item" style="padding:10px 12px"><div class="avatar">${ini(x.nombre)}</div><div class="grow"><div class="t">${esc(x.nombre)}</div><div class="s">${x.ventas} venta${x.ventas===1?'':'s'} · ${x.sellos} sello${x.sellos===1?'':'s'}</div></div><span class="display" style="font-size:17px;color:var(--amarillo)">${soles(x.monto)}</span></div>`).join(''):'<p class="hint">Aún no hay ventas hoy.</p>'}</div></div>
+      <div class="card" style="gap:10px"><h3>Registros de hoy</h3><p class="hint" style="color:var(--crema)">Si alguien se equivocó, puedes anular cualquier registro de hoy.</p>
+        <div class="list">${c.registros.length?c.registros.map(r=>`<div class="item" style="padding:10px 12px"><div class="grow"><div class="t" style="${r.anulada?'text-decoration:line-through;opacity:.6':''}">${esc(r.cliente)} · ${soles(r.monto)}</div><div class="s">${horaCorta(r.creado_en)} · ${esc(r.por||'')}${r.sello?' · con sello':''}</div></div>${r.anulada?'<span class="chip">Anulada</span>':`<button class="btn sm danger" data-anular="${r.id}" style="height:34px;width:auto;padding:0 12px;font-size:13px">Anular</button>`}</div>`).join(''):'<p class="hint">Sin registros.</p>'}</div></div>
+    </div>`;
+    $('#vista').querySelectorAll('[data-anular]').forEach(b=>dobleToque(b, async()=>{ b.disabled=true; try{ await rpc('anular_compra',{p_compra_id:b.dataset.anular, p_motivo:'Anulado en el cuadre de caja', ...leerPersonal()}); alertMsg('Registro anulado.'); vCuadre(); }catch(e){ alertMsg(e.message); b.disabled=false; } }));
+  }catch(e){ $('#vista').innerHTML=`<div class="msg err">${esc(e.message)}</div>`; }
+}
+
+// ----- Resultados (dueño): estadísticas + alertas + asistencia -----
+function vResultados(){
+  vEstadisticas(); $('#titulo').textContent='Resultados';
+  const box=$('#vista').firstElementChild;
+  box.insertAdjacentHTML('afterbegin', `<div id="alertas"></div>`);
+  box.insertAdjacentHTML('beforeend', `<div class="card" style="gap:10px"><div class="row" style="justify-content:space-between"><h3>Asistencia</h3><span class="hint" style="color:var(--crema)">Últimos 7 días</span></div><div id="asis" class="list"><div class="skeleton"></div></div></div>`);
+  rpc('alertas_dueno').then(al=>{ if(!al.length||!$('#alertas')) return;
+    $('#alertas').innerHTML=`<div class="card" style="gap:8px;border:1.5px solid #B3473A"><h3>Alertas</h3>${al.map(a=>`<div style="font-size:13.5px;font-weight:600">${a.tipo==='acceso_bloqueado'?`Alguien puso mal el PIN de <b>${esc(a.nombre||'')}</b> 5 veces (${fecha(a.fecha)}, ${horaCorta(a.fecha)}). Se bloqueó 15 minutos.`:`<b>${esc(a.nombre||'')}</b> no marcó su salida el ${fecha(a.fecha)}.`}</div>`).join('')}</div>`; }).catch(()=>{});
+  rpc('asistencia',{}).then(l=>{ if(!$('#asis')) return;
+    const dur=(a,b)=>{ const m=Math.round((new Date(b)-new Date(a))/60000); return `${Math.floor(m/60)} h ${String(m%60).padStart(2,'0')} min`; };
+    $('#asis').innerHTML = l.length ? l.map(t=>`<div class="item" style="padding:10px 12px;align-items:flex-start"><div class="avatar">${ini(t.nombre)}</div><div class="grow"><div class="t">${esc(t.nombre)} <span class="hint" style="color:var(--crema);font-weight:600">· ${ROL[t.rol]||''}</span></div>
+      <div class="s">${fecha(t.inicio)} · entrada ${horaCorta(t.inicio)} · ${t.abierto?'<b>trabajando ahora</b>':t.fin?`salida ${horaCorta(t.fin)} · ${dur(t.inicio,t.fin)}`:'<b style="color:#FFB4A8">salida no marcada</b>'}</div>
+      <div class="s">${t.ventas} venta${t.ventas==1?'':'s'} · ${soles(t.monto)}</div></div></div>`).join('') : '<p class="hint">Aún no hay turnos registrados.</p>'; }).catch(e=>{ if($('#asis')) $('#asis').innerHTML=`<div class="msg err">${esc(e.message)}</div>`; });
+}
+function vQR(){
+  $('#titulo').textContent='QR clientes'; const n=panel.negocio, url=linkInscripcion(n.slug);
+  $('#vista').innerHTML=`<div style="display:flex;flex-direction:column;gap:14px">
+    <div class="card outline" style="gap:4px"><span class="eyebrow" style="text-transform:none;letter-spacing:.02em">Muéstrale esta pantalla al cliente</span><span class="display" style="font-size:19px">Escanea con la cámara y guarda tu tarjeta de ${esc(n.nombre)}</span></div>
+    <div class="qrgrande">${qrSVG(url)}</div>
+    <p class="hint center" style="color:var(--crema)">Pone su nombre y celular, y la tarjeta queda en su Apple Wallet o Google Wallet. Junta ${n.meta_sellos} sellos y gana: ${esc(n.premio)}.</p>
+  </div>`;
+}
+let pinCache={id:null,pin:'',t:0}; const PIN_MIN=15;
+function pinVigente(id){ return pinCache.id===id && pinCache.pin && (Date.now()-pinCache.t) < PIN_MIN*60000 ? pinCache.pin : ''; }
+function selectorPersonal(){
+  if(panel.yo) return '';
+  const ult = store.get('jf_personal');
+  return `<div class="row">
+    <div class="field grow"><label>¿Quién registra?</label><select id="quien">${panel.personal.filter(p=>p.activo).map(p=>`<option value="${p.id}" ${p.id===ult?'selected':''}>${esc(p.nombre)} · ${ROL[p.rol]||p.rol}</option>`).join('')}</select></div>
+    <div class="field" style="width:120px"><label for="pin">PIN</label><input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••" value="${esc(pinVigente(ult))}"></div>
+  </div>`;
+}
+function enlazarPin(){ const q=$('#quien'), p=$('#pin'); if(!q||!p) return; q.onchange=()=>{ p.value=pinVigente(q.value); if(!p.value) p.focus(); }; }
+function leerPersonal(){ if(panel.yo) return {p_personal_id:panel.yo.id, p_pin:null}; const q=$('#quien'); if(!q||!q.value) throw new Error('Agrega personal en el Panel antes de registrar.'); store.set('jf_personal', q.value); const pin=$('#pin').value; if(pin.length<4) throw new Error('Escribe tu PIN.'); return {p_personal_id:q.value, p_pin:pin}; }
+function recordarPin(per){ pinCache={id:per.p_personal_id, pin:per.p_pin, t:Date.now()}; }
+function olvidarPin(){ pinCache={id:null,pin:'',t:0}; }
+
+function bloqueCliente(c, est){
+  return `<div class="item"><div class="avatar">${ini(c.nombre)}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">${esc(c.celular)}${est&&est.ultima_compra?` · última ${pal()} ${fecha(est.ultima_compra.fecha)} · ${soles(est.ultima_compra.monto)}`:''}</div></div>${est?`<span class="display" style="font-size:18px;color:var(--amarillo)">${est.sellos} de ${est.meta}</span>`:''}</div>`;
+}
+
+const waTarjeta = c => `https://wa.me/51${String(c.celular).replace(/\D/g,'').slice(-9)}?text=${encodeURIComponent(msgTarjeta(c.nombre, panel.negocio.nombre, `${BASE_URL}?t=${c.token}`))}`;
+const btnReenviar = c => `<a class="btn sm ghost" style="text-decoration:none;height:40px" href="${waTarjeta(c)}" target="_blank" rel="noopener"><span style="width:18px;height:18px">${icon.wa}</span>Reenviar su tarjeta por WhatsApp</a>`;
+function dobleToque(btn, fn){ let arm=false, t; const o=btn.innerHTML; btn.onclick=()=>{ if(!arm){ arm=true; btn.textContent='¿Seguro? Toca otra vez'; t=setTimeout(()=>{ arm=false; btn.innerHTML=o; },3500); return; } clearTimeout(t); arm=false; fn(); }; }
+let canjePendiente=null;
+async function anularMio(compraId){ const per=leerPersonal(); await rpc('anular_compra',{p_compra_id:compraId, p_motivo:'Error al registrar (deshecho por quien lo registró)', ...per}); recordarPin(per); }
+async function cargarHoy(){
+  const box=$('#hoy'), pid = panel.yo ? panel.yo.id : $('#quien')?.value; if(!box||!pid) return;
+  const nom=(panel.personal.find(p=>p.id===pid)||{}).nombre||'';
+  try{ const r=await rpc('mis_registros_hoy',{p_personal_id:pid}); if(!panel.yo && $('#quien')?.value!==pid) return;
+    const hora=t=>new Date(t).toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});
+    box.innerHTML=`<div class="card outline" style="gap:10px"><div class="row" style="justify-content:space-between"><h3>Hoy · ${esc(nom)}</h3><span class="hint" style="color:var(--crema)">Solo tus registros</span></div>
+      <div class="kpis" style="grid-template-columns:repeat(3,minmax(0,1fr))">${[['Ventas',r.ventas],['Sellos',r.sellos],['Premios entregados',r.canjes]].map(([l,v])=>`<div class="kpi"><div class="n">${v}</div><div class="l">${l}</div></div>`).join('')}</div>
+      ${r.ultimos.length?`<div class="list">${r.ultimos.map(u=>`<div class="item" style="padding:10px 12px"><div class="grow"><div class="t" style="${u.anulada?'text-decoration:line-through;opacity:.6':''}">${esc(u.cliente)}</div><div class="s">${hora(u.creado_en)} · ${soles(u.monto)}</div></div>${u.anulada?'<span class="chip">Anulada</span>':u.anulable?`<button class="btn sm danger" data-anular="${u.id}" style="height:34px;width:auto;padding:0 12px;font-size:13px">Anular</button>`:''}</div>`).join('')}</div><p class="hint" style="color:var(--crema)">Puedes anular un registro tuyo hasta 45 minutos después. Luego, solo el encargado.</p>`:`<p class="hint" style="color:var(--crema)">Aún no registras ventas hoy.</p>`}</div>`;
+    box.querySelectorAll('[data-anular]').forEach(b=>dobleToque(b, async()=>{ b.disabled=true; try{ await anularMio(b.dataset.anular); alertMsg('Registro anulado. Se quitó el sello.'); cargarHoy(); }catch(e){ if(/PIN/.test(e.message)){ olvidarPin(); if($('#pin')) $('#pin').value=''; } alertMsg(e.message); b.disabled=false; } }));
+  }catch{ box.innerHTML=''; }
+}
+
+// ----- Pedidos del mozo (Plan Intermedio): carta, cuentas por mesa, ticket de cocina y cierre con sello -----
+// Es control interno del negocio: el ticket es para cocina y no reemplaza la boleta.
+let ped = {vista:'mesas', modo:'mesas', mesa:'', carrito:[], alergia:'', cat:null, carta:null, sel:null, enviado:false}, pedTimer=null;
+const rolActual = () => panel.rol || (panel.es_admin?'dueno':'mesero');
+const totalCarrito = () => ped.carrito.reduce((t,l)=>t+l.precio*l.cantidad,0);
+const nPlatos = n => `${n} plato${n===1?'':'s'}`;
+// Confirmación en dos toques para botones chicos
+function tocaDos(btn, texto, fn){ let arm=false, t; const o=btn.innerHTML, w=btn.style.width; btn.onclick=()=>{ if(!arm){ arm=true; btn.textContent=texto; btn.style.width='auto'; btn.style.padding='0 10px'; t=setTimeout(()=>{ arm=false; btn.innerHTML=o; btn.style.width=w; btn.style.padding='0'; },3500); return; } clearTimeout(t); fn(); }; }
+function vPedidos(){
+  $('#titulo').textContent='Pedidos'; clearInterval(pedTimer);
+  if(rolActual()==='dueno' && ped.modo==='carta') return vCartaEditar();
+  if(ped.vista==='tomar') return vPedidoTomar();
+  if(ped.vista==='cuenta' && ped.sel) return vPedidoCuenta();
+  return vPedidoMesas();
+}
+function segPedidos(){ return rolActual()==='dueno' ? `<div class="seg" id="pSeg"><button data-m="mesas" class="${ped.modo==='carta'?'':'on'}">Mesas</button><button data-m="carta" class="${ped.modo==='carta'?'on':''}">Carta</button></div>` : ''; }
+function enlazarSeg(){ if($('#pSeg')) $('#pSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{ ped.modo=b.dataset.m; ped.vista='mesas'; vPedidos(); }); }
+function vPedidoMesas(){
+  $('#vista').innerHTML = `<div style="display:flex;flex-direction:column;gap:14px">
+    ${segPedidos()}
+    <button class="btn" id="pNuevo"><span style="width:22px;height:22px">${icon.plus}</span>Nuevo pedido</button>
+    <div class="row" style="justify-content:space-between"><span style="font-weight:800">Cuentas abiertas</span><button class="btn sm ghost" id="pAct" style="width:auto;height:36px;padding:0 14px;font-size:13px">Actualizar</button></div>
+    <div id="pLista" class="list"><div class="skeleton"></div></div>
+  </div>`;
+  enlazarSeg();
+  $('#pNuevo').onclick=()=>{ ped.vista='tomar'; ped.mesa=''; ped.carrito=[]; ped.alergia=''; vPedidos(); };
+  const pinta = async()=>{ if(!$('#pLista')) return clearInterval(pedTimer);
+    try{ const l=await rpc('pedidos_abiertos'); if(!$('#pLista')) return;
+      $('#pLista').innerHTML = l.length ? l.map(p=>`<button class="item" data-id="${p.id}" style="border:0;text-align:left;width:100%;cursor:pointer">
+          <div class="avatar">${esc(String(p.mesa).slice(0,3))}</div>
+          <div class="grow"><div class="t">Mesa ${esc(p.mesa)} · ${soles(p.total)}</div><div class="s">${nPlatos(p.items.reduce((t,i)=>t+i.cantidad,0))} · ${esc(p.mozo||'')} · ${horaCorta(p.creado_en)}${p.alergia?' · con aviso':''}</div></div>
+          ${p.por_imprimir>0?`<span class="chip y">Por imprimir</span>`:''}</button>`).join('')
+        : `<p class="hint" style="color:var(--crema)">No hay cuentas abiertas. Toca «Nuevo pedido» para empezar.</p>`;
+      $('#pLista').querySelectorAll('button').forEach(b=>b.onclick=()=>{ ped.sel=l.find(x=>x.id===b.dataset.id); ped.vista='cuenta'; vPedidos(); });
+    }catch(e){ if($('#pLista')) $('#pLista').innerHTML=`<div class="msg err">${esc(e.message)}</div>`; } };
+  $('#pAct').onclick=pinta; pinta(); pedTimer=setInterval(pinta, 15000);
+}
+async function vPedidoTomar(){
+  const v=$('#vista'); v.innerHTML=`<div class="skeleton"></div>`;
+  try{ if(!ped.carta) ped.carta = await rpc('carta_ver',{p_todo:false}); }catch(e){ v.innerHTML=`<div class="msg err">${esc(e.message)}</div>`; return; }
+  const prods=ped.carta.productos, cats=[...new Set(prods.map(p=>p.categoria))]; if(!cats.includes(ped.cat)) ped.cat=cats[0];
+  v.innerHTML = `<div style="display:flex;flex-direction:column;gap:14px">
+    <button class="btn sm ghost" id="pVolver" style="width:auto;align-self:flex-start;height:38px;padding:0 14px;font-size:14px">Volver a las cuentas</button>
+    ${selectorPersonal()}
+    <div class="field"><label for="pMesa">Mesa</label><input id="pMesa" inputmode="numeric" maxlength="12" placeholder="Número de mesa" value="${esc(ped.mesa)}"></div>
+    <div id="pCats" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px"></div>
+    <div id="pProds" class="list"></div>
+    <div id="pCar"></div>
+  </div>`;
+  enlazarPin();
+  $('#pVolver').onclick=()=>{ ped.vista=ped.sel?'cuenta':'mesas'; vPedidos(); };
+  $('#pMesa').oninput=ev=>{ ped.mesa=ev.target.value; };
+  const lineaSimple = id => ped.carrito.find(l=>l.producto_id===id && !l.conSalsas);
+  const pintaCats = ()=>{ $('#pCats').innerHTML = cats.map(c=>`<button class="chip ${c===ped.cat?'y':''}" data-c="${esc(c)}" style="border:0;cursor:pointer;height:38px;padding:0 14px;font-size:13.5px;flex-shrink:0">${esc(c)}</button>`).join('');
+    $('#pCats').querySelectorAll('button').forEach(b=>b.onclick=()=>{ ped.cat=b.dataset.c; pintaCats(); pintaProds(); }); };
+  const pintaProds = ()=>{ $('#pProds').innerHTML = prods.filter(p=>p.categoria===ped.cat).map(p=>{ const q=(lineaSimple(p.id)||{}).cantidad||0;
+      return `<div class="item" style="flex-wrap:wrap"><div class="grow"><div class="t">${esc(p.nombre)}</div><div class="s">${soles(p.precio)}${p.salsas_max?` · hasta ${p.salsas_max} salsa${p.salsas_max>1?'s':''}`:''}</div></div>
+        ${p.salsas_max ? `<button class="btn sm" data-sal="${p.id}" style="width:auto;height:42px;padding:0 16px;font-size:15px">Agregar</button>`
+          : `<div class="row" style="gap:6px"><button class="btn sm ghost" data-menos="${p.id}" style="width:42px;height:42px;padding:0" aria-label="Quitar uno"${q?'':' disabled'}>−</button><b style="min-width:24px;text-align:center;font-size:17px">${q}</b><button class="btn sm" data-mas="${p.id}" style="width:42px;height:42px;padding:0" aria-label="Agregar uno">+</button></div>`}
+        <div data-panel="${p.id}" class="hidden" style="flex-basis:100%;display:none;flex-direction:column;gap:10px;margin-top:6px"></div></div>`; }).join('');
+    const de = id => prods.find(p=>p.id===id);
+    $('#pProds').querySelectorAll('[data-mas]').forEach(b=>b.onclick=()=>{ const p=de(b.dataset.mas), l=lineaSimple(p.id); if(l) l.cantidad=Math.min(99,l.cantidad+1); else ped.carrito.push({producto_id:p.id,nombre:p.nombre,precio:Number(p.precio),cantidad:1,salsas:[],nota:''}); pintaProds(); pintaCarrito(); });
+    $('#pProds').querySelectorAll('[data-menos]').forEach(b=>b.onclick=()=>{ const l=lineaSimple(b.dataset.menos); if(!l) return; l.cantidad--; if(l.cantidad<=0) ped.carrito.splice(ped.carrito.indexOf(l),1); pintaProds(); pintaCarrito(); });
+    $('#pProds').querySelectorAll('[data-sal]').forEach(b=>b.onclick=()=>{ const p=de(b.dataset.sal), box=$('#pProds').querySelector(`[data-panel="${p.id}"]`), sel=new Set();
+      box.style.display='flex'; box.classList.remove('hidden');
+      const pintaS=()=>{ box.innerHTML=`<span class="hint" style="color:var(--crema)">Elige hasta ${p.salsas_max} salsa${p.salsas_max>1?'s':''} (${sel.size} de ${p.salsas_max})</span>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">${(ped.carta.salsas||[]).map(s=>`<button class="chip ${sel.has(s)?'y':''}" data-s="${esc(s)}" style="border:0;cursor:pointer;height:38px;padding:0 14px;font-size:13.5px">${esc(s)}</button>`).join('')}</div>
+          <div class="row"><button class="btn sm" data-ok style="height:44px">Agregar al pedido</button><button class="btn sm ghost" data-no style="height:44px;width:auto;padding:0 16px">Cancelar</button></div>`;
+        box.querySelectorAll('[data-s]').forEach(c=>c.onclick=()=>{ const s=c.dataset.s; if(sel.has(s)) sel.delete(s); else if(sel.size<p.salsas_max) sel.add(s); pintaS(); });
+        box.querySelector('[data-no]').onclick=()=>{ box.style.display='none'; box.innerHTML=''; };
+        box.querySelector('[data-ok]').onclick=()=>{ ped.carrito.push({producto_id:p.id,nombre:p.nombre,precio:Number(p.precio),cantidad:1,salsas:[...sel],nota:'',conSalsas:true}); box.style.display='none'; box.innerHTML=''; pintaCarrito(); }; };
+      pintaS(); }); };
+  const pintaCarrito = ()=>{ const c=$('#pCar'); if(!c) return;
+    if(!ped.carrito.length){ c.innerHTML=`<p class="hint" style="color:var(--crema)">Toca los platos para armar el pedido.</p>`; return; }
+    c.innerHTML=`<div class="card" style="gap:12px"><span class="display" style="font-size:18px">Pedido de la mesa</span>
+      ${ped.carrito.map((l,i)=>`<div style="display:flex;flex-direction:column;gap:6px"><div class="row" style="align-items:flex-start"><div class="grow"><b>${l.cantidad} × ${esc(l.nombre)}</b>${l.salsas.length?`<div class="hint" style="color:var(--crema)">Salsas: ${esc(l.salsas.join(', '))}</div>`:''}</div><b style="white-space:nowrap">${soles(l.precio*l.cantidad)}</b><button class="btn sm ghost" data-x="${i}" style="width:36px;height:36px;padding:0;flex-shrink:0" aria-label="Quitar del pedido">×</button></div>
+        <input data-nota="${i}" maxlength="140" placeholder="Nota para cocina (ej. sin ají)" value="${esc(l.nota||'')}" style="height:42px;font-size:14.5px"></div>`).join('')}
+      <div class="field"><label for="pAle" style="color:#FFD0CA">Alergia o aviso importante (opcional)</label><input id="pAle" maxlength="200" placeholder="Ej. alérgico a mariscos" value="${esc(ped.alergia)}" style="border-color:#B3473A"></div>
+      <div id="pErr" class="msg err hidden"></div>
+      <button class="btn" id="pEnviar">Enviar pedido · ${soles(totalCarrito())}</button></div>`;
+    c.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{ ped.carrito.splice(+b.dataset.x,1); pintaProds(); pintaCarrito(); });
+    c.querySelectorAll('[data-nota]').forEach(n=>n.oninput=()=>{ ped.carrito[+n.dataset.nota].nota=n.value; });
+    $('#pAle').oninput=ev=>{ ped.alergia=ev.target.value; };
+    $('#pEnviar').onclick=async()=>{ const b=$('#pEnviar'), er=$('#pErr'); er.classList.add('hidden'); b.disabled=true;
+      try{ if(!ped.mesa.trim()) throw new Error('Escribe el número de mesa.'); const per=leerPersonal();
+        const r=await rpc('pedido_enviar',{p_mesa:ped.mesa.trim(), p_items:ped.carrito.map(l=>({producto_id:l.producto_id,cantidad:l.cantidad,salsas:l.salsas,nota:(l.nota||'').trim()||null})), p_alergia:ped.alergia.trim()||null, ...per}); recordarPin(per);
+        ped.carrito=[]; ped.alergia=''; ped.sel=r; ped.enviado=true; ped.vista='cuenta'; vPedidos();
+      }catch(e){ if(/PIN incorrecto/.test(e.message)){ olvidarPin(); if($('#pin')) $('#pin').value=''; } er.textContent=e.message; er.classList.remove('hidden'); b.disabled=false; } }; };
+  pintaCats(); pintaProds(); pintaCarrito();
+}
+function imprimirComanda(p, items, titulo){
+  let t=$('#ticket');
+  if(!t){ t=document.createElement('div'); t.id='ticket'; document.body.appendChild(t); const st=document.createElement('style');
+    st.textContent='#ticket{display:none}@media print{body>*:not(#ticket){display:none!important}#ticket{display:block!important;color:#000;background:#fff;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.3;width:100%;max-width:76mm;margin:0;padding:0}body{background:#fff!important}@page{margin:3mm}}'; document.head.appendChild(st); }
+  t.innerHTML = `<div style="text-align:center;font-weight:800;font-size:15px">${esc(panel.negocio.nombre)}</div>
+    <div style="text-align:center;font-weight:900;font-size:24px;margin:4px 0">MESA ${esc(p.mesa)}</div>
+    <div style="text-align:center">${esc(titulo)} · ${fechaHora(new Date())}</div><div>Mozo: ${esc((items[0]&&items[0].mozo)||p.mozo||'')}</div><hr>
+    ${p.alergia?`<div style="border:3px solid #000;padding:6px;font-weight:900;font-size:17px;text-align:center;margin:6px 0">AVISO: ${esc(String(p.alergia).toUpperCase())}</div>`:''}
+    ${items.map(i=>`<div style="font-size:16px;font-weight:800;margin-top:7px">${i.cantidad} x ${esc(i.nombre)}</div>${i.salsas&&i.salsas.length?`<div>Salsas: ${esc(i.salsas.join(', '))}</div>`:''}${i.nota?`<div style="font-weight:800">** ${esc(i.nota)} **</div>`:''}`).join('')}
+    <hr><div style="text-align:center;font-size:11px">Comanda de cocina · no es comprobante de pago</div>`;
+  window.print();
+}
+function vPedidoCuenta(){
+  const p=ped.sel, rol=rolActual(), caja=rol!=='mesero', rondas=[...new Set(p.items.map(i=>i.ronda))], recien=ped.enviado; ped.enviado=false;
+  const refrescar = async()=>{ const l=await rpc('pedidos_abiertos'); const n=l.find(x=>x.id===p.id); if(n){ ped.sel=n; } else { ped.sel=null; ped.vista='mesas'; } vPedidos(); };
+  $('#vista').innerHTML = `<div style="display:flex;flex-direction:column;gap:14px">
+    <button class="btn sm ghost" id="pVolver" style="width:auto;align-self:flex-start;height:38px;padding:0 14px;font-size:14px">Volver a las cuentas</button>
+    ${recien?`<div class="msg ok">Pedido enviado. ${caja?'Imprímelo para cocina.':'Caja ya lo ve para imprimirlo.'}</div>`:''}
+    <div><div class="display" style="font-size:26px">Mesa ${esc(p.mesa)}</div><div class="hint" style="color:var(--crema)">Cuenta ${p.numero} · abierta a las ${horaCorta(p.creado_en)} · ${esc(p.mozo||'')}</div></div>
+    ${p.alergia?`<div class="msg err" style="font-size:16px;font-weight:800">AVISO: ${esc(p.alergia)}</div>`:''}
+    ${selectorPersonal()}
+    ${rondas.map(r=>{ const its=p.items.filter(i=>i.ronda===r); return `<div class="card" style="gap:10px"><div class="row" style="justify-content:space-between"><b>Pedido ${r} · ${horaCorta(its[0].creado_en)} · ${esc(its[0].mozo||'')}</b><span class="chip ${its.some(i=>!i.impreso)?'y':''}">${its.some(i=>!i.impreso)?'Por imprimir':'Impreso'}</span></div>
+      ${its.map(i=>`<div class="row" style="align-items:flex-start"><div class="grow"><b>${i.cantidad} × ${esc(i.nombre)}</b>${i.salsas.length?`<div class="hint" style="color:var(--crema)">Salsas: ${esc(i.salsas.join(', '))}</div>`:''}${i.nota?`<div style="font-size:13.5px;font-weight:700;color:var(--amarillo)">Nota: ${esc(i.nota)}</div>`:''}</div><span style="white-space:nowrap">${soles(i.precio*i.cantidad)}</span><button class="btn sm ghost" data-q="${i.id}" style="width:36px;height:36px;padding:0;flex-shrink:0" aria-label="Quitar este plato">×</button></div>`).join('')}</div>`; }).join('')}
+    ${p.items.length?'':`<p class="hint" style="color:var(--crema)">Esta cuenta ya no tiene platos.</p>`}
+    <div class="row" style="justify-content:space-between"><span class="display" style="font-size:20px">Total</span><span class="display" style="font-size:24px">${soles(p.total)}</span></div>
+    <div id="pMsg" class="msg err hidden"></div>
+    <button class="btn sm ghost" id="pMas">Agregar platos a esta mesa</button>
+    ${caja?`<button class="btn sm" id="pImp" style="background:var(--blanco);color:var(--vino)">${p.por_imprimir>0?`Imprimir para cocina (${nPlatos(p.items.filter(i=>!i.impreso).reduce((t,i)=>t+i.cantidad,0))})`:'Volver a imprimir todo'}</button>`:''}
+    <button class="btn" id="pCerrar">Cerrar cuenta</button>
+    <div id="pCierre"></div>
+    ${caja?`<button class="btn sm danger" id="pAnular" style="height:40px">Anular esta cuenta</button><div id="pAnu"></div>`:''}
+  </div>`;
+  enlazarPin(); const msg=$('#pMsg'), err=t=>{ msg.textContent=t; msg.classList.remove('hidden'); };
+  const fallo = e => { if(/PIN incorrecto/.test(e.message)){ olvidarPin(); if($('#pin')) $('#pin').value=''; } err(e.message); };
+  $('#pVolver').onclick=()=>{ ped.sel=null; ped.vista='mesas'; vPedidos(); };
+  $('#pMas').onclick=()=>{ ped.vista='tomar'; ped.mesa=p.mesa; ped.carrito=[]; ped.alergia=p.alergia||''; vPedidos(); };
+  $('#vista').querySelectorAll('[data-q]').forEach(b=>tocaDos(b, 'Quitar', async()=>{ try{ const per=leerPersonal(); ped.sel=await rpc('pedido_quitar_item',{p_item_id:b.dataset.q, ...per}); recordarPin(per); vPedidos(); }catch(e){ fallo(e); } }));
+  if($('#pImp')) $('#pImp').onclick=async()=>{ try{ const pend=p.items.filter(i=>!i.impreso); if(!p.items.length) throw new Error('No hay platos para imprimir.');
+      imprimirComanda(p, pend.length?pend:p.items, pend.length?'Pedido nuevo':'Reimpresión'); if(pend.length) await rpc('pedido_impreso',{p_pedido_id:p.id, p_ronda:null}); await refrescar(); }catch(e){ err(e.message); } };
+  if($('#pAnular')) $('#pAnular').onclick=()=>{ $('#pAnu').innerHTML=`<div class="card"><div class="field"><label for="pMot">¿Por qué se anula?</label><input id="pMot" maxlength="200" placeholder="Ej. el cliente se fue"></div><button class="btn sm danger" id="pAnuOk">Confirmar anulación</button></div>`;
+    $('#pAnuOk').onclick=async()=>{ try{ const per=leerPersonal(); await rpc('pedido_anular',{p_pedido_id:p.id, p_motivo:$('#pMot').value, ...per}); recordarPin(per); ped.sel=null; ped.vista='mesas'; vPedidos(); }catch(e){ fallo(e); } }; };
+  $('#pCerrar').onclick=()=>{ let cSel=null, timer; const z=$('#pCierre');
+    z.innerHTML=`<div class="card" style="gap:12px"><span class="display" style="font-size:18px">Cerrar cuenta · ${soles(p.total)}</span>
+      <div class="field"><label for="pCel">Celular del cliente (para sumar su sello)</label><input id="pCel" type="tel" inputmode="numeric" maxlength="12" placeholder="987 654 321"></div>
+      <div id="pRes" class="list"></div>
+      <div id="pNuevoC" class="field hidden"><label for="pNom">Cliente nuevo: nombre</label><input id="pNom" placeholder="Nombre y apellido"></div>
+      <div id="pCErr" class="msg err hidden"></div>
+      <button class="btn" id="pCon">Cerrar y sumar sello</button>
+      <button class="btn sm ghost" id="pSin">Cerrar sin cliente (no suma sello)</button></div>`;
+    const ce=$('#pCErr'), cel=$('#pCel'); cel.focus();
+    cel.oninput=()=>{ clearTimeout(timer); timer=setTimeout(async()=>{ const q=cel.value.replace(/\D/g,''); cSel=null; $('#pRes').innerHTML=''; $('#pNuevoC').classList.add('hidden'); if(q.length<3) return;
+      try{ const l=await rpc('buscar_clientes',{p_q:q});
+        $('#pRes').innerHTML=l.map(c=>`<button class="item" data-id="${c.id}" style="border:0;text-align:left;width:100%;cursor:pointer"><div class="avatar">${ini(c.nombre)}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">${c.celular}</div></div></button>`).join('');
+        $('#pRes').querySelectorAll('button').forEach(b=>b.onclick=()=>{ cSel=l.find(x=>x.id===b.dataset.id); cel.value=cSel.celular; $('#pRes').innerHTML=`<div class="msg ok">Cliente: ${esc(cSel.nombre)}</div>`; });
+        if(q.length===9 && !l.some(c=>c.celular===q)) $('#pNuevoC').classList.remove('hidden');
+      }catch(e){ ce.textContent=e.message; ce.classList.remove('hidden'); } },300); };
+    const cerrar = async conCliente => { ce.classList.add('hidden'); $('#pCon').disabled=$('#pSin').disabled=true;
+      try{ const per=leerPersonal(); let cid=null;
+        if(conCliente){ if(cSel) cid=cSel.id; else { const q=cel.value.replace(/\D/g,''); if(q.length!==9) throw new Error('Escribe los 9 dígitos del celular y elige al cliente, o cierra sin cliente.');
+            const c=await rpc('buscar_o_crear_cliente',{p_nombre:$('#pNom').value, p_celular:q}); cid=c.id; } }
+        const r=await rpc('pedido_cerrar',{p_pedido_id:p.id, p_cliente_id:cid, ...per}); recordarPin(per); const t=r.tarjeta, nom=t?esc(t.cliente.nombre.split(' ')[0]):'';
+        ped.sel=null; ped.vista='mesas';
+        $('#vista').innerHTML=`<div style="display:flex;flex-direction:column;gap:14px"><div class="card ${t&&t.premio_nuevo?'yellow premio-in':'outline'}">
+          <div class="row"><span style="width:26px;height:26px;flex-shrink:0">${icon.check}</span><div class="display" style="font-size:18px">Cuenta cerrada · Mesa ${esc(p.mesa)} · ${soles(r.total)}</div></div>
+          <div style="font-weight:700">${!t?'Sin cliente: no se sumó sello.':t.premio_nuevo?`¡Tarjeta completa! ${nom} ganó: ${esc(panel.negocio.premio)}. Entrégaselo ahora.${t.premio_disponible?` Si no lo reclama hoy, dile que tiene hasta el ${fechaLarga(t.premio_disponible.vence_en)}.`:''}`:t.sumo_sello?`Sello sumado: ${nom} tiene ${t.sellos} de ${t.meta}.`:t.ya_sello_hoy?`${nom} ya tenía su sello de hoy (máximo 1 al día).`:`No suma sello: la cuenta es menor a ${soles(panel.negocio.monto_minimo)}.`}</div>
+          ${t&&t.premio_nuevo?`<button class="btn sm" id="pPremio" style="background:var(--vino);color:var(--amarillo)">Entregar premio ahora</button>`:''}
+          <span class="hint" style="color:inherit;opacity:.85">Recuerda entregar al cliente su boleta, como siempre.</span></div>
+          <button class="btn" id="pListo">Volver a las cuentas</button></div>`;
+        if($('#pPremio')) $('#pPremio').onclick=()=>{ canjePendiente=t.cliente.id; tab='canjear'; render(); };
+        $('#pListo').onclick=()=>vPedidos();
+      }catch(e){ if(/PIN incorrecto/.test(e.message)){ olvidarPin(); if($('#pin')) $('#pin').value=''; } ce.textContent=e.message; ce.classList.remove('hidden'); if($('#pCon')) $('#pCon').disabled=$('#pSin').disabled=false; } };
+    $('#pCon').onclick=()=>cerrar(true); $('#pSin').onclick=()=>cerrar(false); z.scrollIntoView({behavior:'smooth',block:'start'}); };
+}
+// Carta: el dueño cambia platos, precios y salsas
+async function vCartaEditar(){
+  const v=$('#vista'); v.innerHTML=`<div class="skeleton"></div>`; let c;
+  try{ c=await rpc('carta_ver',{p_todo:true}); }catch(e){ v.innerHTML=`${segPedidos()}<div class="msg err">${esc(e.message)}</div>`; enlazarSeg(); return; }
+  ped.carta=null; const cats=[...new Set(c.productos.map(p=>p.categoria))];
+  v.innerHTML=`<div style="display:flex;flex-direction:column;gap:14px">${segPedidos()}
+    <button class="btn sm" id="kNuevo">Agregar un plato</button>
+    <div id="kForm"></div><div id="kMsg" class="msg hidden"></div>
+    ${cats.map(cat=>`<div class="card" style="gap:8px"><b>${esc(cat)}</b>${c.productos.filter(p=>p.categoria===cat).map(p=>`<div class="row"><div class="grow" style="${p.activo?'':'opacity:.55'}"><div style="font-weight:700">${esc(p.nombre)}</div><div class="hint" style="color:var(--crema)">${soles(p.precio)}${p.salsas_max?` · hasta ${p.salsas_max} salsa${p.salsas_max>1?'s':''}`:''}${p.activo?'':' · apagado: no sale en la carta'}</div></div><button class="btn sm ghost" data-e="${p.id}" style="width:auto;height:36px;padding:0 14px;font-size:13px">Editar</button></div>`).join('')}</div>`).join('')}
+    <form class="card" id="kSal"><div class="field"><label for="kSalsas">Salsas (separadas por coma)</label><textarea id="kSalsas" rows="3">${esc((c.salsas||[]).join(', '))}</textarea></div><button class="btn sm" type="submit">Guardar salsas</button></form>
+  </div>`;
+  enlazarSeg(); const m=$('#kMsg'), aviso=(t,ok)=>{ m.className='msg '+(ok?'ok':'err'); m.textContent=t; };
+  const form = p => { $('#kForm').innerHTML=`<form class="card" id="kF" style="gap:12px"><span class="display" style="font-size:18px">${p?'Editar plato':'Plato nuevo'}</span>
+      <div class="field"><label for="k_nom">Nombre</label><input id="k_nom" maxlength="80" value="${esc(p?p.nombre:'')}" required></div>
+      <div class="row"><div class="field grow"><label for="k_cat">Categoría</label><input id="k_cat" list="k_cats" maxlength="40" value="${esc(p?p.categoria:(ped.cat||cats[0]||''))}" required><datalist id="k_cats">${cats.map(x=>`<option value="${esc(x)}">`).join('')}</datalist></div>
+        <div class="field" style="width:120px"><label for="k_pre">Precio (S/)</label><input id="k_pre" type="number" step="0.1" min="0" value="${p?p.precio:''}" required></div></div>
+      <div class="row"><div class="field grow"><label for="k_sal">Salsas que lleva</label><input id="k_sal" type="number" min="0" max="6" value="${p?p.salsas_max:0}"></div>
+        <div class="field grow"><label for="k_act">¿Sale en la carta?</label><select id="k_act"><option value="1"${!p||p.activo?' selected':''}>Sí</option><option value="0"${p&&!p.activo?' selected':''}>No (apagado)</option></select></div></div>
+      <div class="row"><button class="btn sm" type="submit">Guardar</button><button class="btn sm ghost" type="button" id="kCan" style="width:auto;padding:0 16px">Cancelar</button></div></form>`;
+    $('#kCan').onclick=()=>{ $('#kForm').innerHTML=''; };
+    $('#kF').onsubmit=async ev=>{ ev.preventDefault(); try{ await rpc('carta_guardar_producto',{p_id:p?p.id:null, p_categoria:$('#k_cat').value, p_nombre:$('#k_nom').value, p_precio:parseFloat($('#k_pre').value), p_salsas_max:parseInt($('#k_sal').value)||0, p_activo:$('#k_act').value==='1'}); vCartaEditar(); }catch(e){ aviso(e.message,false); } };
+    $('#kForm').scrollIntoView({behavior:'smooth',block:'start'}); };
+  $('#kNuevo').onclick=()=>form(null);
+  v.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>form(c.productos.find(p=>p.id===b.dataset.e)));
+  $('#kSal').onsubmit=async ev=>{ ev.preventDefault(); try{ await rpc('carta_guardar_salsas',{p_salsas:$('#kSalsas').value.split(',').map(x=>x.trim()).filter(Boolean)}); aviso('Salsas guardadas.',true); }catch(e){ aviso(e.message,false); } };
+}
+
+// ----- Registrar compra -----
+let clienteSel=null;
+function vRegistrar(){
+  $('#titulo').textContent='Caja';
+  $('#vista').innerHTML = `<div style="display:flex;flex-direction:column;gap:14px">
+    ${selectorPersonal()}
+    <div class="field"><label for="cel">Celular del cliente</label>
+      <div class="row"><input id="cel" class="grow" type="tel" inputmode="numeric" maxlength="12" placeholder="987 654 321"><button class="btn sm ghost" id="scan" aria-label="Escanear QR" style="width:50px;padding:0">${icon.scan}</button></div></div>
+    <div id="res" class="list"></div>
+    <div id="nuevo" class="field hidden"><label for="nom">Cliente nuevo: nombre</label><input id="nom" placeholder="Nombre y apellido"></div>
+    <div id="cli"></div>
+    <div class="field"><label for="monto">Monto de la ${pal()}</label><div class="money"><span>S/</span><input id="monto" type="text" inputmode="decimal" placeholder="0.00"></div>
+      <span class="hint" style="margin-top:6px">Desde ${soles(panel.negocio.monto_minimo)} suma 1 sello. Máximo 1 sello por cliente al día.</span></div>
+    <div id="m" class="msg err hidden"></div>
+    <button class="btn" id="go">Registrar ${pal()} y sumar sello</button>
+    <div id="out"></div>
+    <div id="hoy"></div>
+  </div>`;
+  enlazarPin(); if($('#quien')) $('#quien').addEventListener('change', cargarHoy); cargarHoy(); const cel=$('#cel'), res=$('#res'), nuevo=$('#nuevo'), cli=$('#cli'), m=$('#m'), out=$('#out');
+  const err = t => { m.textContent=t; m.classList.remove('hidden'); };
+  let timer; clienteSel=null;
+  const buscar = async () => { const q=cel.value.replace(/\D/g,''); res.innerHTML=''; nuevo.classList.add('hidden'); cli.innerHTML=''; clienteSel=null; if(q.length<3) return;
+    try{ const lista = await rpc('buscar_clientes',{p_q:q});
+      if(lista.length){ res.innerHTML = lista.map(c=>`<button class="item" style="border:0;text-align:left;width:100%;cursor:pointer" data-id="${c.id}" data-nombre="${esc(c.nombre)}" data-cel="${c.celular}"><div class="avatar">${ini(c.nombre)}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">${c.celular}</div></div></button>`).join('');
+        res.querySelectorAll('button').forEach(b=>b.onclick=()=>elegir({id:b.dataset.id,nombre:b.dataset.nombre,celular:b.dataset.cel})); }
+      if(q.length===9 && !lista.some(c=>c.celular===q)){ nuevo.classList.remove('hidden'); }
+    }catch(e){ err(e.message); } };
+  cel.oninput = () => { clearTimeout(timer); timer=setTimeout(buscar,300); };
+  async function elegir(c){ clienteSel=c; res.innerHTML=''; nuevo.classList.add('hidden'); cli.innerHTML=`<div class="skeleton"></div>`;
+    try{ estadoActual = await rpc('estado_tarjeta',{p_cliente_id:c.id}); const pd=estadoActual.premio_disponible;
+      cli.innerHTML = `<div style="display:flex;flex-direction:column;gap:8px">${bloqueCliente(c, estadoActual)}
+        ${pd?`<div class="card yellow premio-in" style="gap:6px"><span class="display" style="font-size:18px">Tiene un premio por entregar</span><span style="font-weight:700">${esc(pd.descripcion)}</span><span style="font-size:12.5px;font-weight:700">Tiene hasta el ${fecha(pd.vence_en)}. Entrégaselo ahora.</span><button class="btn sm" id="irCanje" style="background:var(--vino);color:var(--amarillo)">Entregar premio</button></div>`:''}
+        ${!pd && estadoActual.negocio.visita_gratis && estadoActual.sellos===estadoActual.meta-1?`<div class="card yellow premio-in" style="gap:6px"><span class="display" style="font-size:18px">Esta visita es gratis</span><span style="font-weight:700">Es su premio: ${esc(estadoActual.negocio.premio)}</span><span style="font-size:12.5px;font-weight:700">Regístrala con S/ 0 (o con lo que pague por otros servicios) y luego entrega el premio.</span></div>`:''}
+        ${btnReenviar({...c, ...estadoActual.cliente})}</div>`;
+      if($('#irCanje')) $('#irCanje').onclick=()=>{ canjePendiente=c.id; tab='canjear'; render(); }; }catch(e){ cli.innerHTML=''; err(e.message); } $('#monto').focus(); }
+  $('#scan').onclick = () => escanear(t => { const tok = (t.match(/[?&]t=([a-f0-9]+)/)||[])[1]; if(!tok) return err('Ese código no es de una tarjeta.'); buscarPorToken(tok); });
+  async function buscarPorToken(tok){ try{ const e = await rpc('tarjeta_por_token',{p_token:tok}); const lista = await rpc('buscar_clientes',{p_q:e.cliente.nombre}); const c = lista.find(x=>x.token===tok); if(!c) return err('Esa tarjeta no es de este negocio.'); cel.value=c.celular; elegir(c); }catch(e){ err(e.message); } }
+  $('#go').onclick = async () => { m.classList.add('hidden'); out.innerHTML=''; const b=$('#go'); b.disabled=true;
+    try{ const per = leerPersonal();
+      if(!clienteSel){ const q=cel.value.replace(/\D/g,''); if(q.length!==9) throw new Error('Escribe los 9 dígitos del celular y elige al cliente.'); const c = await rpc('buscar_o_crear_cliente',{p_nombre:$('#nom').value, p_celular:q}); clienteSel={id:c.id,nombre:c.nombre,celular:c.celular,token:c.token_tarjeta}; }
+      let monto = parseFloat(String($('#monto').value).replace(',','.'));
+      if(isNaN(monto) && estadoActual && estadoActual.cliente && estadoActual.cliente.id===clienteSel.id && estadoActual.negocio.visita_gratis && estadoActual.sellos===estadoActual.meta-1) monto = 0;
+      if(isNaN(monto)||monto<0) throw new Error(`Escribe el monto de la ${pal()}.`);
+      const r = await rpc('registrar_compra',{p_cliente_id:clienteSel.id, p_monto:monto, ...per}); recordarPin(per);
+      const link=`${BASE_URL}?t=${r.cliente.token}`; const wa=`https://wa.me/51${r.cliente.celular}?text=${encodeURIComponent(msgTarjeta(r.cliente.nombre, panel.negocio.nombre, link))}`;
+      out.innerHTML = `<div class="card ${r.premio_nuevo?'yellow premio-in':'outline'}" style="margin-top:4px">
+        <div class="row"><span style="width:26px;height:26px;flex-shrink:0">${icon.check}</span><div class="grow"><div class="display" style="font-size:16px">${r.premio_nuevo?(r.visita_gratis?`¡Visita gratis! ${esc(r.cliente.nombre.split(' ')[0])} completó su tarjeta`:`¡Tarjeta completa! ${esc(r.cliente.nombre.split(' ')[0])} llegó a ${r.meta} de ${r.meta}`):r.sumo_sello?`Sello sumado · ${esc(r.cliente.nombre.split(' ')[0])} tiene ${r.sellos} de ${r.meta}`:`${r.ya_sello_hoy?`${Pal()} registrada · ${esc(r.cliente.nombre.split(' ')[0])} ya ganó su sello de hoy (máximo 1 al día)`:`${Pal()} registrada (no suma sello: menor a ${soles(panel.negocio.monto_minimo)})`}`}</div><div class="s" style="font-size:12.5px">${soles(monto)} · ${fechaHora(new Date())}</div></div></div>
+        ${r.premio_nuevo?`<div style="font-weight:700">${r.visita_gratis?`Hoy no paga: ${esc(panel.negocio.premio)}.`:`Ganó su premio: ${esc(panel.negocio.premio)}.`} Entrégaselo ahora.${!r.visita_gratis && r.premio_disponible?` Si no lo reclama hoy, dile que tiene hasta el ${fechaLarga(r.premio_disponible.vence_en)}.`:''} Su tarjeta vuelve a empezar en 0 de ${r.meta}.</div><button class="btn sm" id="entregarYa" style="background:var(--vino);color:var(--amarillo)">Entregar premio ahora</button>`:''}
+        <div class="stamps">${r.premio_nuevo?stampsHTML(r.meta,r.meta,r.meta):stampsHTML(r.sellos,r.meta,r.sumo_sello?r.sellos:0)}</div>
+        <a class="btn sm ${r.premio_nuevo?'':'ghost'}" style="text-decoration:none;${r.premio_nuevo?'background:var(--vino);color:var(--amarillo)':''}" href="${wa}" target="_blank" rel="noopener"><span style="width:20px;height:20px">${icon.wa}</span>Enviar tarjeta por WhatsApp</a>
+        ${r.referido?`<div style="font-weight:700;font-size:13.5px">${r.referido.premiado?`Regalo: ${esc(r.referido.nombre.split(' ')[0])} ganó 1 sello por invitar a ${esc(r.cliente.nombre.split(' ')[0])}.`:`${esc(r.referido.nombre.split(' ')[0])} lo invitó, pero ya usó sus 3 regalos de este mes.`}</div>`:''}
+        <button class="btn sm danger" id="undo" style="height:38px">Me equivoqué: deshacer este registro</button>
+      </div>`;
+      if($('#entregarYa')) $('#entregarYa').onclick=()=>{ canjePendiente=r.cliente.id; tab='canjear'; render(); };
+      const compraId=r.compra_id; dobleToque($('#undo'), async()=>{ $('#undo').disabled=true; try{ await anularMio(compraId); out.innerHTML=`<div class="msg ok">Registro deshecho. No se sumó el sello; vuelve a registrarlo bien.</div>`; cargarHoy(); }catch(e){ if(/PIN/.test(e.message)){ olvidarPin(); if($('#pin')) $('#pin').value=''; } err(e.message); $('#undo').disabled=false; } });
+      cargarHoy();
+      cel.value=''; $('#monto').value=''; clienteSel=null; cli.innerHTML=''; nuevo.classList.add('hidden'); cel.focus();
+    }catch(e){ if(/PIN incorrecto/.test(e.message)){ olvidarPin(); if($('#pin')) $('#pin').value=''; } err(e.message); } b.disabled=false; };
+}
+
+// ----- Canjear premio -----
+function vCanjear(){
+  $('#titulo').textContent='Canjear premio';
+  $('#vista').innerHTML = `<div style="display:flex;flex-direction:column;gap:14px">
+    ${selectorPersonal()}
+    <div class="field"><label for="q">Buscar cliente (celular o nombre)</label><div class="row"><input id="q" class="grow" placeholder="987 654 321"><button class="btn sm ghost" id="scan" aria-label="Escanear QR" style="width:50px;padding:0">${icon.scan}</button></div></div>
+    <div id="res" class="list"></div><div id="det"></div><div id="m" class="msg err hidden"></div></div>`;
+  enlazarPin(); const q=$('#q'), res=$('#res'), det=$('#det'), m=$('#m'); const err=t=>{m.textContent=t;m.classList.remove('hidden')};
+  let timer; q.oninput=()=>{clearTimeout(timer);timer=setTimeout(async()=>{ det.innerHTML=''; if(q.value.trim().length<2){res.innerHTML='';return;} try{ const l=await rpc('buscar_clientes',{p_q:q.value.trim()}); res.innerHTML=l.map(c=>`<button class="item" style="border:0;text-align:left;width:100%;cursor:pointer" data-id="${c.id}"><div class="avatar">${ini(c.nombre)}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">${c.celular}</div></div></button>`).join('')||'<p class="hint">Sin resultados.</p>'; res.querySelectorAll('button').forEach(b=>b.onclick=()=>detalle(b.dataset.id)); }catch(e){err(e.message)} },300)};
+  $('#scan').onclick=()=>escanear(async t=>{ const tok=(t.match(/[?&]t=([a-f0-9]+)/)||[])[1]; if(!tok) return err('Ese código no es de una tarjeta.'); try{ const e=await rpc('tarjeta_por_token',{p_token:tok}); const l=await rpc('buscar_clientes',{p_q:e.cliente.nombre}); const c=l.find(x=>x.token===tok); if(!c) return err('Esa tarjeta no es de este negocio.'); detalle(c.id);}catch(e){err(e.message)} });
+  async function detalle(id){ res.innerHTML=''; m.classList.add('hidden'); det.innerHTML='<div class="skeleton"></div>';
+    try{ const e=await rpc('estado_tarjeta',{p_cliente_id:id}); const p=e.premio_disponible;
+      det.innerHTML = `${bloqueCliente(e.cliente,e)}
+        <div class="card" style="margin-top:8px"><div class="stamps">${stampsHTML(e.sellos,e.meta)}</div><p class="sub">${mensajeSellos(e.sellos,e.meta,!!p,pal(e.negocio),e.negocio.visita_gratis)}</p>${e.cliente.token?btnReenviar(e.cliente):''}</div>
+        ${p?`<div class="card yellow" style="margin-top:8px"><span class="display" style="font-size:18px">Premio disponible</span><span style="font-weight:600">${esc(p.descripcion)}</span><span style="font-size:12.5px;font-weight:700">Otorgado el ${fecha(p.otorgado_en)} · vence el ${fecha(p.vence_en)}</span>
+             <button class="btn hold" id="canje" style="background:var(--vino);color:var(--amarillo);margin-top:6px"><div class="bar"></div><span style="position:relative">Mantén presionado para canjear</span></button></div>`
+          :`<div class="msg ok" style="margin-top:8px">Este cliente no tiene premio disponible todavía.</div>`}`;
+      if(p){ holdToConfirm($('#canje'), async()=>{ try{ const per=leerPersonal(); const r=await rpc('canjear_premio',{p_premio_id:p.id, ...per}); recordarPin(per); det.innerHTML=`<div class="card outline"><div class="row"><span style="width:26px;height:26px">${icon.check}</span><div class="display" style="font-size:17px">Premio entregado a ${esc(r.cliente.nombre.split(' ')[0])}</div></div><p class="sub">${esc(p.descripcion)} · ${fechaHora(new Date())}. Su tarjeta sigue en ${r.sellos} de ${r.meta}.</p>${r.negocio.resena_url&&r.cliente.celular?`<a class="btn sm" style="text-decoration:none;height:44px;gap:8px" target="_blank" rel="noopener" href="${waLink(r.cliente.celular,`¡Gracias por tu preferencia, ${primerNombre(r.cliente.nombre)}! Esperamos que disfrutes tu premio de ${r.negocio.nombre}. Si te gustó, ¿nos dejas tu reseña en Google? Nos ayuda mucho: ${r.negocio.resena_url}`)}"><span style="width:18px;height:18px">${icon.wa}</span>Pedir reseña por WhatsApp</a><p class="hint">Es una invitación: la reseña es voluntaria.</p>`:''}</div>`; }catch(e){ if(/PIN incorrecto/.test(e.message)){ olvidarPin(); if($('#pin')) $('#pin').value=''; } err(e.message); } }); }
+    }catch(e){ det.innerHTML=''; err(e.message); } }
+  if(canjePendiente){ const id=canjePendiente; canjePendiente=null; detalle(id); }
+}
+function holdToConfirm(btn, fn){ let t; const start=()=>{ btn.classList.add('holding'); t=setTimeout(()=>{ btn.classList.remove('holding'); fn(); },1500); }; const stop=()=>{ btn.classList.remove('holding'); clearTimeout(t); };
+  btn.addEventListener('pointerdown',start); ['pointerup','pointerleave','pointercancel'].forEach(ev=>btn.addEventListener(ev,stop)); btn.addEventListener('contextmenu',e=>e.preventDefault()); }
+
+// ----- Historial -----
+function vHistorial(){
+  $('#titulo').textContent='Historial';
+  $('#vista').innerHTML=`<div class="list" id="h"><div class="skeleton"></div><div class="skeleton"></div></div>`;
+  rpc('historial',{p_limite:60}).then(l=>{ $('#h').innerHTML = l.length? l.map(c=>`<div class="item" style="${c.anulada?'opacity:.5':''};align-items:flex-start"><div class="avatar">${ini(c.cliente)}</div><div class="grow"><div class="row" style="justify-content:space-between;align-items:baseline"><span class="t">${esc(c.cliente)}</span><span class="display" style="font-size:17px;color:var(--amarillo);white-space:nowrap">${soles(c.monto)}</span></div><div class="s">${fechaHora(c.creado_en)} · ${esc(c.por)}${c.anulada?' · ANULADA':''}</div><div class="row" style="margin-top:6px;gap:6px">${c.suma_sello&&!c.anulada?'<span class="chip y">+1 sello</span>':'<span class="chip">sin sello</span>'}${panel.es_admin&&!c.anulada?`<button class="btn sm danger" data-id="${c.id}" style="height:30px;padding:0 10px;font-size:12.5px">Anular</button>`:''}</div></div></div>`).join('') : `<p class="hint">Todavía no hay ${pal()}s registradas.</p>`;
+    $('#h').querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>anular(b.dataset.id)); }).catch(e=>{ $('#h').innerHTML=`<div class="msg err">${esc(e.message)}</div>`; });
+  function anular(id){ const v=$('#vista'); v.insertAdjacentHTML('afterbegin',`<div class="card" id="an" style="margin-bottom:12px"><h3>Anular ${pal()}</h3>${selectorPersonal()}<div class="field"><label>Motivo</label><input id="mot" placeholder="Ej. se registró dos veces"></div><div id="m2" class="msg err hidden"></div><div class="row"><button class="btn sm" id="ok">Anular</button><button class="btn sm ghost" id="no">Cancelar</button></div></div>`);
+    enlazarPin(); $('#no').onclick=()=>$('#an').remove(); $('#ok').onclick=async()=>{ try{ const per=leerPersonal(); if(!$('#mot').value.trim()) throw new Error('Escribe el motivo.'); await rpc('anular_compra',{p_compra_id:id,p_motivo:$('#mot').value.trim(),...per}); vHistorial(); }catch(e){ const m=$('#m2'); m.textContent=e.message; m.classList.remove('hidden'); } }; }
+}
+
+// ----- Estadísticas -----
+let periodo=30;
+const DIAS=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const hora12 = h => `${(h%12)||12} ${h<12?'am':'pm'}`;
+const fechaISO = f => new Date(f+'T12:00:00');
+const primerNombre = n => String(n||'').trim().split(' ')[0];
+function vEstadisticas(){
+  $('#titulo').textContent='Estadísticas';
+  $('#vista').innerHTML=`<div style="display:flex;flex-direction:column;gap:16px">
+    <div class="seg s3" id="per">${[7,30,90].map(d=>`<button data-d="${d}" class="${d===periodo?'on':''}">${d} días</button>`).join('')}</div>
+    <div id="st" style="display:flex;flex-direction:column;gap:16px"><div class="kpis"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div><div class="skeleton" style="height:180px"></div></div>
+  </div>`;
+  $('#per').querySelectorAll('button').forEach(b=>b.onclick=()=>{ periodo=+b.dataset.d; vResultados(); });
+  const pedido=periodo;
+  rpc('estadisticas_negocio',{p_dias:periodo}).then(d=>{ if(pedido===periodo && $('#st')) pintarStats(d); }).catch(e=>{ if($('#st')) $('#st').innerHTML=`<div class="msg err">${esc(e.message)}</div>`; });
+}
+function delta(cur, prev, dias){
+  cur=+cur||0; prev=+prev||0;
+  if(!prev && !cur) return `<div class="delta eq">sin movimiento</div>`;
+  if(!prev) return `<div class="delta up">▲ nuevo <span>vs. ${dias} días antes</span></div>`;
+  const p=Math.round((cur-prev)/prev*100);
+  if(p===0) return `<div class="delta eq">= igual <span>vs. ${dias} días antes</span></div>`;
+  return `<div class="delta ${p>0?'up':'down'}">${p>0?'▲':'▼'} ${Math.abs(p)}% <span>vs. ${dias} días antes</span></div>`;
+}
+function waLink(cel, txt){ return `https://wa.me/51${cel}?text=${encodeURIComponent(txt)}`; }
+function pintarStats(d){
+  const k=d.kpis, n=panel.negocio, dias=d.dias, vacio=!k.compras && !k.compras_prev;
+  const kpi=(l,v,dl)=>`<div class="kpi"><div class="n" style="font-size:24px">${v}</div><div class="l">${l}</div>${dl||''}</div>`;
+  const pct = k.clientes ? Math.round(k.recurrentes/k.clientes*100) : 0;
+  const cm=d.cliente_mes||{}, podio=cm.podio||[], ga=cm.ganador_anterior;
+  const maxDia=Math.max(...d.por_dia.map(x=>x.compras)), maxHora=Math.max(...d.por_hora.map(x=>x.compras));
+  const diaTop=d.por_dia.find(x=>x.compras===maxDia&&maxDia>0), horaTop=d.por_hora.find(x=>x.compras===maxHora&&maxHora>0);
+  $('#st').innerHTML=`
+    ${vacio?'':conclusiones(d)}
+    <div class="kpis">
+      ${kpi('Ventas',soles(k.ventas),delta(k.ventas,k.ventas_prev,dias))}
+      ${kpi(pal()==='compra'?'Visitas (compras)':'Visitas',k.compras,delta(k.compras,k.compras_prev,dias))}
+      ${kpi('Clientes que vinieron',k.clientes,delta(k.clientes,k.clientes_prev,dias))}
+      ${kpi('Ticket promedio',soles(k.ticket),delta(k.ticket,k.ticket_prev,dias))}
+      ${kpi('Clientes nuevos',k.nuevos,delta(k.nuevos,k.nuevos_prev,dias))}
+      ${kpi('Volvieron 2 o más veces',k.recurrentes,`<div class="delta eq">${pct}% de los que vinieron</div>`)}
+    </div>
+    ${bloqueClienteMes(cm, podio, ga)}
+    ${vacio?`<div class="msg ok">Todavía no hay compras en estos ${dias} días. Los gráficos se llenan solos cuando la caja registra.</div>`:`
+    <div class="card"><div class="row" style="justify-content:space-between;align-items:baseline"><h3>Ventas por día</h3><span class="display" style="font-size:18px;color:var(--amarillo)">${soles(k.ventas)}</span></div>
+      <div class="leyenda"><span><i></i>Últimos ${dias} días</span><span><i class="prev"></i>${dias} días anteriores</span></div>
+      <div class="chart" id="ch_l">${graficoLinea(d.serie)}</div><div class="tip" id="tip_l">Toca el gráfico para ver cada día.</div></div>
+    <div class="card"><h3>Días con más clientes</h3>${diaTop?`<p class="sub">Tu día más fuerte: <b style="color:var(--amarillo)">${DIAS[diaTop.dia-1]}</b></p>`:''}
+      <div class="chart" id="ch_d">${graficoBarras(d.por_dia.map(x=>({v:x.compras,l:DIAS[x.dia-1].slice(0,2),t:`${DIAS[x.dia-1]} · ${x.compras} visita${x.compras==1?'':'s'}`})))}</div><div class="tip" id="tip_d"></div></div>
+    <div class="card"><h3>Horas con más clientes</h3>${horaTop?`<p class="sub">Hora pico: <b style="color:var(--amarillo)">${hora12(horaTop.hora)} a ${hora12((horaTop.hora+1)%24)}</b></p>`:''}
+      <div class="chart" id="ch_h">${graficoBarras(rangoHoras(d.por_hora).map(x=>({v:x.compras,l:x.hora%2===0?hora12(x.hora).replace(' ',''):'',t:`${hora12(x.hora)} a ${hora12((x.hora+1)%24)} · ${x.compras} visita${x.compras==1?'':'s'}`})))}</div><div class="tip" id="tip_h"></div></div>`}
+    <div class="card"><h3>Clientes más fieles</h3><p class="hint">Los que más vinieron en los últimos ${dias} días.</p>
+      <div class="list">${d.top.length?d.top.map((c,i)=>`<div class="item" style="background:var(--vino3)"><div class="rank ${i===0?'r1':''}">${i+1}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">${c.visitas} visita${c.visitas==1?'':'s'} · ${soles(c.gastado)} · última ${fecha(c.ultima)}</div></div><a class="btn sm ghost" aria-label="WhatsApp" style="text-decoration:none;height:36px;width:40px;padding:0" target="_blank" rel="noopener" href="${waLink(c.celular,`Hola ${primerNombre(c.nombre)}, gracias por ser de nuestros clientes más fieles en ${n.nombre}. Tu tarjeta de sellos: ${BASE_URL}?t=${c.token}`)}"><span style="width:18px;height:18px">${icon.wa}</span></a></div>`).join(''):'<p class="hint">Aún no hay clientes en este periodo.</p>'}</div></div>
+    <div class="card"><h3>Clientes que dejaron de venir</h3><p class="hint">Venían seguido (3 o más visitas) y no vuelven hace más de 3 semanas. Un mensaje a tiempo los recupera.</p>
+      <div class="list">${d.en_riesgo.length?d.en_riesgo.map(c=>`<div class="item" style="background:var(--vino3)"><div class="avatar">${ini(c.nombre)}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">no viene hace ${c.dias} días · ${c.visitas} visitas antes</div></div><a class="btn sm" style="text-decoration:none;height:36px;padding:0 12px;font-size:13px;gap:6px" target="_blank" rel="noopener" href="${waLink(c.celular,`Hola ${primerNombre(c.nombre)}, te extrañamos en ${n.nombre}. Vuelve pronto, tu tarjeta de sellos te espera: ${BASE_URL}?t=${c.token}`)}"><span style="width:16px;height:16px">${icon.wa}</span>Escribir</a></div>`).join(''):'<p class="hint">Nadie por ahora. Tus clientes frecuentes siguen viniendo.</p>'}</div></div>`;
+  enlazarClienteMes();
+  if(!vacio){ hoverLinea(d.serie); hoverBarras('ch_d','tip_d'); hoverBarras('ch_h','tip_h'); }
+}
+// Conclusiones en palabras simples: cada una responde una pregunta del dueño.
+function conclusiones(d){
+  const k=d.kpis, dias=d.dias, pct=(a,b)=>b?Math.round((a-b)/b*100):null, fr=[];
+  const compara=(p,mas,menos,igual)=> p===null?'':p>0?` <b style="color:#1F6B2E">▲ ${p}% ${mas}</b>`:p<0?` <b style="color:#9A1B10">▼ ${Math.abs(p)}% ${menos}</b>`:` ${igual}`;
+  fr.push(`¿Están volviendo? <b>${k.recurrentes}</b> de tus <b>${k.clientes}</b> clientes vinieron 2 o más veces en ${dias} días (${k.clientes?Math.round(k.recurrentes/k.clientes*100):0}%).${compara(pct(k.clientes,k.clientes_prev),'más clientes que antes','menos clientes que antes','Igual cantidad de clientes que antes.')}`);
+  fr.push(`¿Cuánto vendí? <b>${soles(k.ventas)}</b> registrados con tarjeta.${compara(pct(k.ventas,k.ventas_prev),'más que los '+dias+' días anteriores','menos que los '+dias+' días anteriores','Igual que antes.')}`);
+  fr.push(`¿Llegan clientes nuevos? <b>${k.nuevos}</b> nuevo${k.nuevos==1?'':'s'} en ${dias} días.${k.nuevos?'':' Muestra el QR en el mostrador para que se registren solos.'}`);
+  const con=d.por_dia.filter(x=>x.compras>0);
+  if(con.length>=3){ const min=d.por_dia.reduce((a,b)=>b.compras<a.compras?b:a); fr.push(`¿Qué día impulsar? Tu día más flojo es el <b>${DIAS[min.dia-1].toLowerCase()}</b>: es buen día para una promoción.`); }
+  if(d.en_riesgo.length) fr.push(`¿A quién recuperar? <b>${d.en_riesgo.length}</b> cliente${d.en_riesgo.length==1?'':'s'} fiel${d.en_riesgo.length==1?'':'es'} ${d.en_riesgo.length==1?'dejó':'dejaron'} de venir. ${d.en_riesgo.length==1?'Escríbele':'Escríbeles'} desde la lista de abajo.`);
+  return `<div class="card yellow" style="gap:10px"><span class="display" style="font-size:19px">Lo más importante</span>${fr.map(t=>`<div style="font-size:14px;font-weight:600;line-height:1.4">${t}</div>`).join('')}</div>`;
+}
+function rangoHoras(ph){ const con=ph.filter(x=>x.compras>0); if(!con.length) return ph.filter(x=>x.hora>=8&&x.hora<=22); const a=Math.max(0,Math.min(...con.map(x=>x.hora))-1), b=Math.min(23,Math.max(...con.map(x=>x.hora))+1); return ph.filter(x=>x.hora>=a&&x.hora<=b); }
+function bloqueClienteMes(cm, podio, ga){
+  const n=panel.negocio;
+  return `<div class="card yellow" id="cmes"><span class="eyebrow" style="color:var(--vino);opacity:.75">Cliente del mes · ${mesLima()}</span>
+    <div class="row" style="justify-content:space-between;align-items:flex-start;gap:10px"><div class="grow"><div class="display" style="font-size:19px">${cm.premio?esc(cm.premio):'Aún no pusiste el premio'}</div><div style="font-size:12.5px;font-weight:700;opacity:.8">${cm.premio?'Premio para el cliente con más visitas del mes':'Ponle un premio para que tus clientes compitan'}</div></div><button class="btn sm" id="cm_edit" style="background:var(--vino);color:var(--amarillo);height:36px;padding:0 12px;font-size:13px">${cm.premio?'Cambiar':'Poner premio'}</button></div>
+    <form id="cm_f" class="hidden" style="display:flex;flex-direction:column;gap:8px"><input id="cm_in" maxlength="120" placeholder="Ej. Un combo familiar gratis" value="${esc(cm.premio||'')}" style="background:#fff;color:var(--vino);border-color:transparent"><div class="row"><button class="btn sm" type="submit" style="background:var(--vino);color:var(--amarillo)">Guardar</button><button class="btn sm" type="button" id="cm_no" style="background:transparent;border:1.5px solid var(--vino);color:var(--vino)">Cancelar</button></div><div id="cm_m" style="font-size:13px;font-weight:700"></div></form>
+    <div class="podio">${podio.length?podio.map((c,i)=>`<div class="p"><div class="rank">${i+1}</div><div class="grow" style="font-weight:800">${esc(c.nombre)}</div><span style="font-weight:800;font-size:13px">${c.visitas} visita${c.visitas==1?'':'s'}</span></div>`).join(''):'<div style="font-size:13.5px;font-weight:700">Nadie todavía este mes. El primero que compre empieza a liderar.</div>'}</div>
+    ${ga?`<div style="border-top:1.5px solid rgba(0,0,0,.12);padding-top:10px;display:flex;align-items:center;gap:10px"><div class="grow" style="font-size:13px;font-weight:700">Ganador de ${mesLima(-1)}: <b>${esc(ga.nombre)}</b> (${ga.visitas} visitas)</div>${cm.premio?`<a class="btn sm" style="text-decoration:none;background:var(--vino);color:var(--amarillo);height:36px;padding:0 12px;font-size:13px;gap:6px" target="_blank" rel="noopener" href="${waLink(ga.celular,`¡Hola ${primerNombre(ga.nombre)}! Fuiste el cliente del mes de ${mesLima(-1)} en ${n.nombre}. Ganaste: ${cm.premio}. Acércate a reclamarlo.`)}"><span style="width:16px;height:16px">${icon.wa}</span>Avisarle</a>`:''}</div>`:''}
+    <div style="font-size:12px;font-weight:600;opacity:.75">Gana quien tenga más visitas en el mes (si empatan, el que más consumió). Se reinicia el día 1. Cada cliente ve su puesto en su tarjeta.</div>
+  </div>`;
+}
+function enlazarClienteMes(){
+  const f=$('#cm_f'); if(!f) return;
+  $('#cm_edit').onclick=()=>{ f.classList.remove('hidden'); $('#cm_edit').classList.add('hidden'); $('#cm_in').focus(); };
+  $('#cm_no').onclick=()=>{ f.classList.add('hidden'); $('#cm_edit').classList.remove('hidden'); };
+  f.onsubmit=async ev=>{ ev.preventDefault(); const b=f.querySelector('button[type=submit]'); b.disabled=true;
+    try{ await rpc('guardar_premio_mes',{p_premio_mes:$('#cm_in').value}); vEstadisticas(); }catch(e){ $('#cm_m').textContent=e.message; b.disabled=false; } };
+}
+const CW=340;
+function graficoLinea(serie){
+  const H=170, L=6, R=6, T=22, B=22, n=serie.length, w=CW-L-R, h=H-T-B;
+  const max=Math.max(1,...serie.map(s=>Math.max(+s.ventas,+s.ventas_prev)));
+  const x=i=>L+(n>1?i*w/(n-1):w/2), y=v=>T+(1-(+v)/max)*h;
+  const pts=k=>serie.map((s,i)=>`${x(i).toFixed(1)},${y(s[k]).toFixed(1)}`).join(' L');
+  const area=`M${x(0)},${T+h} L${pts('ventas')} L${x(n-1)},${T+h} Z`;
+  const lab=[0,Math.floor((n-1)/2),n-1].map((i,j)=>`<text x="${x(i)}" y="${H-5}" text-anchor="${['start','middle','end'][j]}" font-size="11" fill="var(--rosa)" font-weight="700">${fecha(fechaISO(serie[i].fecha))}</text>`).join('');
+  return `<svg viewBox="0 0 ${CW} ${H}" role="img" aria-label="Ventas por día">
+    ${[0,.5,1].map(t=>`<line x1="${L}" x2="${CW-R}" y1="${T+h*t}" y2="${T+h*t}" stroke="var(--vino3)" stroke-width="1"/>`).join('')}
+    <text x="${L}" y="${T-8}" font-size="11" fill="var(--rosa)" font-weight="700">${soles(max).replace('.00','')}</text>
+    <path d="${area}" fill="var(--amarillo)" opacity=".14"/>
+    <path d="M${pts('ventas_prev')}" fill="none" stroke="var(--rosa)" stroke-width="2" stroke-dasharray="4 4" stroke-linejoin="round"/>
+    <path d="M${pts('ventas')}" fill="none" stroke="var(--amarillo)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <line id="cx" x1="0" x2="0" y1="${T}" y2="${T+h}" stroke="var(--crema)" stroke-width="1" opacity="0"/>
+    <circle id="cd" r="5" cx="0" cy="0" fill="var(--amarillo)" stroke="var(--vino2)" stroke-width="2" opacity="0"/>
+    ${lab}
+    <rect id="hit" x="0" y="0" width="${CW}" height="${H}" fill="transparent"/>
+  </svg>`;
+}
+function hoverLinea(serie){
+  const svg=$('#ch_l svg'); if(!svg) return; const n=serie.length, L=6, w=CW-12, T=22, h=170-44;
+  const max=Math.max(1,...serie.map(s=>Math.max(+s.ventas,+s.ventas_prev)));
+  const mover=ev=>{ const r=svg.getBoundingClientRect(); const px=(ev.clientX-r.left)*CW/r.width; const i=Math.max(0,Math.min(n-1,Math.round((px-L)/(n>1?w/(n-1):1)))); const s=serie[i]; const cx=L+(n>1?i*w/(n-1):w/2), cy=T+(1-(+s.ventas)/max)*h;
+    $('#cx').setAttribute('x1',cx); $('#cx').setAttribute('x2',cx); $('#cx').setAttribute('opacity','.5'); const c=$('#cd'); c.setAttribute('cx',cx); c.setAttribute('cy',cy); c.setAttribute('opacity','1');
+    $('#tip_l').textContent=`${fechaISO(s.fecha).toLocaleDateString('es-PE',{weekday:'short',day:'2-digit',month:'short'})} · ${soles(s.ventas)} (${s.compras} compra${s.compras==1?'':'s'}) · antes ${soles(s.ventas_prev)}`; };
+  svg.addEventListener('pointermove',mover); svg.addEventListener('pointerdown',mover);
+}
+function graficoBarras(items){
+  const H=140, T=8, B=20, n=items.length, gap=n>12?2:6, bw=(CW-gap*(n-1))/n, h=H-T-B;
+  const max=Math.max(1,...items.map(i=>i.v));
+  return `<svg viewBox="0 0 ${CW} ${H}" role="img">
+    <line x1="0" x2="${CW}" y1="${T+h}" y2="${T+h}" stroke="var(--vino3)" stroke-width="1"/>
+    ${items.map((it,i)=>{ const x=i*(bw+gap), bh=it.v?Math.max(3,it.v/max*h):0, y=T+h-bh, r=Math.min(4,bw/2,bh); const top=it.v===max&&it.v>0;
+      return `<g data-t="${esc(it.t)}">${bh?`<path d="M${x},${T+h} V${y+r} Q${x},${y} ${x+r},${y} H${x+bw-r} Q${x+bw},${y} ${x+bw},${y+r} V${T+h} Z" fill="${top?'var(--amarillo)':'var(--borde)'}"/>`:''}
+        ${it.l?`<text x="${x+bw/2}" y="${H-5}" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--rosa)">${it.l}</text>`:''}
+        <rect x="${x-gap/2}" y="0" width="${bw+gap}" height="${H}" fill="transparent"/></g>`; }).join('')}
+  </svg>`;
+}
+function hoverBarras(id, tipId){ const svg=$('#'+id+' svg'); if(!svg) return; svg.querySelectorAll('g[data-t]').forEach(g=>{ const f=()=>{ $('#'+tipId).textContent=g.dataset.t; svg.querySelectorAll('g path').forEach(p=>p.style.opacity=''); svg.querySelectorAll('g').forEach(o=>{ if(o!==g){ const p=o.querySelector('path'); if(p) p.style.opacity='.45'; } }); }; g.addEventListener('pointerenter',f); g.addEventListener('pointerdown',f); }); svg.addEventListener('pointerleave',()=>svg.querySelectorAll('g path').forEach(p=>p.style.opacity='')); }
+
+// ----- Panel del encargado -----
+function vPanel(){
+  $('#titulo').textContent='Ajustes';
+  const n=panel.negocio;
+  if(!panel.es_admin){ $('#vista').innerHTML=`<div class="msg ok">Solo el encargado administra el negocio.</div><button class="btn danger" id="out" style="margin-top:12px">Cerrar sesión</button><p class="hint center" style="margin-top:14px">Sistema de fidelización por ${PIE}</p>`; $('#out').onclick=salir; return; }
+  $('#vista').innerHTML=`<div style="display:flex;flex-direction:column;gap:16px">
+    <div class="card outline"><div class="row" style="justify-content:space-between;gap:12px"><div class="grow"><h3>QR para tus clientes</h3><p class="hint" style="color:var(--crema);margin-top:4px">Imprímelo y ponlo en el mostrador: el cliente se registra solo y guarda su tarjeta en el Wallet.</p></div><button class="btn sm" id="qrmat">Ver QR</button></div></div>
+    <div class="card" style="gap:10px"><div class="row" style="justify-content:space-between"><h3>Personal</h3><button class="btn sm ghost" id="addp">Agregar</button></div>
+      <p class="hint" style="color:var(--crema)">Cada persona entra desde su celular con su propio usuario. Empleados y Caja usan un PIN de 4 números; los dueños, una contraseña.</p>
+      <div id="pcred"></div>
+      <div class="list" id="pl">${panel.personal.map(itemPersona).join('')}</div>
+      <form id="fp" class="hidden" style="display:flex;flex-direction:column;gap:10px"><input type="hidden" id="p_id">
+        <div class="field"><label for="pn">Nombre</label><input id="pn" required maxlength="40" placeholder="Pepito Pérez"></div>
+        <div class="row"><div class="field grow"><label for="pr">Rol</label><select id="pr"><option value="mesero">Empleado</option><option value="caja">Caja</option><option value="dueno">Dueño</option></select></div>
+          <div class="field grow"><label for="pu">Usuario</label><input id="pu" required autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="pepito.chacombo"></div></div>
+        <div class="field"><label for="pp" id="ppl">PIN (4 números)</label><input id="pp" type="text" autocomplete="off" inputmode="numeric" maxlength="4" placeholder="4821"></div>
+        <p class="hint" id="pph" style="color:var(--crema)">Empleado: Registrar, Canjear y QR. Caja: además el cuadre del día. Dueño: todo.</p>
+        <div id="mp" class="msg err hidden"></div>
+        <div class="row"><button class="btn sm" type="submit">Guardar</button><button class="btn sm danger" type="button" id="pcan">Cancelar</button></div></form>
+    </div>
+    <div class="card"><h3>Clientes</h3><input id="cq" placeholder="Buscar por nombre o celular"><div class="list" id="cl"></div></div>
+    <div class="card"><h3>Configuración</h3>
+      <form id="fc" style="display:flex;flex-direction:column;gap:10px">
+        <div class="field"><label>Nombre</label><input id="c_nombre" value="${esc(n.nombre)}"></div>
+        <div class="field"><label>Premio</label><input id="c_premio" value="${esc(n.premio)}"></div>
+        <div class="row"><div class="field grow"><label>Monto mínimo (S/)</label><input id="c_min" type="number" step="0.5" value="${n.monto_minimo}"></div><div class="field grow"><label>Meta de sellos</label><input id="c_meta" type="number" min="2" max="20" value="${n.meta_sellos}"></div><div class="field grow"><label>Plazo para reclamar el premio (días)</label><input id="c_vig" type="number" min="1" value="${n.premio_vigencia_dias}"></div></div>
+        <div class="row"><div class="field grow"><label>Día de descanso</label><select id="c_desc">${['Ninguno','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'].map((d,i)=>`<option value="${i}"${((n.dias_cerrado||[])[0]||0)===i?' selected':''}>${d}</option>`).join('')}</select></div><div class="field grow"><label>Sellos se reinician tras (días sin venir)</label><input id="c_inac" type="number" min="15" max="365" value="${n.dias_inactividad||40}"></div></div>
+        <span class="hint" style="display:block;margin-top:-4px">El día de descanso no cuenta en el plazo del premio. Antes de reiniciar los sellos, el cliente recibe un aviso 10 días antes.${n.visita_gratis?' En tu negocio, la visita que completa la tarjeta es gratis.':''}</span>
+        <div class="row"><div class="field grow"><label>WhatsApp</label><input id="c_wa" value="${esc(n.whatsapp||'')}"></div><div class="field grow"><label>Dirección</label><input id="c_dir" value="${esc(n.direccion||'')}"></div></div>
+        <div class="field"><label>Link de reseñas de Google</label><input id="c_res" inputmode="url" autocapitalize="off" placeholder="https://g.page/r/…/review" value="${esc(n.resena_url||'')}"><span class="hint" style="margin-top:6px;display:block">Al entregar un premio podrás invitar al cliente a dejar su reseña. No ofrezcas regalos a cambio de reseñas: Google lo prohíbe.</span></div>
+        <div class="field"><label>Logo</label><div class="logobox"><div class="pv" id="c_pv">${n.logo_url?`<img src="${esc(n.logo_url)}" alt="">`:ini(n.nombre)}</div><div class="grow"><div class="t" style="font-weight:700;font-size:14px" id="c_lt">${n.logo_url?'Logo actual':'Sin logo'}</div><div class="hint" style="color:var(--crema)">Sale en la tarjeta del cliente y en el Wallet.</div></div><label class="btn sm ghost" for="c_logo" style="height:38px;width:auto;padding:0 14px;margin:0;color:var(--amarillo);cursor:pointer">${n.logo_url?'Cambiar':'Subir'}</label></div><input id="c_logo" type="file" accept="image/png,image/jpeg,image/webp" hidden></div>
+        <div id="mc" class="msg hidden"></div><button class="btn sm" type="submit">Guardar cambios</button></form></div>
+    ${panel.es_superadmin?'<button class="btn ghost" id="maestro">Panel maestro YA! VOLVERÁS...</button>':`<form id="fcl" class="card" style="gap:10px"><h3>Cambiar contraseña</h3><div class="row"><input id="cl_pw" type="password" autocomplete="new-password" minlength="6" required placeholder="Nueva contraseña" class="grow"><button class="btn sm" type="submit">Guardar</button></div><div id="cl_m" class="msg hidden"></div></form>`}
+    <button class="btn danger" id="out">Cerrar sesión</button>
+    <p class="hint center" style="opacity:.8">Sistema de fidelización por ${PIE}</p>
+  </div>`;
+  if($('#fcl')) $('#fcl').onsubmit=async ev=>{ ev.preventDefault(); const m=$('#cl_m'); const {error}=await sb.auth.updateUser({password:$('#cl_pw').value}); m.className='msg '+(error?'err':'ok'); m.textContent=error?traduceAuth(error.message):'Contraseña cambiada. Úsala la próxima vez que entres.'; if(!error) $('#cl_pw').value=''; };
+  if($('#maestro')) $('#maestro').onclick=async()=>{ try{ await rpc('admin_salir_negocio'); }catch{} vistaForzada='maestro'; await cargarPanel(); };
+  $('#qrmat').onclick=()=>materialQR(n.slug);
+  $('#c_logo').onchange=()=>{ const f=$('#c_logo').files[0]; if(!f) return; const u=URL.createObjectURL(f); $('#c_pv').innerHTML=`<img src="${u}" alt="">`; $('#c_lt').textContent='Logo nuevo (toca Guardar cambios)'; };
+  enlazarPersonal();
+  let t; $('#cq').oninput=()=>{clearTimeout(t);t=setTimeout(async()=>{ const l=await rpc('buscar_clientes',{p_q:$('#cq').value}); $('#cl').innerHTML=l.map(c=>{const link=`${BASE_URL}?t=${c.token}`; return `<div class="item"><div class="avatar">${ini(c.nombre)}</div><div class="grow"><div class="t">${esc(c.nombre)}</div><div class="s">${c.celular}</div></div><a class="btn sm ghost" style="text-decoration:none;height:36px;padding:0 10px" href="https://wa.me/51${c.celular}?text=${encodeURIComponent(msgTarjeta(c.nombre, n.nombre, link))}" target="_blank" rel="noopener"><span style="width:18px;height:18px">${icon.wa}</span></a></div>`}).join('')||'<p class="hint">Sin resultados.</p>'; },300)};
+  $('#fc').onsubmit=async ev=>{ev.preventDefault(); const m=$('#mc'); m.className='msg hidden'; try{ let logo=null; const f=$('#c_logo').files[0]; if(f){ if(f.size>3*1024*1024) throw new Error('El logo pesa más de 3 MB; usa una imagen más liviana.'); logo=await logoPNG(f); }
+    await rpc('actualizar_negocio',{p_nombre:$('#c_nombre').value,p_premio:$('#c_premio').value,p_monto_minimo:parseFloat($('#c_min').value),p_meta:parseInt($('#c_meta').value),p_vigencia:parseInt($('#c_vig').value),p_whatsapp:$('#c_wa').value,p_direccion:$('#c_dir').value,p_logo_url:logo,p_color_primario:n.color_primario||null,p_color_acento:n.color_acento||null});
+    await rpc('guardar_resena_url',{p_url:$('#c_res').value});
+    await rpc('guardar_reglas',{p_dias_cerrado:+$('#c_desc').value?[+$('#c_desc').value]:[], p_dias_inactividad:parseInt($('#c_inac').value)||40});
+    await cargarPanel(); }catch(e){ m.className='msg err'; m.textContent=e.message; }};
+  $('#out').onclick=salir;
+}
+
+// ----- Personal (Ajustes del dueño) -----
+let credPendiente=null;
+const slugTxt = t => String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/^(el|la|los|las)\s+/,'').replace(/[^a-z0-9]+/g,'');
+function itemPersona(p){
+  const chips=[p.es_yo?'<span class="chip y">Tú</span>':'', p.bloqueado?'<span class="chip" style="background:#7A1F17;color:#FFD0CA">Bloqueado</span>':'', p.activo?'':'<span class="chip">Inactivo</span>'].join('');
+  const bt=(attr,txt,cls='danger')=>`<button class="btn sm ${cls}" ${attr} style="height:34px;width:auto;padding:0 10px;font-size:12.5px">${txt}</button>`;
+  return `<div class="item" style="flex-wrap:wrap;gap:10px"><div class="avatar" style="${p.activo?'':'opacity:.4'}">${ini(p.nombre)}</div><div class="grow" style="min-width:140px"><div class="t">${esc(p.nombre)} ${chips}</div><div class="s">${ROL[p.rol]||p.rol} · ${p.usuario?esc(p.usuario):'sin usuario'}</div></div>
+    <div class="row" style="gap:6px">${bt(`data-edit="${p.id}"`,'Editar','ghost')}${p.bloqueado?bt(`data-desb="${p.id}"`,'Desbloquear','ghost'):''}${p.es_yo?'':bt(`data-tog="${p.id}" data-act="${p.activo}"`,p.activo?'Desactivar':'Activar')}</div></div>`;
+}
+function enlazarPersonal(){
+  const f=$('#fp'), pr=$('#pr'), pp=$('#pp'), pu=$('#pu'), pn=$('#pn'); let usrTocado=false, editando=null;
+  const sufijo = slugTxt((panel.personal.find(p=>p.rol==='dueno'&&p.usuario&&!p.usuario.includes('.'))||{}).usuario || panel.negocio.nombre);
+  const modoCred=()=>{ const d=pr.value==='dueno'; $('#ppl').textContent= d?'Contraseña (mínimo 6)':'PIN (4 números)'; pp.inputMode=d?'text':'numeric'; pp.maxLength=d?64:4;
+    const cambia = editando && ((editando.rol==='dueno')!==d); pp.placeholder = editando && !cambia ? 'Déjalo vacío para no cambiarlo' : (d?'Mínimo 6 caracteres':'4821'); };
+  const abrir=(p)=>{ editando=p||null; f.reset(); $('#p_id').value=p?p.id:''; usrTocado=!!p; $('#mp').classList.add('hidden');
+    if(p){ pn.value=p.nombre; pr.value=p.rol; pu.value=p.usuario||''; } modoCred(); f.classList.remove('hidden'); pn.focus(); };
+  $('#addp').onclick=()=>abrir(null); $('#pcan').onclick=()=>{ f.classList.add('hidden'); };
+  pn.oninput=()=>{ if(!usrTocado) pu.value = (slugTxt(pn.value.split(' ')[0])||'') + (sufijo?'.'+sufijo:''); };
+  pu.oninput=()=>{ usrTocado=true; }; pr.onchange=modoCred;
+  f.onsubmit=async ev=>{ ev.preventDefault(); const m=$('#mp'); m.classList.add('hidden'); const b=f.querySelector('button[type=submit]'); b.disabled=true;
+    const sec=pp.value.trim()||null, rol=pr.value, usuario=pu.value.trim().toLowerCase(), nombre=pn.value.trim();
+    try{ await rpc('guardar_personal',{p_nombre:nombre, p_rol:rol, p_usuario:usuario, p_secreto:sec, p_id:$('#p_id').value||null});
+      if(sec) credPendiente={nombre, usuario, sec, rol};
+      await cargarPanel();
+    }catch(e){ m.textContent=e.message; m.classList.remove('hidden'); b.disabled=false; } };
+  $('#pl').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>abrir(panel.personal.find(p=>p.id===b.dataset.edit)));
+  $('#pl').querySelectorAll('[data-desb]').forEach(b=>b.onclick=async()=>{ try{ await rpc('desbloquear_personal',{p_id:b.dataset.desb}); alertMsg('Usuario desbloqueado.'); await cargarPanel(); }catch(e){ alertMsg(e.message); } });
+  $('#pl').querySelectorAll('[data-tog]').forEach(b=>{ const fn=async()=>{ try{ await rpc('desactivar_personal',{p_id:b.dataset.tog,p_activo:b.dataset.act!=='true'}); await cargarPanel(); }catch(e){ alertMsg(e.message);} }; if(b.dataset.act==='true') dobleToque(b, fn); else b.onclick=fn; });
+  if(credPendiente){ const c=credPendiente; credPendiente=null; const esD=c.rol==='dueno';
+    const txt=`Tu acceso a ${panel.negocio.nombre} (YA! VOLVERÁS...)\n\nEntra a ${BASE_URL}\nUsuario: ${c.usuario}\n${esD?'Contraseña':'PIN'}: ${c.sec}\n\n${esD?'Guarda estos datos.':'Al llegar, entra con tu usuario y PIN para empezar tu turno, y al irte toca «Terminar turno». No compartas tu PIN.'}`;
+    $('#pcred').innerHTML=`<div class="msg ok" style="display:flex;flex-direction:column;gap:8px"><b>Acceso de ${esc(c.nombre)}</b><span>Usuario: <b>${esc(c.usuario)}</b> · ${esD?'Contraseña':'PIN'}: <b>${esc(c.sec)}</b></span>
+      <div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn sm ghost" type="button" id="cpc" style="height:36px;width:auto;padding:0 12px">Copiar datos</button><a class="btn sm" style="height:36px;width:auto;padding:0 12px;text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(txt)}">Enviar por WhatsApp</a></div></div>`;
+    $('#cpc').onclick=async()=>{ try{ await navigator.clipboard.writeText(txt); $('#cpc').textContent='Copiado'; }catch{ $('#cpc').textContent='Cópialo a mano'; } };
+  }
+}
+// Logo: se guarda siempre como PNG (Apple Wallet solo acepta PNG) y se achica hasta pesar menos de 200 KB.
+async function logoPNG(f){
+  const url=URL.createObjectURL(f);
+  try{
+    const img=await new Promise((ok,ko)=>{const i=new Image(); i.onload=()=>ok(i); i.onerror=()=>ko(new Error('No se pudo leer la imagen del logo.')); i.src=url;});
+    for(const lado of [600,480,360,260]){
+      const k=Math.min(1, lado/Math.max(img.naturalWidth,img.naturalHeight));
+      const c=document.createElement('canvas'); c.width=Math.max(1,Math.round(img.naturalWidth*k)); c.height=Math.max(1,Math.round(img.naturalHeight*k));
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      const d=c.toDataURL('image/png'); if(d.length*0.75 < 200*1024) return d;
+    }
+    throw new Error('El logo es muy pesado incluso achicado; usa una imagen más simple.');
+  } finally { URL.revokeObjectURL(url); }
+}
+// Cerrar sesión a prueba de fallos: intenta avisar al servidor, pero igual borra la sesión del equipo y recarga.
+async function salir(){
+  try{ await Promise.race([sb.auth.signOut({scope:'local'}), new Promise(r=>setTimeout(r,3000))]); }catch{}
+  try{ Object.keys(localStorage).filter(k=>k.startsWith('sb-')).forEach(k=>localStorage.removeItem(k)); }catch{}
+  location.replace(BASE_URL);
+}
+// Aviso flotante único: si ya hay uno, se reemplaza (nunca se apilan) y se oculta solo a los 4 s.
+let _avisoT;
+function alertMsg(t){
+  let el=document.getElementById('aviso');
+  if(!el){ el=document.createElement('div'); el.id='aviso'; el.className='msg err aviso'; el.setAttribute('role','alert'); el.onclick=()=>el.classList.remove('ver'); document.body.appendChild(el); }
+  el.textContent=t; el.classList.add('ver');
+  clearTimeout(_avisoT); _avisoT=setTimeout(()=>el.classList.remove('ver'),4000);
+}
+
+// ----- Escáner QR (usa la cámara si el navegador lo permite) -----
+async function escanear(onResult){
+  if(!('BarcodeDetector' in window) || !navigator.mediaDevices){ alertMsg('Este navegador no permite escanear; escribe el celular del cliente.'); return; }
+  const ov=document.createElement('div'); ov.style.cssText='position:fixed;inset:0;background:#000;z-index:50;display:flex;flex-direction:column';
+  ov.innerHTML='<video autoplay playsinline style="flex:1;width:100%;object-fit:cover"></video><button class="btn" style="border-radius:0">Cancelar</button>';
+  document.body.appendChild(ov); const video=ov.querySelector('video'); let stream, stop=false;
+  const cerrar=()=>{ stop=true; if(stream) stream.getTracks().forEach(t=>t.stop()); ov.remove(); }; ov.querySelector('button').onclick=cerrar;
+  try{ stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}); video.srcObject=stream; const det=new BarcodeDetector({formats:['qr_code']});
+    const loop=async()=>{ if(stop) return; try{ const codes=await det.detect(video); if(codes.length){ cerrar(); onResult(codes[0].rawValue); return; } }catch{} requestAnimationFrame(loop); }; video.onloadedmetadata=()=>loop();
+  }catch(e){ cerrar(); alertMsg('No se pudo abrir la cámara. Escribe el celular del cliente.'); }
+}
+</script>
+</body>
+</html>

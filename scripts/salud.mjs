@@ -7,8 +7,15 @@ try {
   const r = await fetch(SITE, { redirect: 'follow' });
   const html = await r.text();
   if (r.status !== 200) fallos.push(`Sitio respondió ${r.status}`);
-  if (!html.includes('VOLVERÁS')) fallos.push('El sitio no muestra la app');
+  if (!html.includes('VOLVERÁS')) fallos.push('La portada no muestra la página');
+  if (!html.includes("location.replace('/app/'")) fallos.push('La portada no reenvía los QR y tarjetas al sistema');
 } catch (e) { fallos.push('Sitio no responde: ' + e.message); }
+try {
+  const r = await fetch(SITE + 'app/', { redirect: 'follow' });
+  const html = await r.text();
+  if (r.status !== 200) fallos.push(`El sistema (/app/) respondió ${r.status}`);
+  if (!html.includes('Ingresa a tu negocio')) fallos.push('El sistema (/app/) no muestra la app');
+} catch (e) { fallos.push('El sistema (/app/) no responde: ' + e.message); }
 try {
   const r = await fetch(`${SB}/rest/v1/rpc/tarjeta_por_token`, { method: 'POST', headers: { apikey: KEY, Authorization: `Bearer ${KEY}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_token: 'chequeo-salud' }) });
   const txt = await r.text();
